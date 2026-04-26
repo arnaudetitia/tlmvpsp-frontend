@@ -1,0 +1,11 @@
+export enum EtatPartieKeys {
+  SCORES_JOUEURS = 'scoresJoueurs',
+  QUESTION_EN_COURS = 'questionEnCours',
+  SUPER_CASH_ALREADY_PLAYED = 'superCashAlreadyPlayed',
+  ORDRE_JOUEURS_SUPER_CASH = 'ordreJoueursSuperCash',
+  INDEX_JOUEUR_SUPER_CASH = 'indexJoueurSuperCash',
+  ID_THEME_CHALLENGER = 'idThemeChallenger',
+  ID_THEME_CHAMPION = 'idThemeChampion',
+  INDEX_CURRENT_JOUEUR_DEFI = 'indexCurrentJoueurDefi',
+  RECAP_DEFI_CHALLENGER = 'recapDefiChallenger',
+}

@@ -1,0 +1,31 @@
+.defi-container {
+  background-image: url('../../../assets/backgrounds/background-defi.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  defi-joueur,
+  defi-challenger-verif,
+  .final-result {
+    flex: 1.5;
+    height: 50vh;
+  }
+
+  .final-result {
+    width: 90%;
+    margin-left: 5%;
+    font-size: 150px;
+    margin-top: 20vh;
+    margin-bottom: 20vh;
+  }
+
+  panneau-score-joueurs {
+    flex: 0.5;
+
+    margin-bottom: 2.5vh;
+  }
+}

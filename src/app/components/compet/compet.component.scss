@@ -1,0 +1,111 @@
+@import '../../../assets/palette.scss';
+@import '../../../assets/animations.scss';
+
+.compet-container {
+  background-image: url('../../../assets/backgrounds/background-compet.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-top: 5vh;
+
+  .question-compet-container {
+    flex: 1.5;
+    height: 50vh;
+  }
+
+  .theme {
+    width: 48%;
+    height: 10vh;
+    margin: 0 auto;
+    margin-bottom: 5vh;
+    background-color: $couleur-compet;
+  }
+
+  .question-container {
+    margin-left: 5%;
+    min-height: 15vh;
+    margin-bottom: 3vh;
+    width: 90%;
+
+    display: flex;
+    flex-direction: row;
+
+    .extrait-musical {
+      width: 10%;
+      margin-right: 5%;
+      background-color: $couleur-compet;
+      mat-icon {
+        scale: 4;
+      }
+
+      cursor: pointer;
+    }
+
+    .question {
+      width: 100%;
+      background-color: $couleur-compet;
+      font-size: 30px;
+
+      animation: insertion-furtive 1s;
+    }
+  }
+
+  .couple-reponse {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 2%;
+
+    champ-reponse {
+      width: 48%;
+    }
+  }
+
+  .reponse-cash-container {
+    display: flex;
+    flex-direction: row;
+
+    .reponse-cash {
+      margin: 0 auto;
+      width: 48%;
+    }
+  }
+
+  panneau-score-joueurs {
+    flex: 0.5;
+
+    margin-bottom: 2.5vh;
+  }
+
+  .bouton-to-defi {
+    flex: 0.5;
+    align-items: center;
+
+    a {
+      width: 80%;
+      margin-left: 10%;
+
+      font-size: 50px;
+
+      background-color: purple;
+      color: white;
+
+      mat-icon {
+        margin-left: 10px;
+
+        font-size: 60px;
+        width: 60px;
+        height: 60px;
+
+        vertical-align: middle;
+      }
+    }
+  }
+}

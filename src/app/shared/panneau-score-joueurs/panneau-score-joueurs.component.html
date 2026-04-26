@@ -1,0 +1,31 @@
+<div class="qualifs-scores-container">
+  <div class="champ scorboard">
+    <div
+      class="champ scoreboard-joueur"
+      *ngFor="let panneau of panneaux"
+      [ngClass]="{
+        'joueur-qualifie': panneau.statut === 'Qualifié',
+        'joueur-ballotage': panneau.statut === 'Ballotage',
+        'joueur-elimine': panneau.statut === 'Eliminé',
+        'joueur-challenger': panneau.statut === 'Challenger',
+        'joueur-champion': panneau.statut === 'Champion',
+        'joueur-selected': panneau.joueur === selectedJoueur,
+      }"
+      (click)="repecher(panneau)"
+    >
+      <div class="nom-joueur">{{ panneau.joueur }}</div>
+      <div
+        class="champ reponse-joueur"
+        *ngIf="panneau.reponseJoueur; else showScore"
+        [ngClass]="{
+          'bonne-reponse-given': showBonneReopnseGiven && panneau.bonneReponseGiven,
+        }"
+      >
+        {{ panneau.reponseJoueur }}
+      </div>
+      <ng-template #showScore>
+        <div class="score-joueur">{{ panneau.score }}</div>
+      </ng-template>
+    </div>
+  </div>
+</div>

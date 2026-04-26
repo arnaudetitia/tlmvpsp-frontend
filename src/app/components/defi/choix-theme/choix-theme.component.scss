@@ -1,0 +1,17 @@
+.couple-theme {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin-left: 5%;
+  margin-bottom: 2%;
+
+  champ-theme {
+    width: 45%;
+  }
+}
+
+.couple-theme:first-of-type {
+  padding-top: 35vh;
+}

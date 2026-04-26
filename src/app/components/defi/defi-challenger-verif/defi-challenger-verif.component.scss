@@ -1,0 +1,55 @@
+.defi-challenger-verif-container {
+  padding-top: 5vh;
+
+  .champ {
+    margin: 0 auto;
+  }
+
+  .theme {
+    width: 48%;
+    min-height: 12vh;
+    margin-bottom: 5vh;
+  }
+
+  .question {
+    width: 90%;
+    margin-left: 5%;
+    height: 15vh;
+    margin-bottom: 5vh;
+  }
+
+  .couple-reponse {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 2%;
+
+    champ-reponse {
+      width: 48%;
+    }
+  }
+
+  .cash-input-container {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    margin-left: 5%;
+    min-height: 10vh;
+  }
+
+  input {
+    margin: auto 0;
+  }
+
+  .reponse-cash-container {
+    display: flex;
+    flex-direction: row;
+
+    .reponse-cash {
+      margin: 0 auto;
+      width: 48%;
+    }
+  }
+}

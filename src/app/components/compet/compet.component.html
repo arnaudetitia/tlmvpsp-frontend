@@ -1,0 +1,66 @@
+<div class="compet-container" *ngIf="compet$ | async">
+  <div class="champ theme">{{ theme }}</div>
+
+  <div class="question-compet-container">
+    <choix-super-cash
+      *ngIf="showSuperCash"
+      [selectedQuestion]="selectedQuestion"
+      [alreadyPlayed]="alreadyPlayed"
+      (onQuestionSelected)="preparerSelectedQuestion($event)"
+    ></choix-super-cash>
+
+    <div class="question-container">
+      <div class="champ extrait-musical" *ngIf="extraitMusique" (click)="playExtrait()">
+        <mat-icon>music_note</mat-icon>
+      </div>
+      <div class="champ question" *ngIf="showQuestion">{{ question?.question }}</div>
+    </div>
+
+    <div class="couple-reponse" *ngIf="showReponses && question?.mode !== 'Cash'">
+      <champ-reponse
+        *ngFor="let i of [0, 1]"
+        [typeChamp]="TypeChamp.COMPET"
+        [reponse]="reponsesDisplay[i]"
+        [bonneReponseShown]="bonneReponseShown"
+        [isBonneReponse]="question?.bonne_reponse === reponsesDisplay[i]"
+        [isProposition]="true"
+      ></champ-reponse>
+    </div>
+
+    <div class="couple-reponse" *ngIf="showReponses && question?.mode === 'Carré'">
+      <champ-reponse
+        *ngFor="let i of [2, 3]"
+        [typeChamp]="TypeChamp.COMPET"
+        [reponse]="reponsesDisplay[i]"
+        [bonneReponseShown]="bonneReponseShown"
+        [isBonneReponse]="question?.bonne_reponse === reponsesDisplay[i]"
+        [isProposition]="true"
+      ></champ-reponse>
+    </div>
+
+    <div class="reponse-cash-container" *ngIf="question">
+      <champ-reponse
+        class="reponse-cash"
+        *ngIf="question.mode === 'Cash' && bonneReponseShown"
+        [reponse]="question.bonne_reponse"
+        [bonneReponseShown]="bonneReponseShown"
+        [isBonneReponse]="true"
+      ></champ-reponse>
+    </div>
+  </div>
+
+  <panneau-score-joueurs
+    [panneaux]="scoresCompet"
+    [bonneReponse]="question?.bonne_reponse"
+    [showBonneReopnseGiven]="bonneReponseShown"
+    [selectedJoueur]="selectedJoueurSuperCash"
+    [nbJoueurAQualifier]="1"
+    [aliases]="questionAliases"
+    (onBonneReponseGiven)="enregistrerJoueurAvecBonneReponse($event)"
+    (onAllJoueursQualifies)="setChallenger($event)"
+  ></panneau-score-joueurs>
+
+  <div class="bouton-to-defi" *ngIf="competTermmine">
+    <a class="btn btn-defi" routerLink="/defi">Le défi<mat-icon>arrow_forward</mat-icon></a>
+  </div>
+</div>

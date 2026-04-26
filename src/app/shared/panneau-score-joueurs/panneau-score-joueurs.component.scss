@@ -1,0 +1,66 @@
+@import '../../../assets/palette.scss';
+
+.qualifs-scores-container {
+  width: 90%;
+  margin-left: 5%;
+
+  .scorboard {
+    display: flex;
+    flex-direction: row;
+    gap: 5vh;
+
+    background-color: blueviolet;
+    padding: 5vh;
+
+    .scoreboard-joueur {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1vh;
+      padding-bottom: 1vh;
+
+      background-color: cornflowerblue;
+
+      .nom-joueur {
+        text-transform: uppercase;
+      }
+
+      .score-joueur {
+        width: 25%;
+        background-color: blueviolet;
+        border: 2px solid black;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .reponse-joueur {
+        width: 80%;
+        border-width: 10px;
+        background-color: $couleur-compet;
+      }
+    }
+
+    .joueur-selected {
+      border-color: yellow;
+    }
+
+    .joueur-qualifie,
+    .bonne-reponse-given {
+      background-color: #00a933 !important;
+    }
+
+    .joueur-ballotage,
+    .joueur-challenger {
+      background-color: orange;
+    }
+
+    .joueur-elimine {
+      background-color: red;
+    }
+
+    .joueur-champion {
+      background-color: purple;
+    }
+  }
+}

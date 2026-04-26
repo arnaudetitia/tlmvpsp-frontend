@@ -1,0 +1,18 @@
+.theme {
+  background-color: #3465a4;
+  height: 100%;
+  min-height: 12vh;
+}
+
+.theme:hover {
+  cursor: pointer;
+  border-color: blue;
+}
+
+.theme-challenger {
+  background-color: orange;
+}
+
+.theme-champion {
+  background-color: purple;
+}

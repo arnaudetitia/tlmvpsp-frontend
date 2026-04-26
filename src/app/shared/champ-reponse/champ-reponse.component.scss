@@ -1,0 +1,46 @@
+@import '../../../assets/palette.scss';
+
+.reponse {
+  height: 12vh;
+  font-size: 30px;
+}
+
+@keyframes apparaitreEtirement {
+  from {
+    transform: scaleX(0);
+    transform-origin: center;
+    opacity: 1;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: center;
+    opacity: 1;
+  }
+}
+
+.selected,
+.champion {
+  background-color: purple;
+}
+
+.selected.champion {
+  background-color: orange;
+}
+
+.bonne-reponse.bonne-reponse-show {
+  background-color: #00a933;
+}
+
+.selectionnable,
+.proposition {
+  animation: apparaitreEtirement 1s;
+}
+
+.selectionnable:hover {
+  cursor: pointer;
+  border-color: blue;
+}
+
+.compet {
+  background-color: #3465a4;
+}

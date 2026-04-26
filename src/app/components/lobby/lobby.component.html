@@ -1,0 +1,16 @@
+<div class="lobby-container">
+  <img src="assets/tlmmvpsp.png" />
+  <mat-grid-list cols="2" rowHeight="10vh" gutterSize="2vh">
+    <mat-grid-tile *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+      <input class="champ" [(ngModel)]="nomJoueurs[i]" (ngModelChange)="onJoueurValueChanged()"
+    /></mat-grid-tile>
+  </mat-grid-list>
+  <a
+    *ngIf="listeJoueurCompleted"
+    class="btn btn-primary btn-qualifs champ"
+    routerLink="/qualifs"
+    (click)="onGoToQualifs()"
+  >
+    Les qualifs
+  </a>
+</div>

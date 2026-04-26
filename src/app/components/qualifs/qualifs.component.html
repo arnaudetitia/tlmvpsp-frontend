@@ -1,0 +1,62 @@
+<div class="qualifs-container">
+  <div class="question-qualif-container">
+    <div class="question-container">
+      <div class="champ extrait-musical" *ngIf="extraitMusique" (click)="playExtrait()">
+        <mat-icon>music_note</mat-icon>
+      </div>
+      <div class="champ question" *ngIf="showQuestion">{{ currentQuestion?.question }}</div>
+    </div>
+
+    <choix-mode
+      *ngIf="modeQuestionSelected === null && showModeSelection"
+      (modeSelected)="onModeSelected($event)"
+    ></choix-mode>
+
+    <div *ngIf="modeQuestionSelected !== null" class="reponses-container">
+      <div class="couple-reponse" *ngIf="modeQuestionSelected !== modeQuestion.Cash">
+        <champ-reponse
+          *ngFor="let i of [0, 1]"
+          [reponse]="reponsesDisplay[i]"
+          [reponseAlreadySelected]="reponseAlreadySelected"
+          [bonneReponseShown]="bonneReponseShown"
+          [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
+          [isSelectionnable]="true"
+          (reponseSelected)="onReponseSelected($event)"
+        ></champ-reponse>
+      </div>
+
+      <div class="couple-reponse" *ngIf="modeQuestionSelected === modeQuestion.Carre">
+        <champ-reponse
+          *ngFor="let i of [2, 3]"
+          [reponse]="reponsesDisplay[i]"
+          [reponseAlreadySelected]="reponseAlreadySelected"
+          [bonneReponseShown]="bonneReponseShown"
+          [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
+          [isSelectionnable]="true"
+          (reponseSelected)="onReponseSelected($event)"
+        ></champ-reponse>
+      </div>
+
+      <div class="reponse-cash-container">
+        <champ-reponse
+          class="reponse-cash"
+          *ngIf="modeQuestionSelected === modeQuestion.Cash && bonneReponseShown"
+          [reponse]="bonneReponse"
+          [reponseAlreadySelected]="reponseAlreadySelected"
+          [bonneReponseShown]="bonneReponseShown"
+          [isBonneReponse]="true"
+          [isSelectionnable]="false"
+        ></champ-reponse>
+      </div>
+    </div>
+  </div>
+  <panneau-score-joueurs
+    [panneaux]="scoresQualifs"
+    [selectedJoueur]="scoresQualifs[indexJoueur].joueur"
+    (onAllJoueursQualifies)="qualifierJoueur($event)"
+  ></panneau-score-joueurs>
+
+  <div class="bouton-to-compet" *ngIf="showButtonToCompet">
+    <a class="btn btn-primary" routerLink="/compet">La compet<mat-icon>arrow_forward</mat-icon></a>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="defi-container">
+  <div *ngIf="showChoixTheme && (themesDefi$ | async) as themesDefi">
+    <choix-theme
+      [themesDefi]="themesDefi"
+      (onThemeChallengerSelected)="getDefiChallenger($event)"
+      (onThemeChampionSelected)="getDefiChampion($event)"
+    ></choix-theme>
+  </div>
+  <defi-joueur
+    *ngIf="showDefiChallenger"
+    [defi]="defiChallenger"
+    (onDefiTermine)="switchToDefiChampion()"
+    (onQuestionRepondue)="recordQuestion($event)"
+  ></defi-joueur>
+  <defi-joueur
+    *ngIf="showDefiChampion"
+    [defi]="defiChampion"
+    [isChampion]="true"
+    (onDefiTermine)="switchToDefiVerifChallenger()"
+    (onBonneReponseGiven)="augmenterScore($event, 'Champion')"
+  ></defi-joueur>
+  <defi-challenger-verif
+    *ngIf="showVerifChallenger"
+    [recap]="reponsesChallenger"
+    (onBonneReponseGiven)="augmenterScore($event, 'Challenger')"
+    (onVerifDefiTermine)="declarerChampion()"
+  ></defi-challenger-verif>
+  <div class="champ final-result" *ngIf="showResultatFinal">
+    {{ isNouveauChampion ? 'Nous avons un nouveau champion ! ' : 'Le champion reste champion !' }}
+  </div>
+  <panneau-score-joueurs
+    *ngIf="showDefiChallenger || showDefiChampion || showVerifChallenger || showResultatFinal"
+    [panneaux]="panneauxDefi"
+    [selectedJoueur]="currentJoueur"
+  ></panneau-score-joueurs>
+</div>

@@ -1,0 +1,27 @@
+@import '../../../assets/animations.scss';
+
+.choix-mode-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin-left: 5%;
+  margin-bottom: 2%;
+
+  .champ {
+    width: 30%;
+    height: 12vh;
+    font-size: 40px;
+    animation: insertion-furtive 1s;
+  }
+
+  .champ:hover {
+    cursor: pointer;
+    border-color: blue;
+  }
+
+  .champion {
+    background-color: purple;
+  }
+}

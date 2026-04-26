@@ -1,0 +1,42 @@
+<div class="defi-challenger-verif-container">
+  <div class="champ theme">{{ recap.theme }}</div>
+
+  <div class="champ question">
+    {{ currentQuestion.question }}
+  </div>
+
+  <div *ngIf="currentQuestion.propositions.length; else reponseCash" class="question-container">
+    <div class="couple-reponse">
+      <champ-reponse
+        *ngFor="let i of [0, 1]"
+        [reponse]="currentQuestion.propositions[i]"
+        [selected]="currentQuestion.propositions[i] === currentQuestion.reponseDonnee"
+        [bonneReponseShown]="showBonneReponse"
+        [reponseAlreadySelected]="true"
+        [isBonneReponse]="currentQuestion.bonneReponse === currentQuestion.propositions[i]"
+      ></champ-reponse>
+    </div>
+
+    <div class="couple-reponse" *ngIf="currentQuestion.propositions.length === 4">
+      <champ-reponse
+        *ngFor="let i of [2, 3]"
+        [reponse]="currentQuestion.propositions[i]"
+        [selected]="currentQuestion.propositions[i] === currentQuestion.reponseDonnee"
+        [bonneReponseShown]="showBonneReponse"
+        [reponseAlreadySelected]="true"
+        [isBonneReponse]="currentQuestion.bonneReponse === currentQuestion.propositions[i]"
+      ></champ-reponse>
+    </div>
+  </div>
+
+  <ng-template #reponseCash>
+    <div class="reponse-cash-container">
+      <champ-reponse
+        class="reponse-cash"
+        [reponse]="showBonneReponse ? currentQuestion.bonneReponse : currentQuestion.reponseDonnee"
+        [isBonneReponse]="showBonneReponse"
+        [bonneReponseShown]="showBonneReponse"
+      ></champ-reponse>
+    </div>
+  </ng-template>
+</div>

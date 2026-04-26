@@ -1,0 +1,29 @@
+@import '../../../../assets/palette.scss';
+
+.choix-super-cash-container {
+  display: flex;
+  direction: row;
+  justify-content: space-between;
+  width: 80%;
+  margin-left: 10%;
+  margin-bottom: 5vh;
+}
+
+.lien-super-cash {
+  background-color: $couleur-compet;
+  min-width: 10%;
+}
+
+.lien-super-cash:hover:not(.already-played) {
+  cursor: pointer;
+  border-color: orange;
+}
+
+.selected {
+  color: $couleur-compet !important;
+  background-color: white !important;
+}
+
+.already-played {
+  opacity: 50% !important;
+}
