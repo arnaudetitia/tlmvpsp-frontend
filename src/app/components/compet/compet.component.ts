@@ -202,13 +202,15 @@ export class CompetComponent implements OnInit {
   }
 
   preparerSelectedQuestion(idQuestion: number) {
-    this.indexQuestion = idQuestion;
-    this.inedxQuestionSuperCashChoisi = true;
-    this.selectedQuestion.set(this.indexQuestion, true);
-    this.question = this.questionList[idQuestion];
-    this.extraitMusique = this.question.musique
-      ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
-      : null;
+    if (!this.inedxQuestionSuperCashChoisi) {
+      this.indexQuestion = idQuestion;
+      this.inedxQuestionSuperCashChoisi = true;
+      this.selectedQuestion.set(this.indexQuestion, true);
+      this.question = this.questionList[idQuestion];
+      this.extraitMusique = this.question.musique
+        ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
+        : null;
+    }
   }
 
   stopChrono() {

@@ -95,7 +95,7 @@ export class PartieStore {
     this.alreadyPlayedQuestionsMapSource.next(this.alreadyPlayedQuestionsMap);
     localStorage.setItem(
       EtatPartieKeys.SUPER_CASH_ALREADY_PLAYED,
-      JSON.stringify(this.alreadyPlayedQuestionsMap),
+      JSON.stringify(Array.from(this.alreadyPlayedQuestionsMap)),
     );
   }
 
@@ -105,7 +105,7 @@ export class PartieStore {
         EtatPartieKeys.SUPER_CASH_ALREADY_PLAYED,
       );
       if (savedalreadyPlayedQuestionsMap) {
-        this.alreadyPlayedQuestionsMap = JSON.parse(savedalreadyPlayedQuestionsMap);
+        this.alreadyPlayedQuestionsMap = new Map(JSON.parse(savedalreadyPlayedQuestionsMap));
       } else {
         this.alreadyPlayedQuestionsMap = this.initialAlreadyPlayedQuestionMap;
       }
