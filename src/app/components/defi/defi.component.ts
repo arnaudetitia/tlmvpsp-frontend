@@ -78,6 +78,7 @@ export class DefiComponent implements OnInit {
           this.scoresStore.setPanneauJoueurs(this.panneauxDefi);
           this.joueursDefi = [panneauChallenger[0].joueur, champion];
           this.indexCurrentJoueur = indexCurrentJoueurDefi;
+          this.currentJoueur = this.joueursDefi[this.indexCurrentJoueur];
         }),
       )
       .subscribe();
