@@ -44,6 +44,11 @@
       }
 
       cursor: pointer;
+
+      &.extrait-bloque {
+        background-color: gray;
+        cursor: not-allowed;
+      }
     }
 
     .question {

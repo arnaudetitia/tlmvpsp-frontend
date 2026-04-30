@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CompetService } from '../../services/compet.service';
 import { combineLatest, Observable, of, tap } from 'rxjs';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
@@ -42,6 +42,7 @@ export class CompetComponent implements OnInit {
   showQuestion: boolean = false;
   showReponses: boolean = false;
   extraitMusique: HTMLAudioElement | null = null;
+  extraitBloque = signal<boolean | null>(null);
 
   reponsesDisplay: string[] = [];
   isBonneReponseGiven: boolean = false;
@@ -49,7 +50,10 @@ export class CompetComponent implements OnInit {
   bonneReponse: string = '';
   questionAliases: string[] = [];
 
-  functionFreezeVote = () => this.competService.freezeVotes().subscribe();
+  functionFreezeVote = () => {
+    this.extraitBloque.set(false);
+    this.competService.freezeVotes().subscribe();
+  };
 
   TypeChamp = TypeChamp;
 
@@ -136,6 +140,7 @@ export class CompetComponent implements OnInit {
           this.extraitMusique = this.question.musique
             ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
             : null;
+          this.extraitBloque.set(this.question.jouee_apres_question);
           this.melangerReponses();
           this.competService
             .setQuestionToRemote(this.question.question, this.reponsesDisplay)
@@ -176,6 +181,7 @@ export class CompetComponent implements OnInit {
     this.extraitMusique = this.question.musique
       ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
       : null;
+    this.extraitBloque.set(this.question.jouee_apres_question);
     this.melangerReponses();
     this.competService
       .setQuestionToRemote(this.question.question, this.reponsesDisplay)
@@ -183,7 +189,7 @@ export class CompetComponent implements OnInit {
   }
 
   playExtrait() {
-    if (this.extraitMusique) {
+    if (this.extraitMusique && !this.extraitBloque) {
       this.extraitMusique.play();
     }
   }
@@ -210,10 +216,12 @@ export class CompetComponent implements OnInit {
       this.extraitMusique = this.question.musique
         ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
         : null;
+      this.extraitBloque.set(this.question.jouee_apres_question);
     }
   }
 
   stopChrono() {
+    this.extraitBloque.set(false);
     Jingles.sonChronoCompet.pause();
     Jingles.sonChronoCompet.currentTime = 0;
   }

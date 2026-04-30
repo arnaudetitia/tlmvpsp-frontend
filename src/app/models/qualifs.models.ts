@@ -3,4 +3,5 @@ export interface QuestionQualif {
   bonne_reponse: string;
   mauvaises_reponses: string[];
   musique: string;
+  jouee_apres_question: boolean;
 }

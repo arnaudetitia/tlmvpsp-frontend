@@ -16,5 +16,6 @@ export interface QuestionCompet {
   mauvaises_reponses: string[];
   ordre: number;
   musique: string;
+  jouee_apres_question: boolean;
   aliases: string[];
 }
