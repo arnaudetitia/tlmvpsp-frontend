@@ -67,8 +67,9 @@ export class DefiComponent implements OnInit {
     ])
       .pipe(
         tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
+          const panneauChall = panneauChallenger[0];
           this.panneauxDefi = [
-            { ...panneauChallenger[0], statut: StatutJoueur.CHALLENGER },
+            { joueur: panneauChall.joueur, score: 0, statut: StatutJoueur.CHALLENGER },
             {
               joueur: champion,
               score: 0,
@@ -187,6 +188,7 @@ export class DefiComponent implements OnInit {
       } else {
         this.isNouveauChampion = true;
         Jingles.sonNouveauChampion.play();
+        this.defiService.setNouveauChampion(this.joueursDefi[0]).subscribe();
       }
     }
     this.showVerifChallenger = false;

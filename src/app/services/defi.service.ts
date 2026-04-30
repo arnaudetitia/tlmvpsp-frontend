@@ -22,4 +22,10 @@ export class DefiService {
   getChampion(): Observable<string> {
     return this.httpClient.get<string>(environment.apiUrl + `/defi/champion`);
   }
+
+  setNouveauChampion(nomNouveauChampion: string) {
+    return this.httpClient.put(environment.apiUrl + '/defi/champion', {
+      newChampion: nomNouveauChampion,
+    });
+  }
 }
