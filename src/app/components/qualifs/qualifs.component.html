@@ -1,7 +1,14 @@
 <div class="qualifs-container">
   <div class="question-qualif-container">
     <div class="question-container">
-      <div class="champ extrait-musical" *ngIf="extraitMusique" (click)="playExtrait()">
+      <div
+        class="champ extrait-musical"
+        *ngIf="extraitMusique"
+        (click)="playExtrait()"
+        [ngClass]="{
+          'extrait-bloque': extraitBloque() === true,
+        }"
+      >
         <mat-icon>music_note</mat-icon>
       </div>
       <div class="champ question" *ngIf="showQuestion">{{ currentQuestion?.question }}</div>

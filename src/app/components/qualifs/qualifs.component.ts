@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Host, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Host, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QualifsService } from '../../services/qualifs.service';
 import { combineLatest, map, tap } from 'rxjs';
@@ -38,6 +38,7 @@ export class QualifsComponent implements OnInit {
   currentQuestion: QuestionQualif | null = null;
   reponsesDisplay: string[] = [];
   extraitMusique: HTMLAudioElement | null = null;
+  extraitBloque = signal<boolean | null>(null);
 
   showQuestion: boolean = false;
   showModeSelection: boolean = false;
@@ -90,6 +91,7 @@ export class QualifsComponent implements OnInit {
           this.extraitMusique = this.currentQuestion.musique
             ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
             : null;
+          this.extraitBloque.set(this.currentQuestion.jouee_apres_question);
           this.cdr.detectChanges();
         }),
       )
@@ -104,6 +106,7 @@ export class QualifsComponent implements OnInit {
 
   onReponseSelected(reponse: string) {
     this.reponseAlreadySelected = true;
+    this.extraitBloque.set(false);
     this.stopChrono();
     if (reponse === this.bonneReponse) {
       this.isBonneReponseGiven = true;
@@ -134,6 +137,7 @@ export class QualifsComponent implements OnInit {
     this.extraitMusique = this.currentQuestion.musique
       ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
       : null;
+    this.extraitBloque.set(this.currentQuestion.jouee_apres_question);
   }
 
   melangerReponses() {
@@ -206,7 +210,7 @@ export class QualifsComponent implements OnInit {
   }
 
   playExtrait() {
-    if (this.extraitMusique) {
+    if (this.extraitMusique && !this.extraitBloque) {
       this.extraitMusique.play();
     }
   }
@@ -238,6 +242,7 @@ export class QualifsComponent implements OnInit {
         if (this.modeQuestionSelected === ModeQuestion.Cash) {
           Jingles.selectionReponse.play();
           this.reponseAlreadySelected = true;
+          this.extraitBloque.set(false);
           this.stopChrono();
         }
         break;
