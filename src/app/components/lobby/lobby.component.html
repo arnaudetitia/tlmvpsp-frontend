@@ -1,12 +1,14 @@
 <div class="lobby-container">
   <img src="assets/tlmmvpsp.png" />
-  <mat-grid-list cols="2" rowHeight="10vh" gutterSize="2vh">
-    <mat-grid-tile *ngFor="let i of [0, 1, 2, 3, 4, 5]">
-      <input class="champ" [(ngModel)]="nomJoueurs[i]" (ngModelChange)="onJoueurValueChanged()"
-    /></mat-grid-tile>
-  </mat-grid-list>
+  <form [formGroup]="joueurListForm">
+    <mat-grid-list cols="2" rowHeight="10vh" gutterSize="4vh">
+      <mat-grid-tile *ngFor="let i of [1, 2, 3, 4, 5, 6]">
+        <input matInput class="champ joueur" formControlName="joueur{{ i }}" />
+      </mat-grid-tile>
+    </mat-grid-list>
+  </form>
   <a
-    *ngIf="listeJoueurCompleted"
+    *ngIf="joueurListForm.valid"
     class="btn btn-primary btn-qualifs champ"
     routerLink="/qualifs"
     (click)="onGoToQualifs()"
