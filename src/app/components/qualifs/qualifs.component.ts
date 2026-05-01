@@ -210,7 +210,7 @@ export class QualifsComponent implements OnInit {
   }
 
   playExtrait() {
-    if (this.extraitMusique && !this.extraitBloque) {
+    if (this.extraitMusique && this.extraitBloque() === false) {
       this.extraitMusique.play();
     }
   }
