@@ -16,6 +16,8 @@ import { RouterModule } from '@angular/router';
 import { CompetService } from '../../services/compet.service';
 import { ScoresStore } from '../../store/scores.store';
 import { PartieStore } from '../../store/partie.store';
+import { TriTypeEnum } from '../../models/tri.enum';
+import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
 
 @Component({
   selector: 'app-qualifs',
@@ -100,7 +102,11 @@ export class QualifsComponent implements OnInit {
 
   onModeSelected(mode: ModeQuestion) {
     this.modeQuestionSelected = mode;
-    this.melangerReponses();
+    this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
+      this.reponsesDisplay,
+      this.modeQuestionSelected,
+      this.currentQuestion?.tri,
+    );
     Jingles.sonChronoQualif.play();
   }
 
@@ -138,28 +144,6 @@ export class QualifsComponent implements OnInit {
       ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
       : null;
     this.extraitBloque.set(this.currentQuestion.jouee_apres_question);
-  }
-
-  melangerReponses() {
-    if (this.modeQuestionSelected === ModeQuestion.Duo) {
-      this.reponsesDisplay = [
-        this.currentQuestion!.bonne_reponse,
-        this.currentQuestion!.mauvaises_reponses[
-          Math.floor(Math.random() * this.currentQuestion!.mauvaises_reponses.length)
-        ],
-      ];
-      if (Math.random() < 0.5) {
-        this.reponsesDisplay.reverse();
-      }
-    } else {
-      for (let i = this.reponsesDisplay.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [this.reponsesDisplay[i], this.reponsesDisplay[j]] = [
-          this.reponsesDisplay[j],
-          this.reponsesDisplay[i],
-        ];
-      }
-    }
   }
 
   calculerQualification() {

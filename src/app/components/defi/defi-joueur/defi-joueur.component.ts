@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { RecapQuestion } from '../model/recap-defi-challenger.model';
 import { Jingles } from '../../../models/jingles.models';
 import { PartieStore } from '../../../store/partie.store';
+import { SortAndMixReponsesUtils } from '../../../utils/sort-and-mix-reponses.util';
 
 @Component({
   selector: 'defi-joueur',
@@ -61,7 +62,11 @@ export class DefiJoueurComponent implements OnInit {
 
   onModeSelected(mode: ModeQuestion) {
     this.modeQuestionSelected = mode;
-    this.melangerReponses();
+    this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
+      this.reponsesDisplay,
+      this.modeQuestionSelected,
+      this.currentQuestion?.tri,
+    );
     Jingles.sonChronoDefi.play();
   }
 
@@ -75,30 +80,6 @@ export class DefiJoueurComponent implements OnInit {
   stopChrono() {
     Jingles.sonChronoDefi.pause();
     Jingles.sonChronoDefi.currentTime = 0;
-  }
-
-  melangerReponses() {
-    if (this.modeQuestionSelected === ModeQuestion.Duo) {
-      this.reponsesDisplay = [
-        this.currentQuestion!.bonneReponse,
-        this.currentQuestion!.mauvaisesReponses[
-          Math.floor(Math.random() * this.currentQuestion!.mauvaisesReponses.length)
-        ],
-      ];
-      if (Math.random() < 0.5) {
-        this.reponsesDisplay.reverse();
-      }
-    } else if (this.modeQuestionSelected === ModeQuestion.Carre) {
-      for (let i = this.reponsesDisplay.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [this.reponsesDisplay[i], this.reponsesDisplay[j]] = [
-          this.reponsesDisplay[j],
-          this.reponsesDisplay[i],
-        ];
-      }
-    } else {
-      this.reponsesDisplay = [];
-    }
   }
 
   prepareNextQuestion() {
