@@ -53,7 +53,7 @@ export class QualifsComponent implements OnInit {
   bonneReponseShown: boolean = false;
   bonneReponse: string = '';
 
-  showButtonToCompet: boolean = false;
+  qualifsTerminees: boolean = false;
 
   scoresQualifs: PanneauJoueur[] = [];
 
@@ -183,6 +183,7 @@ export class QualifsComponent implements OnInit {
       this.qualifierJoueur(joueursQualifies);
       this.competService.setJoueursCompet(joueursQualifies).subscribe();
       this.scoresStore.initScores(joueursQualifies);
+      this.qualifsTerminees = true;
     }
   }
 
@@ -191,6 +192,7 @@ export class QualifsComponent implements OnInit {
     this.competService.setJoueursCompet(joueurs).subscribe();
     this.scoresStore.initScores(joueurs);
     this.partieStore.resetIndexCurrentQuestion();
+    this.qualifsTerminees = true;
   }
 
   playExtrait() {
@@ -252,7 +254,6 @@ export class QualifsComponent implements OnInit {
           if (this.questionIndex < this.questionsQualifs.length - 1) {
             this.prepareNextQuestion();
           } else {
-            this.showButtonToCompet = true;
             this.calculerQualification();
           }
         }
