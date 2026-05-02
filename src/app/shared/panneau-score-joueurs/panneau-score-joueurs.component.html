@@ -13,7 +13,16 @@
       }"
       (click)="repecher(panneau)"
     >
-      <div class="nom-joueur">{{ panneau.joueur }}</div>
+      <div class="nom-joueur" *ngIf="!modeRegie; else editJoueurName">{{ panneau.joueur }}</div>
+      <ng-template #editJoueurName>
+        <input
+          matInput
+          class="nom-joueur-input"
+          [(ngModel)]="panneau.joueur"
+          (focus)="onJoueurNameFocus()"
+          (blur)="onJoueurNameBlur()"
+        />
+      </ng-template>
       <div
         class="champ reponse-joueur"
         *ngIf="panneau.reponseJoueur; else showScore"
@@ -24,7 +33,15 @@
         {{ panneau.reponseJoueur }}
       </div>
       <ng-template #showScore>
-        <div class="score-joueur">{{ panneau.score }}</div>
+        <div class="score-joueur-layout">
+          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, -1)">
+            <mat-icon>do_not_disturb_on</mat-icon>
+          </button>
+          <div class="score-joueur">{{ panneau.score }}</div>
+          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, 1)">
+            <mat-icon>add_circle</mat-icon>
+          </button>
+        </div>
       </ng-template>
     </div>
   </div>

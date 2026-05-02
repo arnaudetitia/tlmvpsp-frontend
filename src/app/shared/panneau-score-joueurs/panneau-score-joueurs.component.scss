@@ -27,8 +27,17 @@
         text-transform: uppercase;
       }
 
+      .nom-joueur-input {
+        margin-left: 0;
+        text-transform: uppercase;
+        text-align: center;
+        max-width: 75%;
+        font-size: 0.9vw;
+      }
+
       .score-joueur {
-        width: 25%;
+        width: 100%;
+        padding: 0 0.75vw;
         background-color: blueviolet;
         border: 2px solid black;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -38,6 +47,12 @@
         width: 80%;
         border-width: 10px;
         background-color: $couleur-compet;
+      }
+
+      .score-joueur-layout {
+        display: flex;
+        flex-direction: row;
+        gap: 0.75vw;
       }
     }
 
