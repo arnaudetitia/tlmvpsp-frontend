@@ -63,7 +63,7 @@
     (onAllJoueursQualifies)="qualifierJoueur($event)"
   ></panneau-score-joueurs>
 
-  <div class="bouton-to-compet" *ngIf="showButtonToCompet">
+  <div class="bouton-to-compet" *ngIf="qualifsTerminees">
     <a class="btn btn-primary" routerLink="/compet">La compet<mat-icon>arrow_forward</mat-icon></a>
   </div>
 </div>
