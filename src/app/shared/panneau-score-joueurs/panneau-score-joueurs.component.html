@@ -13,7 +13,16 @@
       }"
       (click)="repecher(panneau)"
     >
-      <div class="nom-joueur">{{ panneau.joueur }}</div>
+      <div class="nom-joueur" *ngIf="!modeRegie; else editJoueurName">{{ panneau.joueur }}</div>
+      <ng-template #editJoueurName>
+        <input
+          matInput
+          class="nom-joueur-input"
+          [(ngModel)]="panneau.joueur"
+          (focus)="onJoueurNameFocus()"
+          (blur)="onJoueurNameBlur()"
+        />
+      </ng-template>
       <div
         class="champ reponse-joueur"
         *ngIf="panneau.reponseJoueur; else showScore"

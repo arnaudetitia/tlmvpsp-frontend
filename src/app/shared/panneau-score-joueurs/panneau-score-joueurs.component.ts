@@ -17,10 +17,12 @@ import { CodeTouches } from '../../models/code-touches.enum';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ScoresStore } from '../../store/scores.store';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'panneau-score-joueurs',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatInputModule, FormsModule],
   templateUrl: './panneau-score-joueurs.component.html',
   styleUrl: './panneau-score-joueurs.component.scss',
 })
@@ -42,6 +44,8 @@ export class PanneauScoreJoueursComponent implements OnInit {
   @Output() onBonneReponseGiven = new EventEmitter<string>();
 
   modeRegie: boolean = false;
+
+  isEditJoueurName: boolean = false;
 
   constructor(
     private socketService: SocketService,
@@ -94,6 +98,14 @@ export class PanneauScoreJoueursComponent implements OnInit {
     });
   }
 
+  onJoueurNameFocus() {
+    this.isEditJoueurName = true;
+  }
+
+  onJoueurNameBlur() {
+    this.isEditJoueurName = false;
+  }
+
   repecher(scoreJoueur: PanneauJoueur) {
     if (scoreJoueur.statut === StatutJoueur.BALLOTAGE) {
       this.panneaux = this.panneaux.map((s) => {
@@ -125,7 +137,7 @@ export class PanneauScoreJoueursComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent($event: KeyboardEvent) {
     const canChangeScore = this.panneaux.every((pan) => !pan.reponseJoueur);
-    if ($event.code === CodeTouches.buttonRCode && canChangeScore) {
+    if ($event.code === CodeTouches.buttonRCode && !this.isEditJoueurName && canChangeScore) {
       this.modeRegie = !this.modeRegie;
       if (!this.modeRegie) {
         this.scoresStores.setPanneauJoueurs(this.panneaux);
