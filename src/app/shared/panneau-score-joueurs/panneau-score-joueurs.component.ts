@@ -1,14 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { PanneauJoueur, StatutJoueur } from '../../models/score.model';
 import { JoueursStore } from '../../store/joueurs.store';
 import { tap } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { VerificationReponseUtils } from '../../utils/verification-reponses.util';
+import { CodeTouches } from '../../models/code-touches.enum';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ScoresStore } from '../../store/scores.store';
 
 @Component({
   selector: 'panneau-score-joueurs',
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './panneau-score-joueurs.component.html',
   styleUrl: './panneau-score-joueurs.component.scss',
 })
@@ -29,10 +41,13 @@ export class PanneauScoreJoueursComponent implements OnInit {
 
   @Output() onBonneReponseGiven = new EventEmitter<string>();
 
+  modeRegie: boolean = false;
+
   constructor(
     private socketService: SocketService,
     private cdr: ChangeDetectorRef,
     private joueursStore: JoueursStore,
+    private scoresStores: ScoresStore,
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +82,18 @@ export class PanneauScoreJoueursComponent implements OnInit {
     }
   }
 
+  changerScore(joueur: string, increment: number) {
+    this.panneaux = this.panneaux.map((pan) => {
+      if (pan.joueur === joueur) {
+        return {
+          ...pan,
+          score: pan.score + increment,
+        };
+      }
+      return pan;
+    });
+  }
+
   repecher(scoreJoueur: PanneauJoueur) {
     if (scoreJoueur.statut === StatutJoueur.BALLOTAGE) {
       this.panneaux = this.panneaux.map((s) => {
@@ -93,5 +120,18 @@ export class PanneauScoreJoueursComponent implements OnInit {
       });
       this.onAllJoueursQualifies.emit(joueursQualifies);
     }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent($event: KeyboardEvent) {
+    const canChangeScore = this.panneaux.every((pan) => !pan.reponseJoueur);
+    if ($event.code === CodeTouches.buttonRCode && canChangeScore) {
+      this.modeRegie = !this.modeRegie;
+      if (!this.modeRegie) {
+        this.scoresStores.setPanneauJoueurs(this.panneaux);
+      }
+    }
+
+    $event.stopPropagation();
   }
 }
