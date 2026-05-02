@@ -24,7 +24,15 @@
         {{ panneau.reponseJoueur }}
       </div>
       <ng-template #showScore>
-        <div class="score-joueur">{{ panneau.score }}</div>
+        <div class="score-joueur-layout">
+          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, -1)">
+            <mat-icon>do_not_disturb_on</mat-icon>
+          </button>
+          <div class="score-joueur">{{ panneau.score }}</div>
+          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, 1)">
+            <mat-icon>add_circle</mat-icon>
+          </button>
+        </div>
       </ng-template>
     </div>
   </div>
