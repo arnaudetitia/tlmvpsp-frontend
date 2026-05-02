@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { ScoresStore } from '../../store/scores.store';
 import { PartieStore } from '../../store/partie.store';
+import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
 
 @Component({
   selector: 'app-compet',
@@ -141,7 +142,11 @@ export class CompetComponent implements OnInit {
             ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
             : null;
           this.extraitBloque.set(this.question.jouee_apres_question);
-          this.melangerReponses();
+          this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
+            this.reponsesDisplay,
+            this.question.mode,
+            this.question.tri,
+          );
           this.competService
             .setQuestionToRemote(this.question.question, this.reponsesDisplay)
             .subscribe();
@@ -151,16 +156,6 @@ export class CompetComponent implements OnInit {
 
     Jingles.sonChronoCompet.onended = this.functionFreezeVote;
     Jingles.sonChronoCompetLong.onended = this.functionFreezeVote;
-  }
-
-  melangerReponses() {
-    for (let i = this.reponsesDisplay.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.reponsesDisplay[i], this.reponsesDisplay[j]] = [
-        this.reponsesDisplay[j],
-        this.reponsesDisplay[i],
-      ];
-    }
   }
 
   preparerProchaineQuestion() {
@@ -182,7 +177,11 @@ export class CompetComponent implements OnInit {
       ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
       : null;
     this.extraitBloque.set(this.question.jouee_apres_question);
-    this.melangerReponses();
+    this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
+      this.reponsesDisplay,
+      this.question.mode,
+      this.question.tri,
+    );
     this.competService
       .setQuestionToRemote(this.question.question, this.reponsesDisplay)
       .subscribe();
