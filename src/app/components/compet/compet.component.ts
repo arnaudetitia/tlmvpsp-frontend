@@ -114,10 +114,10 @@ export class CompetComponent implements OnInit {
         ]) => {
           this.indexQuestion = indexCurrentQuestion;
           this.compet = data;
-          this.theme = data.libelle_theme;
-          this.questionList = data.questions_compet.map((question) => {
+          this.theme = data.libelleTheme;
+          this.questionList = data.questionsCompet.map((question) => {
             let modeQuestion: ModeQuestion;
-            switch (question.mauvaises_reponses.length) {
+            switch (question.mauvaisesReponses.length) {
               case 1:
                 modeQuestion = ModeQuestion.Duo;
                 break;
@@ -137,11 +137,11 @@ export class CompetComponent implements OnInit {
           this.ordreJoueurSuperCash = ordreJoueursSuperCash;
           this.indexJoueurSuperCash = indexJoueurSuperCash;
           this.question = this.questionList[this.indexQuestion];
-          this.reponsesDisplay = [this.question.bonne_reponse, ...this.question.mauvaises_reponses];
+          this.reponsesDisplay = [this.question.bonneReponse, ...this.question.mauvaisesReponses];
           this.extraitMusique = this.question.musique
             ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
             : null;
-          this.extraitBloque.set(this.question.jouee_apres_question);
+          this.extraitBloque.set(this.question.joueeApresQuestion);
           this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
             this.reponsesDisplay,
             this.question.mode,
@@ -171,12 +171,12 @@ export class CompetComponent implements OnInit {
       return;
     }
     this.question = this.questionList[this.indexQuestion];
-    this.reponsesDisplay = [this.question.bonne_reponse, ...this.question.mauvaises_reponses];
+    this.reponsesDisplay = [this.question.bonneReponse, ...this.question.mauvaisesReponses];
     this.questionAliases = this.question.aliases;
     this.extraitMusique = this.question.musique
       ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
       : null;
-    this.extraitBloque.set(this.question.jouee_apres_question);
+    this.extraitBloque.set(this.question.joueeApresQuestion);
     this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
       this.reponsesDisplay,
       this.question.mode,
@@ -215,7 +215,7 @@ export class CompetComponent implements OnInit {
       this.extraitMusique = this.question.musique
         ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
         : null;
-      this.extraitBloque.set(this.question.jouee_apres_question);
+      this.extraitBloque.set(this.question.joueeApresQuestion);
     }
   }
 
