@@ -86,14 +86,14 @@ export class QualifsComponent implements OnInit {
           this.currentQuestion = this.questionsQualifs[this.questionIndex];
           this.indexJoueur = Math.floor(this.questionIndex / 2);
           this.reponsesDisplay = [
-            this.currentQuestion.bonne_reponse,
-            ...this.currentQuestion.mauvaises_reponses,
+            this.currentQuestion.bonneReponse,
+            ...this.currentQuestion.mauvaisesReponses,
           ];
-          this.bonneReponse = this.currentQuestion.bonne_reponse;
+          this.bonneReponse = this.currentQuestion.bonneReponse;
           this.extraitMusique = this.currentQuestion.musique
             ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
             : null;
-          this.extraitBloque.set(this.currentQuestion.jouee_apres_question);
+          this.extraitBloque.set(this.currentQuestion.joueeApresQuestion);
           this.cdr.detectChanges();
         }),
       )
@@ -136,14 +136,14 @@ export class QualifsComponent implements OnInit {
     this.indexJoueur = Math.floor(this.questionIndex / 2);
     this.currentQuestion = this.questionsQualifs[this.questionIndex];
     this.reponsesDisplay = [
-      this.currentQuestion.bonne_reponse,
-      ...this.currentQuestion.mauvaises_reponses,
+      this.currentQuestion.bonneReponse,
+      ...this.currentQuestion.mauvaisesReponses,
     ];
-    this.bonneReponse = this.currentQuestion.bonne_reponse;
+    this.bonneReponse = this.currentQuestion.bonneReponse;
     this.extraitMusique = this.currentQuestion.musique
       ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
       : null;
-    this.extraitBloque.set(this.currentQuestion.jouee_apres_question);
+    this.extraitBloque.set(this.currentQuestion.joueeApresQuestion);
   }
 
   calculerQualification() {

@@ -29,7 +29,7 @@
         [typeChamp]="TypeChamp.COMPET"
         [reponse]="reponsesDisplay[i]"
         [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="question?.bonne_reponse === reponsesDisplay[i]"
+        [isBonneReponse]="question?.bonneReponse === reponsesDisplay[i]"
         [isProposition]="true"
       ></champ-reponse>
     </div>
@@ -40,7 +40,7 @@
         [typeChamp]="TypeChamp.COMPET"
         [reponse]="reponsesDisplay[i]"
         [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="question?.bonne_reponse === reponsesDisplay[i]"
+        [isBonneReponse]="question?.bonneReponse === reponsesDisplay[i]"
         [isProposition]="true"
       ></champ-reponse>
     </div>
@@ -49,7 +49,7 @@
       <champ-reponse
         class="reponse-cash"
         *ngIf="question.mode === 'Cash' && bonneReponseShown"
-        [reponse]="question.bonne_reponse"
+        [reponse]="question.bonneReponse"
         [bonneReponseShown]="bonneReponseShown"
         [isBonneReponse]="true"
       ></champ-reponse>
@@ -58,7 +58,7 @@
 
   <panneau-score-joueurs
     [panneaux]="scoresCompet"
-    [bonneReponse]="question?.bonne_reponse"
+    [bonneReponse]="question?.bonneReponse"
     [showBonneReopnseGiven]="bonneReponseShown"
     [selectedJoueur]="selectedJoueurSuperCash"
     [nbJoueurAQualifier]="1"
