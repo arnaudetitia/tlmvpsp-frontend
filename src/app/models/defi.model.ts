@@ -1,14 +1,10 @@
-import { TriTypeEnum } from './tri.enum';
+import { Question } from './question.model';
 
 export interface Defi {
   libelleTheme: string;
   questionsDefi: QuestionDefi[];
 }
 
-export interface QuestionDefi {
-  question: string;
-  bonneReponse: string;
-  mauvaisesReponses: string[];
-  tri: TriTypeEnum;
+export interface QuestionDefi extends Question {
   ordre: number;
 }

@@ -1,10 +1,3 @@
-import { TriTypeEnum } from './tri.enum';
+import { Question } from './question.model';
 
-export interface QuestionQualif {
-  question: string;
-  bonneReponse: string;
-  mauvaisesReponses: string[];
-  musique: string;
-  tri: TriTypeEnum;
-  joueeApresQuestion: boolean;
-}
+export interface QuestionQualif extends Question {}
