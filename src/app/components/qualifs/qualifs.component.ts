@@ -1,13 +1,9 @@
 import { ChangeDetectorRef, Component, Host, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QualifsService } from '../../services/qualifs.service';
-import { combineLatest, map, tap } from 'rxjs';
-import { ChoixModeComponent } from '../../shared/choix-mode/choix-mode.compoent';
-import { ModeQuestion } from '../../models/mode-question.models';
-import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
+import { combineLatest, tap } from 'rxjs';
+import { ModeQuestion, valeurModeQuestion } from '../../models/mode-question.models';
 import { QuestionQualif } from '../../models/qualifs.models';
-import { CodeTouches } from '../../models/code-touches.enum';
-import { Jingles } from '../../models/jingles.models';
 import { PanneauScoreJoueursComponent } from '../../shared/panneau-score-joueurs/panneau-score-joueurs.component';
 import { PanneauJoueur, StatutJoueur } from '../../models/score.model';
 import { JoueursStore } from '../../store/joueurs.store';
@@ -16,16 +12,26 @@ import { RouterModule } from '@angular/router';
 import { CompetService } from '../../services/compet.service';
 import { ScoresStore } from '../../store/scores.store';
 import { PartieStore } from '../../store/partie.store';
-import { TriTypeEnum } from '../../models/tri.enum';
+import { ManchesEnum } from '../../models/manches.enum';
+import { ChampQuestionComponent } from '../../shared/champ-question/champ-question.component';
+import { Jingles } from '../../models/jingles.models';
 import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
+import { EtatQuestion } from '../../models/etat-question.enum';
+import { QuestionStore } from '../../store/question.store';
+import { CodeTouches } from '../../models/code-touches.enum';
+import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
+import { ChoixModeComponent } from '../../shared/choix-mode/choix-mode.compoent';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @Component({
   selector: 'app-qualifs',
   imports: [
     CommonModule,
-    ChampReponseComponent,
+    ChampQuestionComponent,
     ChoixModeComponent,
+    ChampReponseComponent,
     PanneauScoreJoueursComponent,
+    MatGridListModule,
     MatIconModule,
     RouterModule,
   ],
@@ -33,29 +39,24 @@ import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util'
   styleUrls: ['./qualifs.component.scss'],
 })
 export class QualifsComponent implements OnInit {
+  mancheQualif = ManchesEnum.QUALIFS;
+  currentQuestionState: EtatQuestion = EtatQuestion.START_QUESTION;
+  modeQuestionSelected: ModeQuestion = {} as ModeQuestion;
   indexJoueur = 0;
 
   questionsQualifs: QuestionQualif[] = [];
   questionIndex = 0;
-  currentQuestion: QuestionQualif | null = null;
+  currentQuestion: QuestionQualif = {} as QuestionQualif;
+
   reponsesDisplay: string[] = [];
-  extraitMusique: HTMLAudioElement | null = null;
-  extraitBloque = signal<boolean | null>(null);
-
-  showQuestion: boolean = false;
-  showModeSelection: boolean = false;
-
-  modeQuestion = ModeQuestion;
-  modeQuestionSelected: ModeQuestion | null = null;
-
-  reponseAlreadySelected: boolean = false;
-  isBonneReponseGiven: boolean = false;
-  bonneReponseShown: boolean = false;
-  bonneReponse: string = '';
+  reponseDonnee: string = '';
 
   qualifsTerminees: boolean = false;
 
   scoresQualifs: PanneauJoueur[] = [];
+
+  EtatQuestion = EtatQuestion;
+  ModeQuestion = ModeQuestion;
 
   constructor(
     private qualifsService: QualifsService,
@@ -63,6 +64,7 @@ export class QualifsComponent implements OnInit {
     private competService: CompetService,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
+    private questionStore: QuestionStore,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -72,6 +74,24 @@ export class QualifsComponent implements OnInit {
       .pipe(
         tap((scores) => {
           this.scoresQualifs = scores;
+        }),
+      )
+      .subscribe();
+    this.questionStore.etatQuestion$
+      .pipe(
+        tap((etat) => {
+          this.currentQuestionState = etat;
+          if (
+            this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
+            this.modeQuestionSelected !== ModeQuestion.Cash
+          ) {
+            if (this.reponseDonnee === this.currentQuestion.bonneReponse) {
+              Jingles.sonBonneReponse.play();
+              this.incrementerScoreJoueur(this.modeQuestionSelected);
+            } else {
+              Jingles.sonMauvaiseReponse.play();
+            }
+          }
         }),
       )
       .subscribe();
@@ -89,11 +109,6 @@ export class QualifsComponent implements OnInit {
             this.currentQuestion.bonneReponse,
             ...this.currentQuestion.mauvaisesReponses,
           ];
-          this.bonneReponse = this.currentQuestion.bonneReponse;
-          this.extraitMusique = this.currentQuestion.musique
-            ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
-            : null;
-          this.extraitBloque.set(this.currentQuestion.joueeApresQuestion);
           this.cdr.detectChanges();
         }),
       )
@@ -107,16 +122,14 @@ export class QualifsComponent implements OnInit {
       this.modeQuestionSelected,
       this.currentQuestion?.tri,
     );
+    this.questionStore.passerEtatSuivant(this.mancheQualif);
     Jingles.sonChronoQualif.play();
   }
 
   onReponseSelected(reponse: string) {
-    this.reponseAlreadySelected = true;
-    this.extraitBloque.set(false);
+    this.reponseDonnee = reponse;
     this.stopChrono();
-    if (reponse === this.bonneReponse) {
-      this.isBonneReponseGiven = true;
-    }
+    this.questionStore.passerEtatSuivant(this.mancheQualif);
   }
 
   stopChrono() {
@@ -124,13 +137,15 @@ export class QualifsComponent implements OnInit {
     Jingles.sonChronoQualif.currentTime = 0;
   }
 
+  preparerSuite() {
+    if (this.questionIndex === this.questionsQualifs.length - 1) {
+      this.calculerQualification();
+    } else {
+      this.prepareNextQuestion();
+    }
+  }
+
   prepareNextQuestion() {
-    this.modeQuestionSelected = null;
-    this.showQuestion = false;
-    this.showModeSelection = false;
-    this.reponseAlreadySelected = false;
-    this.isBonneReponseGiven = false;
-    this.bonneReponseShown = false;
     this.questionIndex++;
     this.partieStore.setIndexCurrentQuestion(this.questionIndex);
     this.indexJoueur = Math.floor(this.questionIndex / 2);
@@ -139,11 +154,6 @@ export class QualifsComponent implements OnInit {
       this.currentQuestion.bonneReponse,
       ...this.currentQuestion.mauvaisesReponses,
     ];
-    this.bonneReponse = this.currentQuestion.bonneReponse;
-    this.extraitMusique = this.currentQuestion.musique
-      ? new Audio(`/assets/extraits/${this.currentQuestion.musique}.mp3`)
-      : null;
-    this.extraitBloque.set(this.currentQuestion.joueeApresQuestion);
   }
 
   calculerQualification() {
@@ -195,47 +205,45 @@ export class QualifsComponent implements OnInit {
     this.qualifsTerminees = true;
   }
 
-  playExtrait() {
-    if (this.extraitMusique && this.extraitBloque() === false) {
-      this.extraitMusique.play();
-    }
+  incrementerScoreJoueur(modeQuestion: ModeQuestion) {
+    this.scoresQualifs[this.indexJoueur].score += valeurModeQuestion[modeQuestion];
+    this.scoresStore.setPanneauJoueurs(this.scoresQualifs);
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyDown($event: KeyboardEvent) {
     switch ($event.code) {
       case CodeTouches.spacebarCode:
-        if (!this.bonneReponseShown) {
-          if (!this.showQuestion) {
-            this.showQuestion = true;
-          } else if (this.showQuestion && !this.showModeSelection) {
-            this.showModeSelection = true;
-          } else if (this.reponseAlreadySelected) {
-            this.bonneReponseShown = true;
-            if (this.isBonneReponseGiven) {
-              Jingles.sonBonneReponse.play();
-              this.scoresQualifs[this.indexJoueur].score +=
-                this.modeQuestionSelected === ModeQuestion.Duo ? 1 : 3;
-              this.scoresStore.setPanneauJoueurs(this.scoresQualifs);
-            } else {
-              Jingles.sonMauvaiseReponse.play();
-            }
+        if (
+          ![
+            EtatQuestion.CHOIX_MODE_QUESTION,
+            EtatQuestion.REPONSES_PROPOSEES,
+            EtatQuestion.BONNE_REPONSE_AFFICHEE,
+          ].includes(this.currentQuestionState)
+        ) {
+          if (
+            this.currentQuestionState !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
+            this.modeQuestionSelected !== ModeQuestion.Cash
+          ) {
+            this.questionStore.passerEtatSuivant(this.mancheQualif);
           }
         }
         break;
 
       case CodeTouches.buttonSCode:
-        if (this.modeQuestionSelected === ModeQuestion.Cash) {
+        if (
+          this.currentQuestionState === EtatQuestion.REPONSES_PROPOSEES &&
+          this.modeQuestionSelected === ModeQuestion.Cash
+        ) {
+          this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.selectionReponse.play();
-          this.reponseAlreadySelected = true;
-          this.extraitBloque.set(false);
           this.stopChrono();
         }
         break;
 
       case CodeTouches.buttonTCode:
-        if (this.reponseAlreadySelected) {
-          this.bonneReponseShown = true;
+        if (this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
+          this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.sonBonneReponse.play();
           this.scoresQualifs[this.indexJoueur].score += 5;
           this.scoresStore.setPanneauJoueurs(this.scoresQualifs);
@@ -243,15 +251,16 @@ export class QualifsComponent implements OnInit {
         break;
 
       case CodeTouches.buttonFCode:
-        if (this.reponseAlreadySelected) {
-          this.bonneReponseShown = true;
+        if (this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
+          this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.sonMauvaiseReponse.play();
         }
         break;
 
       case CodeTouches.rightArrowCode:
-        if (this.bonneReponseShown) {
+        if (this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE) {
           if (this.questionIndex < this.questionsQualifs.length - 1) {
+            this.questionStore.passerEtatSuivant(this.mancheQualif);
             this.prepareNextQuestion();
           } else {
             this.calculerQualification();

@@ -1,6 +1,6 @@
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, signal } from '@angular/core';
 import { CompetService } from '../../services/compet.service';
-import { combineLatest, Observable, of, tap } from 'rxjs';
+import { combineLatest, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
 import { TypeChamp } from '../../shared/champ-reponse/type-champ.enum';
 import { CommonModule } from '@angular/common';
@@ -17,14 +17,21 @@ import { RouterModule } from '@angular/router';
 import { ScoresStore } from '../../store/scores.store';
 import { PartieStore } from '../../store/partie.store';
 import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
+import { ChampQuestionComponent } from '../../shared/champ-question/champ-question.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { ManchesEnum } from '../../models/manches.enum';
+import { CompetStore } from '../../store/compet.store';
+import { EtatCompet } from '../../models/etat-compet.enum';
 
 @Component({
   selector: 'app-compet',
   imports: [
     CommonModule,
-    ChampReponseComponent,
     ChoixSuperCashComponent,
+    ChampQuestionComponent,
+    ChampReponseComponent,
     PanneauScoreJoueursComponent,
+    MatGridListModule,
     MatIconModule,
     RouterModule,
   ],
@@ -32,37 +39,28 @@ import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util'
   styleUrls: ['./compet.component.scss'],
 })
 export class CompetComponent implements OnInit {
+  mancheCompet = ManchesEnum.COMPET;
+  typeChampCompet = TypeChamp.COMPET;
+
   compet$: Observable<any> = of(null);
   compet: Compet | null = null;
   theme: string = '';
-  votesDisabled = false;
 
-  indexQuestion = 0;
+  currentCompetState: EtatCompet = EtatCompet.START_QUESTION_NORMALE;
+
   questionList: QuestionCompet[] = [];
-  question: QuestionCompet | null = null;
-  showQuestion: boolean = false;
-  showReponses: boolean = false;
-  extraitMusique: HTMLAudioElement | null = null;
-  extraitBloque = signal<boolean | null>(null);
+  currentQuestion: QuestionCompet = {} as QuestionCompet;
+  isChronoLong: boolean = false;
 
   reponsesDisplay: string[] = [];
-  isBonneReponseGiven: boolean = false;
-  bonneReponseShown: boolean = false;
-  bonneReponse: string = '';
-  questionAliases: string[] = [];
-
-  functionFreezeVote = () => {
-    this.extraitBloque.set(false);
-    this.competService.freezeVotes().subscribe();
-  };
 
   TypeChamp = TypeChamp;
-
-  spacebarCode: string = 'Space';
-  rightArrowCode: string = 'ArrowRight';
+  EtatCompet = EtatCompet;
 
   scoresCompet: PanneauJoueur[] = [];
   joueursAvecBonneReponse: string[] = [];
+
+  calculSuperCashDone: boolean = false;
   ordreJoueurSuperCash: string[] = [];
   indexJoueurSuperCash: number = 0;
   selectedJoueurSuperCash: string = '';
@@ -76,9 +74,6 @@ export class CompetComponent implements OnInit {
 
   alreadyPlayed = new Map<number, boolean>();
 
-  showSuperCash = false;
-  inedxQuestionSuperCashChoisi = false;
-
   competTermmine = false;
 
   constructor(
@@ -86,6 +81,8 @@ export class CompetComponent implements OnInit {
     private joueursStore: JoueursStore,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
+    private competStore: CompetStore,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -97,25 +94,70 @@ export class CompetComponent implements OnInit {
         }),
       )
       .subscribe();
+    this.competStore.etatCompet$
+      .pipe(
+        tap((etatCompet) => {
+          this.currentCompetState = etatCompet;
+          switch (this.currentCompetState) {
+            case EtatCompet.START_QUESTION_NORMALE:
+              this.competService.closeVotes().subscribe();
+              break;
+            case EtatCompet.VOTES_OUVERTS:
+              this.competService.openVotes().subscribe();
+              if (this.isChronoLong) {
+                Jingles.sonChronoCompetLong.play();
+              } else {
+                Jingles.sonChronoCompet.play();
+              }
+              break;
+
+            case EtatCompet.VOTES_FERMES:
+              this.competService.freezeVotes().subscribe();
+              this.cdr.detectChanges();
+              break;
+
+            case EtatCompet.BONNE_REPONSE_AFFICHEE:
+              Jingles.sonBonneReponse.play();
+              break;
+
+            case EtatCompet.START_QUESTION_SUPER_CASH:
+              if (!this.calculSuperCashDone) {
+                this.calculSuperCashDone = true;
+                this.calulerOrdreCandidats();
+              } else {
+                this.indexJoueurSuperCash++;
+              }
+              this.selectedJoueurSuperCash = this.ordreJoueurSuperCash[this.indexJoueurSuperCash];
+              break;
+
+            case EtatCompet.CHRONO_SUPER_CASH_LANCE:
+              Jingles.sonChronoCompet.play();
+              break;
+          }
+        }),
+      )
+      .subscribe();
     this.compet$ = combineLatest([
       this.competService.getCompet(),
       this.partieStore.getIndexCurrentQuestion(),
       this.partieStore.getAlreadyPlayedQuestions(),
       this.partieStore.getOrdreJoueursSuperCash(),
       this.partieStore.getIndexJoueurSuperCash(),
+      this.competStore.getEtatCompet(),
     ]).pipe(
       tap(
         ([
-          data,
+          compet,
           indexCurrentQuestion,
           alreadyPlayedQuestionsMap,
           ordreJoueursSuperCash,
           indexJoueurSuperCash,
+          etatCompet,
         ]) => {
-          this.indexQuestion = indexCurrentQuestion;
-          this.compet = data;
-          this.theme = data.libelleTheme;
-          this.questionList = data.questionsCompet.map((question) => {
+          this.currentCompetState = etatCompet;
+          this.compet = compet;
+          this.theme = compet.libelleTheme;
+          this.questionList = compet.questionsCompet.map((question) => {
             let modeQuestion: ModeQuestion;
             switch (question.mauvaisesReponses.length) {
               case 1:
@@ -133,64 +175,45 @@ export class CompetComponent implements OnInit {
               mode: modeQuestion,
             };
           });
+          this.competStore.indexCurrentQuestionSource.next(indexCurrentQuestion);
           this.alreadyPlayed = alreadyPlayedQuestionsMap;
           this.ordreJoueurSuperCash = ordreJoueursSuperCash;
           this.indexJoueurSuperCash = indexJoueurSuperCash;
-          this.question = this.questionList[this.indexQuestion];
-          this.reponsesDisplay = [this.question.bonneReponse, ...this.question.mauvaisesReponses];
-          this.extraitMusique = this.question.musique
-            ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
-            : null;
-          this.extraitBloque.set(this.question.joueeApresQuestion);
-          this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
-            this.reponsesDisplay,
-            this.question.mode,
-            this.question.tri,
-          );
-          this.competService
-            .setQuestionToRemote(this.question.question, this.reponsesDisplay)
-            .subscribe();
         },
       ),
     );
-
-    Jingles.sonChronoCompet.onended = this.functionFreezeVote;
-    Jingles.sonChronoCompetLong.onended = this.functionFreezeVote;
-  }
-
-  preparerProchaineQuestion() {
-    this.showQuestion = false;
-    this.showReponses = false;
-    this.bonneReponseShown = false;
-    this.indexQuestion++;
-    this.partieStore.setIndexCurrentQuestion(this.indexQuestion);
-    if (this.indexQuestion >= 8 && !this.showSuperCash) {
-      this.calulerOrdreCandidats();
-      this.selectedJoueurSuperCash = this.ordreJoueurSuperCash[this.indexJoueurSuperCash];
-      this.showSuperCash = true;
-      return;
-    }
-    this.question = this.questionList[this.indexQuestion];
-    this.reponsesDisplay = [this.question.bonneReponse, ...this.question.mauvaisesReponses];
-    this.questionAliases = this.question.aliases;
-    this.extraitMusique = this.question.musique
-      ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
-      : null;
-    this.extraitBloque.set(this.question.joueeApresQuestion);
-    this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
-      this.reponsesDisplay,
-      this.question.mode,
-      this.question.tri,
-    );
-    this.competService
-      .setQuestionToRemote(this.question.question, this.reponsesDisplay)
+    this.competStore.indexCurrentQuestion$
+      .pipe(
+        filter(() => this.questionList.length > 0),
+        map((indexQuestion) => {
+          this.isChronoLong = [6, 7].includes(indexQuestion);
+          this.currentQuestion = this.questionList[indexQuestion];
+          this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
+            [this.currentQuestion.bonneReponse, ...this.currentQuestion.mauvaisesReponses],
+            this.currentQuestion.mode,
+            this.currentQuestion.tri,
+          );
+          return {
+            question: this.currentQuestion.question,
+            reponses: this.reponsesDisplay,
+          };
+        }),
+        filter((currentQuestion) => !!currentQuestion),
+        switchMap((currentQuestion) => {
+          return this.competService.setQuestionToRemote(
+            currentQuestion.question,
+            currentQuestion.reponses,
+          );
+        }),
+      )
       .subscribe();
-  }
 
-  playExtrait() {
-    if (this.extraitMusique && this.extraitBloque() === false) {
-      this.extraitMusique.play();
-    }
+    Jingles.sonChronoCompet.onended = () => {
+      this.competStore.passerEtatSuivant();
+    };
+    Jingles.sonChronoCompetLong.onended = () => {
+      this.competStore.passerEtatSuivant();
+    };
   }
 
   calulerOrdreCandidats() {
@@ -207,22 +230,18 @@ export class CompetComponent implements OnInit {
   }
 
   preparerSelectedQuestion(idQuestion: number) {
-    if (!this.inedxQuestionSuperCashChoisi) {
-      this.indexQuestion = idQuestion;
-      this.inedxQuestionSuperCashChoisi = true;
-      this.selectedQuestion.set(this.indexQuestion, true);
-      this.question = this.questionList[idQuestion];
-      this.extraitMusique = this.question.musique
-        ? new Audio(`/assets/extraits/${this.question.musique}.mp3`)
-        : null;
-      this.extraitBloque.set(this.question.joueeApresQuestion);
+    this.competStore.passerEtatSuivant();
+    if (this.currentCompetState === EtatCompet.QUESTION_SUPER_CASH_CHOISIE) {
+      this.selectedQuestion.set(idQuestion, true);
+      this.alreadyPlayed.set(idQuestion, false);
+      this.currentQuestion = this.questionList[idQuestion];
     }
   }
 
   stopChrono() {
-    this.extraitBloque.set(false);
     Jingles.sonChronoCompet.pause();
     Jingles.sonChronoCompet.currentTime = 0;
+    this.competStore.passerEtatSuivant();
   }
 
   resetReponsesJoueurs() {
@@ -259,7 +278,7 @@ export class CompetComponent implements OnInit {
   }
 
   getIncrementScore() {
-    switch (this.question?.mode) {
+    switch (this.currentQuestion?.mode) {
       case ModeQuestion.Duo:
         return 1;
       case ModeQuestion.Carre:
@@ -320,64 +339,60 @@ export class CompetComponent implements OnInit {
   handleKeyEvent($event: KeyboardEvent) {
     switch ($event.code) {
       case CodeTouches.spacebarCode:
-        if (this.indexQuestion < 8 || this.inedxQuestionSuperCashChoisi) {
-          if (!this.showQuestion) {
-            this.showQuestion = true;
-          } else if (!this.showReponses) {
-            this.showReponses = true;
-            this.competService.openVotes().subscribe();
-            if (!this.showSuperCash && this.question?.mode === ModeQuestion.Cash) {
-              Jingles.sonChronoCompetLong.play();
-            } else {
-              Jingles.sonChronoCompet.play();
-            }
-          } else if (!this.bonneReponseShown) {
-            Jingles.sonBonneReponse.play();
-            this.bonneReponseShown = true;
-          }
+        if (
+          !this.currentCompetState.includes('BONNE_REPONSE') &&
+          ![
+            EtatCompet.VOTES_OUVERTS,
+            EtatCompet.START_QUESTION_SUPER_CASH,
+            EtatCompet.REPONSE_SUPER_CASH_DONNEE,
+          ].includes(this.currentCompetState)
+        ) {
+          this.competStore.passerEtatSuivant();
         }
         break;
       case CodeTouches.rightArrowCode:
-        if (this.bonneReponseShown) {
-          this.augmenterScore();
-          this.resetReponsesJoueurs();
-          if (this.indexQuestion < 8) {
-            this.preparerProchaineQuestion();
-          } else {
-            if (this.votesDisabled) {
-              this.competService
-                .closeVotes()
-                .pipe(tap(() => (this.votesDisabled = true)))
-                .subscribe();
-            }
-            this.inedxQuestionSuperCashChoisi = false;
-            this.showQuestion = false;
-            this.showReponses = false;
-            this.bonneReponseShown = false;
-            this.alreadyPlayed.set(this.indexQuestion, true);
-            this.partieStore.setAlreadyPlayedQuestions(this.alreadyPlayed);
-            if (Array.from(this.alreadyPlayed.values()).every((jouee) => jouee === true)) {
-              this.calculerQualification();
-            }
-            this.indexJoueurSuperCash++;
-            this.partieStore.setIndexJoueurSuperCash(this.indexJoueurSuperCash);
-            this.selectedJoueurSuperCash = this.ordreJoueurSuperCash[this.indexJoueurSuperCash];
+        if (this.currentCompetState.includes('BONNE_REPONSE')) {
+          switch (this.currentCompetState) {
+            case EtatCompet.BONNE_REPONSE_AFFICHEE:
+              this.augmenterScore();
+              this.resetReponsesJoueurs();
+              break;
+
+            case EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE:
+              [...this.alreadyPlayed.keys()].forEach((idQuestion) => {
+                if (this.selectedQuestion.get(idQuestion)) {
+                  this.alreadyPlayed.set(idQuestion, true);
+                }
+
+                this.selectedQuestion.set(idQuestion, false);
+                if (Array.from(this.alreadyPlayed.values()).every((jouee) => jouee === true)) {
+                  this.calculerQualification();
+                }
+              });
+              break;
           }
+          this.competStore.passerEtatSuivant();
         }
         break;
       case CodeTouches.buttonTCode:
-        this.bonneReponseShown = true;
-        this.modifierScoreJoueur(this.selectedJoueurSuperCash, 5);
-        Jingles.sonBonneReponse.play();
+        if (this.currentCompetState === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
+          this.competStore.passerEtatSuivant();
+          this.modifierScoreJoueur(this.selectedJoueurSuperCash, 5);
+          Jingles.sonBonneReponse.play();
+        }
         break;
       case CodeTouches.buttonFCode:
-        this.bonneReponseShown = true;
-        this.modifierScoreJoueur(this.selectedJoueurSuperCash, -5);
-        Jingles.sonMauvaiseReponse.play();
+        if (this.currentCompetState === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
+          this.competStore.passerEtatSuivant();
+          this.modifierScoreJoueur(this.selectedJoueurSuperCash, -5);
+          Jingles.sonMauvaiseReponse.play();
+        }
         break;
       case CodeTouches.buttonSCode:
-        this.stopChrono();
-        Jingles.sonFinChronoCompet.play();
+        if (this.currentCompetState === EtatCompet.CHRONO_SUPER_CASH_LANCE) {
+          this.stopChrono();
+          Jingles.sonFinChronoCompet.play();
+        }
         break;
     }
   }

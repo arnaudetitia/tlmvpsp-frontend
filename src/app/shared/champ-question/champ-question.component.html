@@ -1,0 +1,29 @@
+<div class="champ-question-container">
+  <div
+    class="champ extrait-musical"
+    *ngIf="extraitMusique"
+    (click)="playExtrait()"
+    [class]="{
+      'extrait-bloque': extraitBloque === true,
+      qualif: typeChamp === TypeChamp.QUALIF,
+      compet: typeChamp === TypeChamp.COMPET,
+      challenger: typeChamp === TypeChamp.CHALLENGER,
+      champion: typeChamp === TypeChamp.CHAMPION,
+    }"
+  >
+    <mat-icon>music_note</mat-icon>
+  </div>
+  <div
+    class="champ question"
+    *ngIf="showQuestion"
+    [class]="{
+      'extrait-bloque': extraitBloque === true,
+      qualif: typeChamp === TypeChamp.QUALIF,
+      compet: typeChamp === TypeChamp.COMPET,
+      challenger: typeChamp === TypeChamp.CHALLENGER,
+      champion: typeChamp === TypeChamp.CHAMPION,
+    }"
+  >
+    {{ question }}
+  </div>
+</div>

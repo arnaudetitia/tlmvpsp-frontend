@@ -7,6 +7,7 @@ export class SortAndMixReponsesUtils {
     modeQuestionSelected: ModeQuestion | null,
     modeTri: TriTypeEnum | undefined,
   ): string[] {
+    if (modeQuestionSelected === ModeQuestion.Cash) return [];
     const reponsesToSort =
       modeQuestionSelected === ModeQuestion.Duo
         ? SortAndMixReponsesUtils.seletionReponseDuo(reponses[0], reponses.slice(1))

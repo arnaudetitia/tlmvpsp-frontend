@@ -13,61 +13,24 @@
   flex-direction: column;
 
   .question-qualif-container {
+    display: flex;
+    flex-direction: column;
     flex: 1.5;
-    height: 50vh;
-  }
 
-  .question-container {
-    margin-left: 5%;
-    min-height: 15vh;
-    margin-bottom: 3vh;
-    width: 90%;
+    margin: 0 auto;
+    width: 90vw;
 
-    display: flex;
-    flex-direction: row;
-
-    .extrait-musical {
-      width: 10%;
-      margin-right: 5%;
-      mat-icon {
-        scale: 4;
-      }
-
-      cursor: pointer;
-
-      &.extrait-bloque {
-        background-color: gray;
-        cursor: not-allowed;
-      }
+    champ-question {
+      margin-bottom: 5vh;
     }
-
-    .question {
-      width: 100%;
-      font-size: 30px;
-      animation: insertion-furtive 1s;
-    }
-  }
-
-  .couple-reponse {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 90%;
-    margin-left: 5%;
-    margin-bottom: 2%;
 
     champ-reponse {
-      width: 48%;
+      width: stretch;
     }
-  }
 
-  .reponse-cash-container {
-    display: flex;
-    flex-direction: row;
-
-    .reponse-cash {
+    .reponse-cash-container {
       margin: 0 auto;
-      width: 48%;
+      width: 50vw;
     }
   }
 
@@ -82,8 +45,8 @@
     align-items: center;
 
     a {
-      width: 80%;
-      margin-left: 10%;
+      width: 90vw;
+      margin-left: 5vw;
 
       font-size: 50px;
 
