@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PanneauJoueur } from '../models/score.model';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { EtatPartieKeys } from '../models/etat-partie.enum';
+import { EtatPartieKeys } from '../models/enums/etat-partie.enum';
 
 @Injectable({ providedIn: 'root' })
 export class ScoresStore {

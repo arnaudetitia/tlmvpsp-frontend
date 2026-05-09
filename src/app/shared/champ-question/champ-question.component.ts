@@ -62,11 +62,17 @@ export class ChampQuestionComponent {
 
   TypeChamp = TypeChamp;
 
+  canPlayExtrait: boolean = true;
+
   playExtrait() {
     const extrait = this.extraitMusique
       ? new Audio(`/assets/extraits/${this.extraitMusique}.mp3`)
       : null;
-    if (extrait !== null && this.extraitBloque === false) {
+    if (extrait !== null && this.extraitBloque === false && this.canPlayExtrait) {
+      this.canPlayExtrait = false;
+      extrait.onended = () => {
+        this.canPlayExtrait = true;
+      };
       extrait.play();
     }
   }

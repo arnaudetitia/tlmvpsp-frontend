@@ -10,4 +10,5 @@ export enum EtatPartieKeys {
   RECAP_DEFI_CHALLENGER = 'recapDefiChallenger',
   ETAT_QUESTION = 'etatQuestion',
   ETAT_COMPET = 'etatCompet',
+  ETAT_DEFI = 'etatDefi',
 }

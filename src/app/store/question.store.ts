@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
-import { EtatQuestion } from '../models/etat-question.enum';
-import { EtatPartieKeys } from '../models/etat-partie.enum';
-import { ManchesEnum } from '../models/manches.enum';
+import { EtatQuestion } from '../models/enums/etat-question.enum';
+import { EtatPartieKeys } from '../models/enums/etat-partie.enum';
+import { ManchesEnum } from '../models/enums/manches.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class QuestionStore {
   etatQuestionSource = new BehaviorSubject<EtatQuestion>(EtatQuestion.START_QUESTION);
   etatQuestion$ = this.etatQuestionSource.asObservable();
 
-  passerEtatSuivant(manche: ManchesEnum, superCash: boolean = false) {
+  passerEtatSuivant(manche: ManchesEnum) {
     switch (this.etatQuestion) {
       case EtatQuestion.START_QUESTION:
         this.etatQuestion = EtatQuestion.QUESTION_POSE;
@@ -37,7 +37,6 @@ export class QuestionStore {
         this.etatQuestion = EtatQuestion.START_QUESTION;
         break;
     }
-
     this.etatQuestionSource.next(this.etatQuestion);
     localStorage.setItem(EtatPartieKeys.ETAT_QUESTION, this.etatQuestion);
   }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { EtatCompet } from '../models/etat-compet.enum';
+import { EtatCompet } from '../models/enums/etat-compet.enum';
 import { BehaviorSubject, of } from 'rxjs';
-import { EtatPartieKeys } from '../models/etat-partie.enum';
+import { EtatPartieKeys } from '../models/enums/etat-partie.enum';
 import { PartieStore } from './partie.store';
 
 @Injectable({

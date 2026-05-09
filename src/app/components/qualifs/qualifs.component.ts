@@ -12,16 +12,17 @@ import { RouterModule } from '@angular/router';
 import { CompetService } from '../../services/compet.service';
 import { ScoresStore } from '../../store/scores.store';
 import { PartieStore } from '../../store/partie.store';
-import { ManchesEnum } from '../../models/manches.enum';
+import { ManchesEnum } from '../../models/enums/manches.enum';
 import { ChampQuestionComponent } from '../../shared/champ-question/champ-question.component';
 import { Jingles } from '../../models/jingles.models';
 import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
-import { EtatQuestion } from '../../models/etat-question.enum';
+import { EtatQuestion } from '../../models/enums/etat-question.enum';
 import { QuestionStore } from '../../store/question.store';
-import { CodeTouches } from '../../models/code-touches.enum';
+import { CodeTouches } from '../../models/enums/code-touches.enum';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
 import { ChoixModeComponent } from '../../shared/choix-mode/choix-mode.compoent';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { EtatPartieKeys } from '../../models/enums/etat-partie.enum';
 
 @Component({
   selector: 'app-qualifs',
@@ -203,6 +204,7 @@ export class QualifsComponent implements OnInit {
     this.scoresStore.initScores(joueurs);
     this.partieStore.resetIndexCurrentQuestion();
     this.qualifsTerminees = true;
+    this.questionStore.resetEtatQuestion();
   }
 
   incrementerScoreJoueur(modeQuestion: ModeQuestion) {

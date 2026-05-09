@@ -5,7 +5,7 @@ import { ChoixThemeComponent } from './choix-theme/choix-theme.component';
 import { ThemeDefi } from '../../models/theme-defi.model';
 import { CommonModule } from '@angular/common';
 import { Defi } from '../../models/defi.model';
-import { CodeTouches } from '../../models/code-touches.enum';
+import { CodeTouches } from '../../models/enums/code-touches.enum';
 import { DefiJoueurComponent } from './defi-joueur/defi-joueur.component';
 import { RecapDefiChallenger, RecapQuestion } from './model/recap-defi-challenger.model';
 import { DefiChallengerVerifComponent } from './defi-challenger-verif/defi-challenger-verif.component';
@@ -15,6 +15,8 @@ import { ModeQuestion } from '../../models/mode-question.models';
 import { Jingles } from '../../models/jingles.models';
 import { PartieStore } from '../../store/partie.store';
 import { ScoresStore } from '../../store/scores.store';
+import { DefiStore } from '../../store/defi.store';
+import { EtatDefi } from '../../models/enums/etat-defi.enum';
 
 @Component({
   selector: 'app-defi-component',
@@ -29,15 +31,13 @@ import { ScoresStore } from '../../store/scores.store';
   styleUrls: ['./defi.component.scss'],
 })
 export class DefiComponent implements OnInit {
-  themesDefi$: Observable<ThemeDefi[]> = of([]);
-  showChoixTheme: boolean = true;
-  showDefiChallenger: boolean = false;
-  showDefiChampion: boolean = false;
-  showVerifChallenger: boolean = false;
-  showResultatFinal: boolean = false;
+  EtatDefi = EtatDefi;
+  currentEtatDefi: EtatDefi = EtatDefi.CHOIX_THEME;
 
-  defiChallenger: Defi | undefined;
-  defiChampion: Defi | undefined;
+  themesDefi$: Observable<ThemeDefi[]> = of([]);
+
+  defiChallenger: Defi = {} as Defi;
+  defiChampion: Defi = {} as Defi;
   isNouveauChampion = false;
 
   joueursDefi: string[] = [];
@@ -56,10 +56,12 @@ export class DefiComponent implements OnInit {
     private defiService: DefiService,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
+    private defiStore: DefiStore,
   ) {}
 
   ngOnInit() {
     this.themesDefi$ = this.defiService.getThemesDefi().pipe();
+    this.defiStore.etatDefi$.pipe(tap((etatDefi) => (this.currentEtatDefi = etatDefi))).subscribe();
     combineLatest([
       this.scoresStore.getPanneauxJoueurs(),
       this.defiService.getChampion(),
@@ -67,9 +69,13 @@ export class DefiComponent implements OnInit {
     ])
       .pipe(
         tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
-          const panneauChall = panneauChallenger[0];
+          const panneauChall = panneauChallenger[0] || ({ joueur: 'Challenger' } as PanneauJoueur);
           this.panneauxDefi = [
-            { joueur: panneauChall.joueur, score: 0, statut: StatutJoueur.CHALLENGER },
+            {
+              joueur: panneauChall.joueur,
+              score: 0,
+              statut: StatutJoueur.CHALLENGER,
+            },
             {
               joueur: champion,
               score: 0,
@@ -77,7 +83,7 @@ export class DefiComponent implements OnInit {
             },
           ];
           this.scoresStore.setPanneauJoueurs(this.panneauxDefi);
-          this.joueursDefi = [panneauChallenger[0].joueur, champion];
+          this.joueursDefi = [panneauChall.joueur, champion];
           this.indexCurrentJoueur = indexCurrentJoueurDefi;
           this.currentJoueur = this.joueursDefi[this.indexCurrentJoueur];
         }),
@@ -130,8 +136,7 @@ export class DefiComponent implements OnInit {
   }
 
   switchToDefiChampion() {
-    this.showDefiChallenger = false;
-    this.showDefiChampion = true;
+    this.defiStore.passerEtatSuivant();
     this.indexCurrentJoueur = 1;
     this.partieStore.setIndexCurrentJoueurDefi(this.indexCurrentJoueur);
     this.partieStore.resetIndexCurrentQuestion();
@@ -139,8 +144,7 @@ export class DefiComponent implements OnInit {
   }
 
   switchToDefiVerifChallenger() {
-    this.showDefiChampion = false;
-    this.showVerifChallenger = true;
+    this.defiStore.passerEtatSuivant();
     this.indexCurrentJoueur = 0;
     this.partieStore.setIndexCurrentJoueurDefi(this.indexCurrentJoueur);
     this.partieStore.resetIndexCurrentQuestion();
@@ -191,17 +195,15 @@ export class DefiComponent implements OnInit {
         this.defiService.setNouveauChampion(this.joueursDefi[0]).subscribe();
       }
     }
-    this.showVerifChallenger = false;
-    this.showResultatFinal = true;
+    this.defiStore.passerEtatSuivant();
     localStorage.clear();
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent($event: KeyboardEvent) {
     if ($event.code === CodeTouches.rightArrowCode) {
-      if (this.showChoixTheme && this.defiChallenger) {
-        this.showChoixTheme = false;
-        this.showDefiChallenger = true;
+      if (this.currentEtatDefi === EtatDefi.CHOIX_THEME && this.defiChallenger) {
+        this.defiStore.passerEtatSuivant();
       }
     }
   }

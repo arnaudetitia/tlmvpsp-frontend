@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { Compet, QuestionCompet } from '../../models/compet.model';
 import { ModeQuestion } from '../../models/mode-question.models';
 import { ChoixSuperCashComponent } from './choix-super-cash/choix-super-cash.component';
-import { CodeTouches } from '../../models/code-touches.enum';
+import { CodeTouches } from '../../models/enums/code-touches.enum';
 import { Jingles } from '../../models/jingles.models';
 import { JoueursStore } from '../../store/joueurs.store';
 import { PanneauJoueur, StatutJoueur } from '../../models/score.model';
@@ -19,9 +19,9 @@ import { PartieStore } from '../../store/partie.store';
 import { SortAndMixReponsesUtils } from '../../utils/sort-and-mix-reponses.util';
 import { ChampQuestionComponent } from '../../shared/champ-question/champ-question.component';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { ManchesEnum } from '../../models/manches.enum';
+import { ManchesEnum } from '../../models/enums/manches.enum';
 import { CompetStore } from '../../store/compet.store';
-import { EtatCompet } from '../../models/etat-compet.enum';
+import { EtatCompet } from '../../models/enums/etat-compet.enum';
 
 @Component({
   selector: 'app-compet',
