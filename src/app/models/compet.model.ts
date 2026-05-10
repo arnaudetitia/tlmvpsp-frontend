@@ -1,5 +1,5 @@
 import { ModeQuestion } from './mode-question.models';
-import { TriTypeEnum } from './tri.enum';
+import { Question } from './question.model';
 
 export interface Compet {
   libelleTheme: string;
@@ -10,14 +10,8 @@ export interface JoueurCompet {
   nomJoueur: string;
 }
 
-export interface QuestionCompet {
-  question: string;
+export interface QuestionCompet extends Question {
   mode: ModeQuestion;
-  bonneReponse: string;
-  mauvaisesReponses: string[];
-  tri: TriTypeEnum;
   ordre: number;
-  musique: string;
-  joueeApresQuestion: boolean;
   aliases: string[];
 }

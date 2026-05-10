@@ -1,41 +1,27 @@
 @import '../../../../assets/animations.scss';
 .defi-joueur-container {
+  display: flex;
+  flex-direction: column;
   padding-top: 5vh;
 
-  .champ {
-    margin: 0 auto;
-  }
-
   .theme {
-    width: 48%;
+    margin: 0 auto;
+    width: 50vw;
     min-height: 12vh;
     margin-bottom: 5vh;
+    font-size: 2vw;
   }
 
   .champion {
     background-color: purple;
   }
 
-  .question {
-    width: 90%;
-    margin-left: 5%;
-    height: 15vh;
+  champ-question {
     margin-bottom: 5vh;
-
-    animation: insertion-furtive 1s;
   }
 
-  .couple-reponse {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 90%;
-    margin-left: 5%;
-    margin-bottom: 2%;
-
-    champ-reponse {
-      width: 48%;
-    }
+  champ-reponse {
+    width: stretch;
   }
 
   .cash-input-container {

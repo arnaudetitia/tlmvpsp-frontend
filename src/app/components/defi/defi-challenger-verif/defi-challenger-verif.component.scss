@@ -9,26 +9,18 @@
     width: 48%;
     min-height: 12vh;
     margin-bottom: 5vh;
+    font-size: 2vw;
   }
 
   .question {
-    width: 90%;
-    margin-left: 5%;
+    width: 90vw;
     height: 15vh;
     margin-bottom: 5vh;
+    font-size: 2vw;
   }
 
-  .couple-reponse {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 90%;
-    margin-left: 5%;
-    margin-bottom: 2%;
-
-    champ-reponse {
-      width: 48%;
-    }
+  champ-reponse {
+    width: stretch;
   }
 
   .cash-input-container {

@@ -5,29 +5,22 @@
     {{ currentQuestion.question }}
   </div>
 
-  <div *ngIf="currentQuestion.propositions.length; else reponseCash" class="question-container">
-    <div class="couple-reponse">
+  <mat-grid-list
+    [cols]="2"
+    rowHeight="12vh"
+    gutterSize="2vh"
+    *ngIf="currentQuestion.propositions.length; else reponseCash"
+  >
+    <mat-grid-tile *ngFor="let reponse of currentQuestion.propositions">
       <champ-reponse
-        *ngFor="let i of [0, 1]"
-        [reponse]="currentQuestion.propositions[i]"
-        [selected]="currentQuestion.propositions[i] === currentQuestion.reponseDonnee"
+        [reponse]="reponse"
+        [selected]="reponse === currentQuestion.reponseDonnee"
         [bonneReponseShown]="showBonneReponse"
         [reponseAlreadySelected]="true"
-        [isBonneReponse]="currentQuestion.bonneReponse === currentQuestion.propositions[i]"
+        [isBonneReponse]="currentQuestion.bonneReponse === reponse"
       ></champ-reponse>
-    </div>
-
-    <div class="couple-reponse" *ngIf="currentQuestion.propositions.length === 4">
-      <champ-reponse
-        *ngFor="let i of [2, 3]"
-        [reponse]="currentQuestion.propositions[i]"
-        [selected]="currentQuestion.propositions[i] === currentQuestion.reponseDonnee"
-        [bonneReponseShown]="showBonneReponse"
-        [reponseAlreadySelected]="true"
-        [isBonneReponse]="currentQuestion.bonneReponse === currentQuestion.propositions[i]"
-      ></champ-reponse>
-    </div>
-  </div>
+    </mat-grid-tile>
+  </mat-grid-list>
 
   <ng-template #reponseCash>
     <div class="reponse-cash-container">

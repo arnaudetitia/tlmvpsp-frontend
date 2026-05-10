@@ -8,4 +8,7 @@ export enum EtatPartieKeys {
   ID_THEME_CHAMPION = 'idThemeChampion',
   INDEX_CURRENT_JOUEUR_DEFI = 'indexCurrentJoueurDefi',
   RECAP_DEFI_CHALLENGER = 'recapDefiChallenger',
+  ETAT_QUESTION = 'etatQuestion',
+  ETAT_COMPET = 'etatCompet',
+  ETAT_DEFI = 'etatDefi',
 }

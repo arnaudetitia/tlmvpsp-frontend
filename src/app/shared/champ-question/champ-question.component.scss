@@ -1,0 +1,49 @@
+@import '../../../assets/animations.scss';
+@import '../../../assets/palette.scss';
+
+.champ-question-container {
+  display: flex;
+  flex-direction: row;
+  gap: 2vw;
+
+  .extrait-musical {
+    flex: 0 0 10vw;
+    height: 15vh;
+    mat-icon {
+      scale: 5;
+    }
+
+    cursor: pointer;
+
+    &.extrait-bloque {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+
+    &.compet {
+      background-color: $couleur-compet;
+
+      &.extrait-bloque {
+        background-color: gray;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .question {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 15vh;
+
+    font-size: 1.5vw;
+    animation: insertion-furtive 1s;
+
+    &.compet {
+      background-color: $couleur-compet;
+    }
+
+    &.champion {
+      background-color: purple;
+    }
+  }
+}

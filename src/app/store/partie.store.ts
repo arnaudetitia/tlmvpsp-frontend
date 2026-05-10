@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { EtatPartieKeys } from '../models/etat-partie.enum';
+import { EtatPartieKeys } from '../models/enums/etat-partie.enum';
 import { RecapQuestion } from '../components/defi/model/recap-defi-challenger.model';
 
 @Injectable({ providedIn: 'root' })
