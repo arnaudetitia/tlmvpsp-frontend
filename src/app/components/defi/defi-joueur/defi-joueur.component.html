@@ -1,64 +1,70 @@
 <div class="defi-joueur-container">
   <div class="champ theme" [class.champion]="isChampion">{{ defi?.libelleTheme }}</div>
 
-  <div class="champ question" [class.champion]="isChampion" *ngIf="showQuestion">
-    {{ currentQuestion?.question }}
-  </div>
+  <champ-question
+    [typeChamp]="isChampion ? TypeChamp.CHAMPION : TypeChamp.CHALLENGER"
+    [showQuestion]="currentQuestionState !== EtatQuestion.START_QUESTION"
+    [question]="currentQuestion.question"
+  >
+  </champ-question>
 
   <choix-mode
-    *ngIf="modeQuestionSelected === null && showModeSelection"
+    *ngIf="currentQuestionState === EtatQuestion.CHOIX_MODE_QUESTION"
     [isChampion]="isChampion"
     (modeSelected)="onModeSelected($event)"
   ></choix-mode>
 
-  <div *ngIf="modeQuestionSelected !== null" class="question-container">
-    <div class="couple-reponse" *ngIf="modeQuestionSelected !== modeQuestion.Cash">
-      <champ-reponse
-        *ngFor="let i of [0, 1]"
-        [typeChamp]="isChampion ? TypeChamp.CHAMPION : TypeChamp.CHALLENGER"
-        [reponse]="reponsesDisplay[i]"
-        [reponseAlreadySelected]="reponseAlreadySelected"
-        [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
-        [isSelectionnable]="true"
-        (reponseSelected)="onReponseSelected($event)"
-      ></champ-reponse>
-    </div>
+  <div
+    class="reponses-list-container"
+    *ngIf="
+      [
+        EtatQuestion.REPONSES_PROPOSEES,
+        EtatQuestion.REPONSE_JOUEUR_DONNEE,
+        EtatQuestion.BONNE_REPONSE_AFFICHEE,
+      ].includes(currentQuestionState) && reponsesDisplay.length > 0
+    "
+  >
+    <mat-grid-list [cols]="2" rowHeight="12vh" gutterSize="2vh">
+      <mat-grid-tile *ngFor="let reponse of reponsesDisplay">
+        <champ-reponse
+          [typeChamp]="isChampion ? TypeChamp.CHAMPION : TypeChamp.CHALLENGER"
+          [reponse]="reponse"
+          [isBonneReponse]="reponse === currentQuestion.bonneReponse"
+          [reponseAlreadySelected]="currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE"
+          [isSelectionnable]="currentQuestionState === EtatQuestion.REPONSES_PROPOSEES"
+          [bonneReponseShown]="currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE"
+          (reponseSelected)="onReponseSelected($event)"
+        ></champ-reponse>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
 
-    <div class="couple-reponse" *ngIf="modeQuestionSelected === modeQuestion.Carre">
-      <champ-reponse
-        *ngFor="let i of [2, 3]"
-        [typeChamp]="isChampion ? TypeChamp.CHAMPION : TypeChamp.CHALLENGER"
-        [reponse]="reponsesDisplay[i]"
-        [reponseAlreadySelected]="reponseAlreadySelected"
-        [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
-        [isSelectionnable]="true"
-        (reponseSelected)="onReponseSelected($event)"
-      ></champ-reponse>
-    </div>
+  <div
+    class="cash-input-container"
+    *ngIf="
+      !isChampion &&
+      modeQuestionSelected === modeQuestion.Cash &&
+      currentQuestionState === EtatQuestion.REPONSES_PROPOSEES
+    "
+  >
+    <input
+      class="champ"
+      [(ngModel)]="reponseCash"
+      (focus)="onReponseCashFocus()"
+      (blur)="onReponseCashBlur()"
+    />
+  </div>
 
-    <div
-      class="cash-input-container"
-      *ngIf="!isChampion && modeQuestionSelected === modeQuestion.Cash"
-    >
-      <input
-        class="champ"
-        [(ngModel)]="reponseCash"
-        (focus)="onReponseCashFocus()"
-        (blur)="onReponseCashBlur()"
-      />
-    </div>
-
-    <div class="reponse-cash-container">
-      <champ-reponse
-        class="reponse-cash"
-        *ngIf="modeQuestionSelected === modeQuestion.Cash && bonneReponseShown"
-        [reponse]="bonneReponse"
-        [reponseAlreadySelected]="reponseAlreadySelected"
-        [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="true"
-      ></champ-reponse>
-    </div>
+  <div class="reponse-cash-container">
+    <champ-reponse
+      class="reponse-cash"
+      *ngIf="
+        modeQuestionSelected === modeQuestion.Cash &&
+        currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE
+      "
+      [reponse]="bonneReponse"
+      [bonneReponseShown]="currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE"
+      [isBonneReponse]="true"
+    ></champ-reponse>
   </div>
 </div>

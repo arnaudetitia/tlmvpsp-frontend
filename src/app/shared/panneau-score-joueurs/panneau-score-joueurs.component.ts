@@ -13,7 +13,7 @@ import { JoueursStore } from '../../store/joueurs.store';
 import { tap } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { VerificationReponseUtils } from '../../utils/verification-reponses.util';
-import { CodeTouches } from '../../models/code-touches.enum';
+import { CodeTouches } from '../../models/enums/code-touches.enum';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ScoresStore } from '../../store/scores.store';

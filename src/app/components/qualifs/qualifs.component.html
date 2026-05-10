@@ -1,60 +1,60 @@
 <div class="qualifs-container">
   <div class="question-qualif-container">
-    <div class="question-container">
-      <div
-        class="champ extrait-musical"
-        *ngIf="extraitMusique"
-        (click)="playExtrait()"
-        [ngClass]="{
-          'extrait-bloque': extraitBloque() === true,
-        }"
-      >
-        <mat-icon>music_note</mat-icon>
-      </div>
-      <div class="champ question" *ngIf="showQuestion">{{ currentQuestion?.question }}</div>
-    </div>
+    <champ-question
+      [showQuestion]="currentQuestionState !== EtatQuestion.START_QUESTION"
+      [question]="currentQuestion.question"
+      [extraitMusique]="currentQuestion.musique"
+      [extraitBloque]="
+        currentQuestion.joueeApresQuestion &&
+        ![EtatQuestion.REPONSE_JOUEUR_DONNEE, EtatQuestion.BONNE_REPONSE_AFFICHEE].includes(
+          currentQuestionState
+        )
+      "
+    >
+    </champ-question>
 
     <choix-mode
-      *ngIf="modeQuestionSelected === null && showModeSelection"
+      *ngIf="currentQuestionState === EtatQuestion.CHOIX_MODE_QUESTION"
       (modeSelected)="onModeSelected($event)"
     ></choix-mode>
 
-    <div *ngIf="modeQuestionSelected !== null" class="reponses-container">
-      <div class="couple-reponse" *ngIf="modeQuestionSelected !== modeQuestion.Cash">
-        <champ-reponse
-          *ngFor="let i of [0, 1]"
-          [reponse]="reponsesDisplay[i]"
-          [reponseAlreadySelected]="reponseAlreadySelected"
-          [bonneReponseShown]="bonneReponseShown"
-          [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
-          [isSelectionnable]="true"
-          (reponseSelected)="onReponseSelected($event)"
-        ></champ-reponse>
-      </div>
+    <div
+      class="reponses-list-container"
+      *ngIf="
+        [
+          EtatQuestion.REPONSES_PROPOSEES,
+          EtatQuestion.REPONSE_JOUEUR_DONNEE,
+          EtatQuestion.BONNE_REPONSE_AFFICHEE,
+        ].includes(currentQuestionState) && reponsesDisplay.length > 0
+      "
+    >
+      <mat-grid-list [cols]="2" rowHeight="12vh" gutterSize="2vh">
+        <mat-grid-tile *ngFor="let reponse of reponsesDisplay">
+          <champ-reponse
+            [reponse]="reponse"
+            [isBonneReponse]="reponse === currentQuestion.bonneReponse"
+            [reponseAlreadySelected]="currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE"
+            [isSelectionnable]="currentQuestionState === EtatQuestion.REPONSES_PROPOSEES"
+            [bonneReponseShown]="currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE"
+            (reponseSelected)="onReponseSelected($event)"
+          ></champ-reponse>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
 
-      <div class="couple-reponse" *ngIf="modeQuestionSelected === modeQuestion.Carre">
-        <champ-reponse
-          *ngFor="let i of [2, 3]"
-          [reponse]="reponsesDisplay[i]"
-          [reponseAlreadySelected]="reponseAlreadySelected"
-          [bonneReponseShown]="bonneReponseShown"
-          [isBonneReponse]="bonneReponse === reponsesDisplay[i]"
-          [isSelectionnable]="true"
-          (reponseSelected)="onReponseSelected($event)"
-        ></champ-reponse>
-      </div>
-
-      <div class="reponse-cash-container">
-        <champ-reponse
-          class="reponse-cash"
-          *ngIf="modeQuestionSelected === modeQuestion.Cash && bonneReponseShown"
-          [reponse]="bonneReponse"
-          [reponseAlreadySelected]="reponseAlreadySelected"
-          [bonneReponseShown]="bonneReponseShown"
-          [isBonneReponse]="true"
-          [isSelectionnable]="false"
-        ></champ-reponse>
-      </div>
+    <div class="reponse-cash-container">
+      <champ-reponse
+        class="reponse-cash"
+        *ngIf="
+          modeQuestionSelected === ModeQuestion.Cash &&
+          currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE
+        "
+        [reponse]="currentQuestion.bonneReponse"
+        [reponseAlreadySelected]="true"
+        [bonneReponseShown]="currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE"
+        [isBonneReponse]="true"
+        [isSelectionnable]="false"
+      ></champ-reponse>
     </div>
   </div>
   <panneau-score-joueurs

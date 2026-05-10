@@ -1,4 +1,4 @@
-import { TriTypeEnum } from './tri.enum';
+import { TriTypeEnum } from './enums/tri.enum';
 
 export interface Question {
   question: string;

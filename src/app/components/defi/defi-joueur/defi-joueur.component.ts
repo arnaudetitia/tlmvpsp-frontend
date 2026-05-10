@@ -4,22 +4,35 @@ import { CommonModule } from '@angular/common';
 import { ChoixModeComponent } from '../../../shared/choix-mode/choix-mode.compoent';
 import { ChampReponseComponent } from '../../../shared/champ-reponse/champ-reponse.component';
 import { Defi, QuestionDefi } from '../../../models/defi.model';
-import { CodeTouches } from '../../../models/code-touches.enum';
+import { CodeTouches } from '../../../models/enums/code-touches.enum';
 import { TypeChamp } from '../../../shared/champ-reponse/type-champ.enum';
 import { FormsModule } from '@angular/forms';
 import { RecapQuestion } from '../model/recap-defi-challenger.model';
 import { Jingles } from '../../../models/jingles.models';
 import { PartieStore } from '../../../store/partie.store';
 import { SortAndMixReponsesUtils } from '../../../utils/sort-and-mix-reponses.util';
+import { QuestionStore } from '../../../store/question.store';
+import { EtatQuestion } from '../../../models/enums/etat-question.enum';
+import { ChampQuestionComponent } from '../../../shared/champ-question/champ-question.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { ManchesEnum } from '../../../models/enums/manches.enum';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'defi-joueur',
-  imports: [CommonModule, ChoixModeComponent, ChampReponseComponent, FormsModule],
+  imports: [
+    CommonModule,
+    ChoixModeComponent,
+    ChampQuestionComponent,
+    ChampReponseComponent,
+    MatGridListModule,
+    FormsModule,
+  ],
   templateUrl: './defi-joueur.component.html',
   styleUrls: ['./defi-joueur.component.scss'],
 })
 export class DefiJoueurComponent implements OnInit {
-  @Input() defi: Defi | undefined;
+  @Input() defi: Defi = {} as Defi;
   @Input() isChampion: boolean = false;
 
   @Output() onQuestionRepondue = new EventEmitter<RecapQuestion>();
@@ -27,15 +40,14 @@ export class DefiJoueurComponent implements OnInit {
   @Output() onDefiTermine = new EventEmitter<void>();
 
   TypeChamp = TypeChamp;
-
-  showQuestion = false;
-  showModeSelection: boolean = false;
+  EtatQuestion = EtatQuestion;
+  mancheDefi = ManchesEnum.DEFI_CHALLENGER;
+  currentQuestionState: EtatQuestion = EtatQuestion.START_QUESTION;
 
   indexQuestion: number = 0;
-  currentQuestion: QuestionDefi | undefined;
+  currentQuestion: QuestionDefi = {} as QuestionDefi;
   modeQuestionSelected: ModeQuestion | null = null;
   reponsesDisplay: string[] = [];
-  reponseAlreadySelected = false;
 
   bonneReponse = '';
   bonneReponseShown = false;
@@ -47,9 +59,13 @@ export class DefiJoueurComponent implements OnInit {
   reponseCash = '';
   reponseCashEditing = false;
 
-  constructor(private partireStore: PartieStore) {}
+  constructor(
+    private partireStore: PartieStore,
+    private questionStore: QuestionStore,
+  ) {}
 
   ngOnInit() {
+    this.mancheDefi = this.isChampion ? ManchesEnum.DEFI_CHAMPION : ManchesEnum.DEFI_CHALLENGER;
     this.currentQuestion = this.defi?.questionsDefi[this.indexQuestion];
     if (this.currentQuestion) {
       this.bonneReponse = this.currentQuestion.bonneReponse;
@@ -58,6 +74,26 @@ export class DefiJoueurComponent implements OnInit {
         ...this.currentQuestion?.mauvaisesReponses,
       ];
     }
+    this.questionStore.etatQuestion$
+      .pipe(
+        tap((etat) => {
+          this.currentQuestionState = etat;
+          console.log('currentQuestionState', this.currentQuestionState);
+          if (
+            this.isChampion &&
+            this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
+            this.modeQuestionSelected !== ModeQuestion.Cash
+          ) {
+            if (this.isBonneReponseGiven) {
+              Jingles.sonBonneReponse.play();
+              this.onBonneReponseGiven.emit(this.modeQuestionSelected);
+            } else {
+              Jingles.sonMauvaiseReponse.play();
+            }
+          }
+        }),
+      )
+      .subscribe();
   }
 
   onModeSelected(mode: ModeQuestion) {
@@ -67,11 +103,12 @@ export class DefiJoueurComponent implements OnInit {
       this.modeQuestionSelected,
       this.currentQuestion?.tri,
     );
+    this.questionStore.passerEtatSuivant(this.mancheDefi);
     Jingles.sonChronoDefi.play();
   }
 
   onReponseSelected($event: any) {
-    this.reponseAlreadySelected = true;
+    this.questionStore.passerEtatSuivant(this.mancheDefi);
     this.reponseGiven = $event;
     this.isBonneReponseGiven = $event === this.bonneReponse;
     this.stopChrono();
@@ -86,6 +123,7 @@ export class DefiJoueurComponent implements OnInit {
     this.indexQuestion++;
     if (this.indexQuestion === 6) {
       this.onDefiTermine.emit();
+      this.questionStore.passerEtatSuivant(this.mancheDefi);
     } else {
       this.partireStore.setIndexCurrentQuestion(this.indexQuestion);
       this.currentQuestion = this.defi?.questionsDefi[this.indexQuestion];
@@ -95,12 +133,7 @@ export class DefiJoueurComponent implements OnInit {
           this.currentQuestion?.bonneReponse,
           ...this.currentQuestion?.mauvaisesReponses,
         ];
-        this.modeQuestionSelected = null;
-        this.showQuestion = false;
-        this.showModeSelection = false;
-        this.reponseAlreadySelected = false;
-        this.isBonneReponseGiven = false;
-        this.bonneReponseShown = false;
+        this.questionStore.passerEtatSuivant(this.mancheDefi);
         this.reponseCash = '';
         this.reponseGiven = '';
       }
@@ -119,17 +152,19 @@ export class DefiJoueurComponent implements OnInit {
   handleKeyboardEvent($event: KeyboardEvent) {
     switch ($event.code) {
       case CodeTouches.spacebarCode:
-        if (!this.showQuestion) {
-          this.showQuestion = true;
-        } else if (this.showQuestion && !this.showModeSelection) {
-          this.showModeSelection = true;
-        } else if (this.reponseAlreadySelected && this.isChampion && !this.bonneReponseShown) {
-          this.bonneReponseShown = true;
-          if (this.isBonneReponseGiven) {
-            Jingles.sonBonneReponse.play();
-            this.onBonneReponseGiven.emit(this.modeQuestionSelected);
-          } else {
-            Jingles.sonMauvaiseReponse.play();
+        if (
+          ![
+            EtatQuestion.CHOIX_MODE_QUESTION,
+            EtatQuestion.REPONSES_PROPOSEES,
+            EtatQuestion.BONNE_REPONSE_AFFICHEE,
+            ...(!this.isChampion ? [EtatQuestion.REPONSE_JOUEUR_DONNEE] : []),
+          ].includes(this.currentQuestionState)
+        ) {
+          if (
+            this.currentQuestionState !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
+            this.modeQuestionSelected !== ModeQuestion.Cash
+          ) {
+            this.questionStore.passerEtatSuivant(this.mancheDefi);
           }
         }
         break;
@@ -137,38 +172,48 @@ export class DefiJoueurComponent implements OnInit {
       case CodeTouches.buttonSCode:
         if (!this.reponseCashEditing) {
           Jingles.selectionReponse.play();
-          this.reponseAlreadySelected = true;
+          this.questionStore.passerEtatSuivant(this.mancheDefi);
           this.stopChrono();
         }
         break;
 
       case CodeTouches.buttonTCode:
-        if (this.isChampion && this.reponseAlreadySelected) {
-          this.bonneReponseShown = true;
+        if (
+          this.isChampion &&
+          this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
+          this.modeQuestionSelected === ModeQuestion.Cash
+        ) {
+          this.questionStore.passerEtatSuivant(this.mancheDefi);
           Jingles.sonBonneReponse.play();
           this.onBonneReponseGiven.emit(this.modeQuestionSelected);
         }
         break;
 
       case CodeTouches.buttonFCode:
-        if (this.isChampion && this.reponseAlreadySelected) {
-          this.bonneReponseShown = true;
+        if (
+          this.isChampion &&
+          this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
+          this.modeQuestionSelected === ModeQuestion.Cash
+        ) {
+          this.questionStore.passerEtatSuivant(this.mancheDefi);
           Jingles.sonMauvaiseReponse.play();
         }
         break;
 
       case CodeTouches.rightArrowCode:
         if (
-          (!this.isChampion && this.reponseAlreadySelected) ||
-          (this.isChampion && this.bonneReponseShown)
+          (!this.isChampion && this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) ||
+          (this.isChampion && this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE)
         ) {
-          this.onQuestionRepondue.emit({
-            question: this.currentQuestion ? this.currentQuestion.question : '',
-            modeQuestion: this.modeQuestionSelected,
-            propositions: this.reponsesDisplay,
-            reponseDonnee: this.reponseGiven || this.reponseCash,
-            bonneReponse: this.bonneReponse,
-          });
+          if (!this.isChampion) {
+            this.onQuestionRepondue.emit({
+              question: this.currentQuestion ? this.currentQuestion.question : '',
+              modeQuestion: this.modeQuestionSelected,
+              propositions: this.reponsesDisplay,
+              reponseDonnee: this.reponseGiven || this.reponseCash,
+              bonneReponse: this.bonneReponse,
+            });
+          }
           this.prepareNextQuestion();
         }
         break;

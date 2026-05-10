@@ -2,14 +2,15 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@a
 import { RecapDefiChallenger, RecapQuestion } from '../model/recap-defi-challenger.model';
 import { CommonModule } from '@angular/common';
 import { ChampReponseComponent } from '../../../shared/champ-reponse/champ-reponse.component';
-import { CodeTouches } from '../../../models/code-touches.enum';
+import { CodeTouches } from '../../../models/enums/code-touches.enum';
 import { Jingles } from '../../../models/jingles.models';
 import { ModeQuestion } from '../../../models/mode-question.models';
 import { PartieStore } from '../../../store/partie.store';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @Component({
   selector: 'defi-challenger-verif',
-  imports: [CommonModule, ChampReponseComponent],
+  imports: [CommonModule, ChampReponseComponent, MatGridListModule],
   templateUrl: './defi-challenger-verif.component.html',
   styleUrls: ['./defi-challenger-verif.component.scss'],
 })
@@ -47,7 +48,7 @@ export class DefiChallengerVerifComponent implements OnInit {
   handleKeyboardEvent($event: KeyboardEvent) {
     switch ($event.code) {
       case CodeTouches.spacebarCode:
-        if (this.currentQuestion.propositions.length) {
+        if (this.currentQuestion.propositions.length && !this.showBonneReponse) {
           this.showBonneReponse = true;
           if (this.currentQuestion.bonneReponse === this.currentQuestion.reponseDonnee) {
             Jingles.sonBonneReponse.play();
@@ -59,14 +60,18 @@ export class DefiChallengerVerifComponent implements OnInit {
         break;
 
       case CodeTouches.buttonTCode:
-        this.showBonneReponse = true;
-        Jingles.sonBonneReponse.play();
-        this.onBonneReponseGiven.emit(this.currentQuestion.modeQuestion);
+        if (!this.showBonneReponse) {
+          this.showBonneReponse = true;
+          Jingles.sonBonneReponse.play();
+          this.onBonneReponseGiven.emit(this.currentQuestion.modeQuestion);
+        }
         break;
 
       case CodeTouches.buttonFCode:
-        this.showBonneReponse = true;
-        Jingles.sonMauvaiseReponse.play();
+        if (!this.showBonneReponse) {
+          this.showBonneReponse = true;
+          Jingles.sonMauvaiseReponse.play();
+        }
         break;
 
       case CodeTouches.rightArrowCode:

@@ -3,54 +3,69 @@
 
   <div class="question-compet-container">
     <choix-super-cash
-      *ngIf="showSuperCash"
+      *ngIf="currentCompetState.includes('SUPER_CASH')"
       [selectedQuestion]="selectedQuestion"
       [alreadyPlayed]="alreadyPlayed"
       (onQuestionSelected)="preparerSelectedQuestion($event)"
     ></choix-super-cash>
+    <champ-question
+      [typeChamp]="typeChampCompet"
+      [showQuestion]="
+        ![
+          EtatCompet.START_QUESTION_NORMALE,
+          EtatCompet.QUESTION_SUPER_CASH_CHOISIE,
+          EtatCompet.START_QUESTION_SUPER_CASH,
+        ].includes(currentCompetState)
+      "
+      [question]="currentQuestion.question"
+      [extraitMusique]="currentQuestion.musique"
+      [extraitBloque]="
+        currentQuestion.joueeApresQuestion &&
+        ![
+          EtatCompet.VOTES_FERMES,
+          EtatCompet.BONNE_REPONSE_AFFICHEE,
+          EtatCompet.REPONSE_SUPER_CASH_DONNEE,
+          EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
+        ].includes(currentCompetState)
+      "
+    ></champ-question>
 
-    <div class="question-container">
-      <div
-        class="champ extrait-musical"
-        *ngIf="extraitMusique"
-        (click)="playExtrait()"
-        [ngClass]="{
-          'extrait-bloque': extraitBloque() === true,
-        }"
-      >
-        <mat-icon>music_note</mat-icon>
-      </div>
-      <div class="champ question" *ngIf="showQuestion">{{ question?.question }}</div>
+    <div
+      class="reponses-list-container"
+      *ngIf="
+        [
+          EtatCompet.VOTES_OUVERTS,
+          EtatCompet.VOTES_FERMES,
+          EtatCompet.BONNE_REPONSE_AFFICHEE,
+        ].includes(currentCompetState) && reponsesDisplay.length > 0
+      "
+    >
+      <mat-grid-list [cols]="2" rowHeight="12vh" gutterSize="2vh">
+        <mat-grid-tile *ngFor="let reponse of reponsesDisplay">
+          <champ-reponse
+            [typeChamp]="TypeChamp.COMPET"
+            [reponse]="reponse"
+            [isBonneReponse]="reponse === currentQuestion.bonneReponse"
+            [isSelectionnable]="false"
+            [isProposition]="true"
+            [bonneReponseShown]="currentCompetState === EtatCompet.BONNE_REPONSE_AFFICHEE"
+          ></champ-reponse>
+        </mat-grid-tile>
+      </mat-grid-list>
     </div>
 
-    <div class="couple-reponse" *ngIf="showReponses && question?.mode !== 'Cash'">
-      <champ-reponse
-        *ngFor="let i of [0, 1]"
-        [typeChamp]="TypeChamp.COMPET"
-        [reponse]="reponsesDisplay[i]"
-        [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="question?.bonneReponse === reponsesDisplay[i]"
-        [isProposition]="true"
-      ></champ-reponse>
-    </div>
-
-    <div class="couple-reponse" *ngIf="showReponses && question?.mode === 'Carré'">
-      <champ-reponse
-        *ngFor="let i of [2, 3]"
-        [typeChamp]="TypeChamp.COMPET"
-        [reponse]="reponsesDisplay[i]"
-        [bonneReponseShown]="bonneReponseShown"
-        [isBonneReponse]="question?.bonneReponse === reponsesDisplay[i]"
-        [isProposition]="true"
-      ></champ-reponse>
-    </div>
-
-    <div class="reponse-cash-container" *ngIf="question">
+    <div class="reponse-cash-container" *ngIf="currentQuestion">
       <champ-reponse
         class="reponse-cash"
-        *ngIf="question.mode === 'Cash' && bonneReponseShown"
-        [reponse]="question.bonneReponse"
-        [bonneReponseShown]="bonneReponseShown"
+        *ngIf="
+          currentQuestion.mode === 'Cash' &&
+          [
+            EtatCompet.BONNE_REPONSE_AFFICHEE,
+            EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
+          ].includes(currentCompetState)
+        "
+        [reponse]="currentQuestion.bonneReponse"
+        [bonneReponseShown]="true"
         [isBonneReponse]="true"
       ></champ-reponse>
     </div>
@@ -58,11 +73,11 @@
 
   <panneau-score-joueurs
     [panneaux]="scoresCompet"
-    [bonneReponse]="question?.bonneReponse"
-    [showBonneReopnseGiven]="bonneReponseShown"
+    [bonneReponse]="currentQuestion?.bonneReponse"
+    [showBonneReopnseGiven]="currentCompetState === EtatCompet.BONNE_REPONSE_AFFICHEE"
     [selectedJoueur]="selectedJoueurSuperCash"
     [nbJoueurAQualifier]="1"
-    [aliases]="questionAliases"
+    [aliases]="currentQuestion.aliases"
     (onBonneReponseGiven)="enregistrerJoueurAvecBonneReponse($event)"
     (onAllJoueursQualifies)="setChallenger($event)"
   ></panneau-score-joueurs>
