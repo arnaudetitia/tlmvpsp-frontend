@@ -9,7 +9,7 @@
     [cols]="2"
     rowHeight="12vh"
     gutterSize="2vh"
-    *ngIf="currentQuestion.propositions.length"
+    *ngIf="currentQuestion.propositions.length; else reponseCash"
   >
     <mat-grid-tile *ngFor="let reponse of currentQuestion.propositions">
       <champ-reponse

@@ -60,14 +60,18 @@ export class DefiChallengerVerifComponent implements OnInit {
         break;
 
       case CodeTouches.buttonTCode:
-        this.showBonneReponse = true;
-        Jingles.sonBonneReponse.play();
-        this.onBonneReponseGiven.emit(this.currentQuestion.modeQuestion);
+        if (!this.showBonneReponse) {
+          this.showBonneReponse = true;
+          Jingles.sonBonneReponse.play();
+          this.onBonneReponseGiven.emit(this.currentQuestion.modeQuestion);
+        }
         break;
 
       case CodeTouches.buttonFCode:
-        this.showBonneReponse = true;
-        Jingles.sonMauvaiseReponse.play();
+        if (!this.showBonneReponse) {
+          this.showBonneReponse = true;
+          Jingles.sonMauvaiseReponse.play();
+        }
         break;
 
       case CodeTouches.rightArrowCode:

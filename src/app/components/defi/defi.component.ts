@@ -69,12 +69,13 @@ export class DefiComponent implements OnInit {
     ])
       .pipe(
         tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
-          const panneauChall = panneauChallenger[0] || ({ joueur: 'Challenger' } as PanneauJoueur);
+          const panneauChall = panneauChallenger[0];
           this.panneauxDefi = [
             {
               joueur: panneauChall.joueur,
               score: 0,
               statut: StatutJoueur.CHALLENGER,
+              reponseJoueur: '',
             },
             {
               joueur: champion,
