@@ -78,7 +78,6 @@ export class DefiJoueurComponent implements OnInit {
       .pipe(
         tap((etat) => {
           this.currentQuestionState = etat;
-          console.log('currentQuestionState', this.currentQuestionState);
           if (
             this.isChampion &&
             this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
