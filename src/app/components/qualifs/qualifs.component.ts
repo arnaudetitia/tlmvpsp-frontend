@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Host, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QualifsService } from '../../services/qualifs.service';
-import { combineLatest, tap } from 'rxjs';
+import { combineLatest, merge, tap } from 'rxjs';
 import { ModeQuestion, valeurModeQuestion } from '../../models/mode-question.models';
 import { QuestionQualif } from '../../models/qualifs.models';
 import { PanneauScoreJoueursComponent } from '../../shared/panneau-score-joueurs/panneau-score-joueurs.component';
@@ -70,8 +70,7 @@ export class QualifsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.scoresStore
-      .getPanneauxJoueurs()
+    merge(this.scoresStore.panneauxJoueurs$, this.scoresStore.getPanneauxJoueurs())
       .pipe(
         tap((scores) => {
           this.scoresQualifs = scores;
