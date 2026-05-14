@@ -104,6 +104,13 @@ export class DefiComponent implements OnInit {
         }),
       )
       .subscribe();
+    this.scoresStore.panneauxJoueurs$
+      .pipe(
+        tap((panneauJoueurs) => {
+          this.panneauxDefi = panneauJoueurs;
+        }),
+      )
+      .subscribe();
   }
 
   getDefiChallenger($event: any) {
