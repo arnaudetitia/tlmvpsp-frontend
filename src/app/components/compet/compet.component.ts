@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, signal } from '@angular/core';
 import { CompetService } from '../../services/compet.service';
-import { combineLatest, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { combineLatest, filter, map, merge, Observable, of, switchMap, tap } from 'rxjs';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
 import { TypeChamp } from '../../shared/champ-reponse/type-champ.enum';
 import { CommonModule } from '@angular/common';
@@ -86,8 +86,7 @@ export class CompetComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.scoresStore
-      .getPanneauxJoueurs()
+    merge(this.scoresStore.panneauxJoueurs$, this.scoresStore.getPanneauxJoueurs())
       .pipe(
         tap((panneauJoueurs) => {
           this.scoresCompet = panneauJoueurs;
