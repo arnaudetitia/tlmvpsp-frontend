@@ -59,7 +59,7 @@
   </div>
   <panneau-score-joueurs
     [panneaux]="scoresQualifs"
-    [selectedJoueur]="scoresQualifs[indexJoueur].joueur"
+    [selectedJoueur]="indexJoueur < scoresQualifs.length ? scoresQualifs[indexJoueur].joueur : ''"
     (onAllJoueursQualifies)="qualifierJoueur($event)"
   ></panneau-score-joueurs>
 

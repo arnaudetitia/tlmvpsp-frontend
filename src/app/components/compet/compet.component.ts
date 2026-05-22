@@ -86,6 +86,14 @@ export class CompetComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.competService
+      .getJoueursCompet()
+      .pipe(
+        tap((joueurs) => {
+          this.scoresStore.initScores(joueurs.map((joueur) => joueur.nomJoueur));
+        }),
+      )
+      .subscribe();
     merge(this.scoresStore.panneauxJoueurs$, this.scoresStore.getPanneauxJoueurs())
       .pipe(
         tap((panneauJoueurs) => {
