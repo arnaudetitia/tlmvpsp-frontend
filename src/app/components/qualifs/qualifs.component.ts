@@ -22,7 +22,6 @@ import { CodeTouches } from '../../models/enums/code-touches.enum';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
 import { ChoixModeComponent } from '../../shared/choix-mode/choix-mode.compoent';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { EtatPartieKeys } from '../../models/enums/etat-partie.enum';
 
 @Component({
   selector: 'app-qualifs',
@@ -138,6 +137,7 @@ export class QualifsComponent implements OnInit {
   }
 
   preparerSuite() {
+    this.questionStore.passerEtatSuivant(this.mancheQualif);
     if (this.questionIndex === this.questionsQualifs.length - 1) {
       this.calculerQualification();
     } else {
@@ -191,18 +191,14 @@ export class QualifsComponent implements OnInit {
         return scoreJoueur;
       });
       this.qualifierJoueur(joueursQualifies);
-      this.competService.setJoueursCompet(joueursQualifies).subscribe();
-      this.scoresStore.initScores(joueursQualifies);
-      this.qualifsTerminees = true;
     }
   }
 
   qualifierJoueur(joueurs: string[]) {
+    this.qualifsTerminees = true;
     this.joueursStore.setQualifiesCompet(joueurs);
     this.competService.setJoueursCompet(joueurs).subscribe();
-    this.scoresStore.initScores(joueurs);
     this.partieStore.resetIndexCurrentQuestion();
-    this.qualifsTerminees = true;
     this.questionStore.resetEtatQuestion();
   }
 
@@ -260,12 +256,7 @@ export class QualifsComponent implements OnInit {
 
       case CodeTouches.rightArrowCode:
         if (this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE) {
-          if (this.questionIndex < this.questionsQualifs.length - 1) {
-            this.questionStore.passerEtatSuivant(this.mancheQualif);
-            this.prepareNextQuestion();
-          } else {
-            this.calculerQualification();
-          }
+          this.preparerSuite();
         }
         break;
 
