@@ -1,8 +1,8 @@
 <div class="champ-question-container">
-  <div
-    class="champ extrait-musical"
-    *ngIf="extraitMusique"
-    (click)="playExtrait()"
+  @if (extraitMusique) {
+    <div
+      class="champ extrait-musical"
+      (click)="playExtrait()"
     [class]="{
       'extrait-bloque': extraitBloque === true,
       qualif: typeChamp === TypeChamp.QUALIF,
@@ -10,12 +10,13 @@
       challenger: typeChamp === TypeChamp.CHALLENGER,
       champion: typeChamp === TypeChamp.CHAMPION,
     }"
-  >
-    <mat-icon>music_note</mat-icon>
-  </div>
-  <div
-    class="champ question"
-    *ngIf="showQuestion"
+      >
+      <mat-icon>music_note</mat-icon>
+    </div>
+  }
+  @if (showQuestion) {
+    <div
+      class="champ question"
     [class]="{
       'extrait-bloque': extraitBloque === true,
       qualif: typeChamp === TypeChamp.QUALIF,
@@ -23,7 +24,8 @@
       challenger: typeChamp === TypeChamp.CHALLENGER,
       champion: typeChamp === TypeChamp.CHAMPION,
     }"
-  >
-    {{ question }}
-  </div>
+      >
+      {{ question }}
+    </div>
+  }
 </div>

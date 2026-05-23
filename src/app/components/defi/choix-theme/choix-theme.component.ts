@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ChampTheme } from '../../../shared/champ-theme/champ-theme.component';
 import { ThemeDefi } from '../../../models/theme-defi.model';
-import { CommonModule } from '@angular/common';
+
 import { Jingles } from '../../../models/jingles.models';
 
 @Component({
   selector: 'choix-theme',
-  imports: [CommonModule, ChampTheme],
+  imports: [ChampTheme],
   templateUrl: './choix-theme.component.html',
   styleUrls: ['./choix-theme.component.scss'],
 })

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { RecapDefiChallenger, RecapQuestion } from '../model/recap-defi-challenger.model';
-import { CommonModule } from '@angular/common';
+
 import { ChampReponseComponent } from '../../../shared/champ-reponse/champ-reponse.component';
 import { CodeTouches } from '../../../models/enums/code-touches.enum';
 import { Jingles } from '../../../models/jingles.models';
@@ -10,7 +10,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 
 @Component({
   selector: 'defi-challenger-verif',
-  imports: [CommonModule, ChampReponseComponent, MatGridListModule],
+  imports: [ChampReponseComponent, MatGridListModule],
   templateUrl: './defi-challenger-verif.component.html',
   styleUrls: ['./defi-challenger-verif.component.scss'],
 })

@@ -1,5 +1,11 @@
-import { ChangeDetectorRef, Component, Host, HostListener, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  HostListener,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { QualifsService } from '../../services/qualifs.service';
 import { combineLatest, merge, tap } from 'rxjs';
 import { ModeQuestion, valeurModeQuestion } from '../../models/mode-question.models';
@@ -26,7 +32,6 @@ import { MatGridListModule } from '@angular/material/grid-list';
 @Component({
   selector: 'app-qualifs',
   imports: [
-    CommonModule,
     ChampQuestionComponent,
     ChoixModeComponent,
     ChampReponseComponent,
@@ -40,20 +45,27 @@ import { MatGridListModule } from '@angular/material/grid-list';
 })
 export class QualifsComponent implements OnInit {
   mancheQualif = ManchesEnum.QUALIFS;
-  currentQuestionState: EtatQuestion = EtatQuestion.START_QUESTION;
-  modeQuestionSelected: ModeQuestion = {} as ModeQuestion;
-  indexJoueur = 0;
+  currentQuestionState = signal<EtatQuestion>(EtatQuestion.START_QUESTION);
+  modeQuestionSelected = signal<ModeQuestion>({} as ModeQuestion);
 
-  questionsQualifs: QuestionQualif[] = [];
-  questionIndex = 0;
-  currentQuestion: QuestionQualif = {} as QuestionQualif;
+  questionsQualifs = signal<QuestionQualif[]>([]);
+  questionIndex = signal<number>(0);
 
-  reponsesDisplay: string[] = [];
+  indexJoueur = computed(() => Math.floor(this.questionIndex() / 2));
+
+  currentQuestion = computed(() => {
+    if (this.questionsQualifs()[this.questionIndex()]) {
+      return this.questionsQualifs()[this.questionIndex()];
+    }
+    return {} as QuestionQualif;
+  });
+
+  reponsesDisplay = signal<string[]>([]);
   reponseDonnee: string = '';
 
-  qualifsTerminees: boolean = false;
+  qualifsTerminees = signal<boolean>(false);
 
-  scoresQualifs: PanneauJoueur[] = [];
+  scoresQualifs = signal<PanneauJoueur[]>([]);
 
   EtatQuestion = EtatQuestion;
   ModeQuestion = ModeQuestion;
@@ -65,28 +77,27 @@ export class QualifsComponent implements OnInit {
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
     private questionStore: QuestionStore,
-    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
     merge(this.scoresStore.panneauxJoueurs$, this.scoresStore.getPanneauxJoueurs())
       .pipe(
         tap((scores) => {
-          this.scoresQualifs = scores;
+          this.scoresQualifs.set(scores);
         }),
       )
       .subscribe();
     this.questionStore.etatQuestion$
       .pipe(
         tap((etat) => {
-          this.currentQuestionState = etat;
+          this.currentQuestionState.set(etat);
           if (
-            this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
-            this.modeQuestionSelected !== ModeQuestion.Cash
+            this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
+            this.modeQuestionSelected() !== ModeQuestion.Cash
           ) {
-            if (this.reponseDonnee === this.currentQuestion.bonneReponse) {
+            if (this.reponseDonnee === this.currentQuestion().bonneReponse) {
               Jingles.sonBonneReponse.play();
-              this.incrementerScoreJoueur(this.modeQuestionSelected);
+              this.incrementerScoreJoueur(this.modeQuestionSelected());
             } else {
               Jingles.sonMauvaiseReponse.play();
             }
@@ -100,26 +111,25 @@ export class QualifsComponent implements OnInit {
     ])
       .pipe(
         tap(([questions, questionIndex]) => {
-          this.questionsQualifs = questions;
-          this.questionIndex = questionIndex;
-          this.currentQuestion = this.questionsQualifs[this.questionIndex];
-          this.indexJoueur = Math.floor(this.questionIndex / 2);
-          this.reponsesDisplay = [
-            this.currentQuestion.bonneReponse,
-            ...this.currentQuestion.mauvaisesReponses,
-          ];
-          this.cdr.detectChanges();
+          this.questionsQualifs.set(questions);
+          this.questionIndex.set(questionIndex);
+          this.reponsesDisplay.set([
+            this.currentQuestion().bonneReponse,
+            ...this.currentQuestion().mauvaisesReponses,
+          ]);
         }),
       )
       .subscribe();
   }
 
   onModeSelected(mode: ModeQuestion) {
-    this.modeQuestionSelected = mode;
-    this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
-      this.reponsesDisplay,
-      this.modeQuestionSelected,
-      this.currentQuestion?.tri,
+    this.modeQuestionSelected.set(mode);
+    this.reponsesDisplay.set(
+      SortAndMixReponsesUtils.trierReponses(
+        this.reponsesDisplay(),
+        this.modeQuestionSelected(),
+        this.currentQuestion()?.tri,
+      ),
     );
     this.questionStore.passerEtatSuivant(this.mancheQualif);
     Jingles.sonChronoQualif.play();
@@ -138,7 +148,7 @@ export class QualifsComponent implements OnInit {
 
   preparerSuite() {
     this.questionStore.passerEtatSuivant(this.mancheQualif);
-    if (this.questionIndex === this.questionsQualifs.length - 1) {
+    if (this.questionIndex() === this.questionsQualifs().length - 1) {
       this.calculerQualification();
     } else {
       this.prepareNextQuestion();
@@ -146,56 +156,58 @@ export class QualifsComponent implements OnInit {
   }
 
   prepareNextQuestion() {
-    this.questionIndex++;
-    this.partieStore.setIndexCurrentQuestion(this.questionIndex);
-    this.indexJoueur = Math.floor(this.questionIndex / 2);
-    this.currentQuestion = this.questionsQualifs[this.questionIndex];
-    this.reponsesDisplay = [
-      this.currentQuestion.bonneReponse,
-      ...this.currentQuestion.mauvaisesReponses,
-    ];
+    this.questionIndex.update((index) => index + 1);
+    this.partieStore.setIndexCurrentQuestion(this.questionIndex());
+    this.reponsesDisplay.set([
+      this.currentQuestion().bonneReponse,
+      ...this.currentQuestion().mauvaisesReponses,
+    ]);
   }
 
   calculerQualification() {
-    const sortedJoueurs = [...this.scoresQualifs].sort(
+    const sortedJoueurs = [...this.scoresQualifs()].sort(
       (scoreA, scoreB) => scoreB.score - scoreA.score,
     );
 
     const scoreCinquiemme = sortedJoueurs[4].score;
 
-    this.scoresQualifs = this.scoresQualifs.map((scoreJoueur) => {
-      let statutJoueur: StatutJoueur;
+    this.scoresQualifs.set(
+      this.scoresQualifs().map((scoreJoueur) => {
+        let statutJoueur: StatutJoueur;
 
-      if (scoreJoueur.score > scoreCinquiemme) {
-        statutJoueur = StatutJoueur.QUALIFIE;
-      } else if (scoreJoueur.score < scoreCinquiemme) {
-        statutJoueur = StatutJoueur.ELIMINE;
-      } else {
-        statutJoueur = StatutJoueur.BALLOTAGE;
-      }
-      return { ...scoreJoueur, statut: statutJoueur };
-    });
+        if (scoreJoueur.score > scoreCinquiemme) {
+          statutJoueur = StatutJoueur.QUALIFIE;
+        } else if (scoreJoueur.score < scoreCinquiemme) {
+          statutJoueur = StatutJoueur.ELIMINE;
+        } else {
+          statutJoueur = StatutJoueur.BALLOTAGE;
+        }
+        return { ...scoreJoueur, statut: statutJoueur };
+      }),
+    );
 
-    const nbJoueursQualifie = this.scoresQualifs.filter(
+    const nbJoueursQualifie = this.scoresQualifs().filter(
       (scoreJoueur) => scoreJoueur.statut === StatutJoueur.QUALIFIE,
     ).length;
 
     if (nbJoueursQualifie === 4) {
       let joueursQualifies: string[] = [];
-      this.scoresQualifs = this.scoresQualifs.map((scoreJoueur) => {
-        if (scoreJoueur.statut !== StatutJoueur.QUALIFIE) {
-          return { ...scoreJoueur, statut: StatutJoueur.ELIMINE };
-        } else {
-          joueursQualifies.push(scoreJoueur.joueur);
-        }
-        return scoreJoueur;
-      });
+      this.scoresQualifs.set(
+        this.scoresQualifs().map((scoreJoueur) => {
+          if (scoreJoueur.statut !== StatutJoueur.QUALIFIE) {
+            return { ...scoreJoueur, statut: StatutJoueur.ELIMINE };
+          } else {
+            joueursQualifies.push(scoreJoueur.joueur);
+          }
+          return scoreJoueur;
+        }),
+      );
       this.qualifierJoueur(joueursQualifies);
     }
   }
 
   qualifierJoueur(joueurs: string[]) {
-    this.qualifsTerminees = true;
+    this.qualifsTerminees.set(true);
     this.joueursStore.setQualifiesCompet(joueurs);
     this.competService.setJoueursCompet(joueurs).subscribe();
     this.partieStore.resetIndexCurrentQuestion();
@@ -203,8 +215,15 @@ export class QualifsComponent implements OnInit {
   }
 
   incrementerScoreJoueur(modeQuestion: ModeQuestion) {
-    this.scoresQualifs[this.indexJoueur].score += valeurModeQuestion[modeQuestion];
-    this.scoresStore.setPanneauJoueurs(this.scoresQualifs);
+    this.scoresQualifs.set(
+      this.scoresQualifs().map((scoreJoueur, index) => {
+        if (index === this.indexJoueur()) {
+          return { ...scoreJoueur, score: scoreJoueur.score + valeurModeQuestion[modeQuestion] };
+        }
+        return scoreJoueur;
+      }),
+    );
+    this.scoresStore.setPanneauJoueurs(this.scoresQualifs());
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -216,11 +235,11 @@ export class QualifsComponent implements OnInit {
             EtatQuestion.CHOIX_MODE_QUESTION,
             EtatQuestion.REPONSES_PROPOSEES,
             EtatQuestion.BONNE_REPONSE_AFFICHEE,
-          ].includes(this.currentQuestionState)
+          ].includes(this.currentQuestionState())
         ) {
           if (
-            this.currentQuestionState !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
-            this.modeQuestionSelected !== ModeQuestion.Cash
+            this.currentQuestionState() !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
+            this.modeQuestionSelected() !== ModeQuestion.Cash
           ) {
             this.questionStore.passerEtatSuivant(this.mancheQualif);
           }
@@ -229,8 +248,8 @@ export class QualifsComponent implements OnInit {
 
       case CodeTouches.buttonSCode:
         if (
-          this.currentQuestionState === EtatQuestion.REPONSES_PROPOSEES &&
-          this.modeQuestionSelected === ModeQuestion.Cash
+          this.currentQuestionState() === EtatQuestion.REPONSES_PROPOSEES &&
+          this.modeQuestionSelected() === ModeQuestion.Cash
         ) {
           this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.selectionReponse.play();
@@ -239,23 +258,30 @@ export class QualifsComponent implements OnInit {
         break;
 
       case CodeTouches.buttonTCode:
-        if (this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
+        if (this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
           this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.sonBonneReponse.play();
-          this.scoresQualifs[this.indexJoueur].score += 5;
-          this.scoresStore.setPanneauJoueurs(this.scoresQualifs);
+          this.scoresQualifs.set(
+            this.scoresQualifs().map((scoreJoueur, index) => {
+              if (index === this.indexJoueur()) {
+                return { ...scoreJoueur, score: scoreJoueur.score + 5 };
+              }
+              return scoreJoueur;
+            }),
+          );
+          this.scoresStore.setPanneauJoueurs(this.scoresQualifs());
         }
         break;
 
       case CodeTouches.buttonFCode:
-        if (this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
+        if (this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE) {
           this.questionStore.passerEtatSuivant(this.mancheQualif);
           Jingles.sonMauvaiseReponse.play();
         }
         break;
 
       case CodeTouches.rightArrowCode:
-        if (this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE) {
+        if (this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE) {
           this.preparerSuite();
         }
         break;

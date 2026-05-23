@@ -1,11 +1,12 @@
 <div class="choix-super-cash-container">
-  <div
-    class="champ lien-super-cash"
-    *ngFor="let i of [8, 9, 10, 11]"
-    [class.selected]="selectedQuestion.get(i)"
-    [class.already-played]="alreadyPlayed.get(i)"
-    (click)="selectSuperCash(i)"
-  >
-    Q{{ i - 7 }}
-  </div>
+  @for (i of [8, 9, 10, 11]; track i) {
+    <div
+      class="champ lien-super-cash"
+      [class.selected]="selectedQuestion.get(i)"
+      [class.already-played]="alreadyPlayed.get(i)"
+      (click)="selectSuperCash(i)"
+      >
+      Q{{ i - 7 }}
+    </div>
+  }
 </div>

@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  HostListener,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CompetService } from '../../services/compet.service';
 import { combineLatest, filter, map, merge, Observable, of, switchMap, tap } from 'rxjs';
 import { ChampReponseComponent } from '../../shared/champ-reponse/champ-reponse.component';
@@ -46,19 +53,31 @@ export class CompetComponent implements OnInit {
   compet: Compet | null = null;
   theme: string = '';
 
-  currentCompetState: EtatCompet = EtatCompet.START_QUESTION_NORMALE;
+  currentCompetState = signal<EtatCompet>(EtatCompet.START_QUESTION_NORMALE);
 
   questionList: QuestionCompet[] = [];
-  currentQuestion: QuestionCompet = {} as QuestionCompet;
-  isChronoLong: boolean = false;
 
-  reponsesDisplay: string[] = [];
+  indexCurrentQuestion = signal<number>(0);
+
+  currentQuestion = computed(() => this.questionList[this.indexCurrentQuestion()]);
+  isChronoLong = computed(() => [6, 7].includes(this.indexCurrentQuestion()));
+
+  reponsesDisplay = computed(() => {
+    if (!this.currentQuestion()) {
+      return [];
+    }
+    return SortAndMixReponsesUtils.trierReponses(
+      [this.currentQuestion().bonneReponse, ...this.currentQuestion().mauvaisesReponses],
+      this.currentQuestion().mode,
+      this.currentQuestion().tri,
+    );
+  });
 
   TypeChamp = TypeChamp;
   EtatCompet = EtatCompet;
 
-  scoresCompet: PanneauJoueur[] = [];
-  joueursAvecBonneReponse: string[] = [];
+  scoresCompet = signal<PanneauJoueur[]>([]);
+  joueursAvecBonneReponse = signal<string[]>([]);
 
   calculSuperCashDone: boolean = false;
   ordreJoueurSuperCash: string[] = [];
@@ -97,21 +116,21 @@ export class CompetComponent implements OnInit {
     merge(this.scoresStore.panneauxJoueurs$, this.scoresStore.getPanneauxJoueurs())
       .pipe(
         tap((panneauJoueurs) => {
-          this.scoresCompet = panneauJoueurs;
+          this.scoresCompet.set(panneauJoueurs);
         }),
       )
       .subscribe();
     this.competStore.etatCompet$
       .pipe(
         tap((etatCompet) => {
-          this.currentCompetState = etatCompet;
-          switch (this.currentCompetState) {
+          this.currentCompetState.set(etatCompet);
+          switch (this.currentCompetState()) {
             case EtatCompet.START_QUESTION_NORMALE:
               this.competService.closeVotes().subscribe();
               break;
             case EtatCompet.VOTES_OUVERTS:
               this.competService.openVotes().subscribe();
-              if (this.isChronoLong) {
+              if (this.isChronoLong()) {
                 Jingles.sonChronoCompetLong.play();
               } else {
                 Jingles.sonChronoCompet.play();
@@ -162,7 +181,7 @@ export class CompetComponent implements OnInit {
           indexJoueurSuperCash,
           etatCompet,
         ]) => {
-          this.currentCompetState = etatCompet;
+          this.currentCompetState.set(etatCompet);
           this.compet = compet;
           this.theme = compet.libelleTheme;
           this.questionList = compet.questionsCompet.map((question) => {
@@ -194,16 +213,10 @@ export class CompetComponent implements OnInit {
       .pipe(
         filter(() => this.questionList.length > 0),
         map((indexQuestion) => {
-          this.isChronoLong = [6, 7].includes(indexQuestion);
-          this.currentQuestion = this.questionList[indexQuestion];
-          this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
-            [this.currentQuestion.bonneReponse, ...this.currentQuestion.mauvaisesReponses],
-            this.currentQuestion.mode,
-            this.currentQuestion.tri,
-          );
+          this.indexCurrentQuestion.set(indexQuestion);
           return {
-            question: this.currentQuestion.question,
-            reponses: this.reponsesDisplay,
+            question: this.currentQuestion().question,
+            reponses: this.reponsesDisplay(),
           };
         }),
         filter((currentQuestion) => !!currentQuestion),
@@ -225,12 +238,16 @@ export class CompetComponent implements OnInit {
   }
 
   calulerOrdreCandidats() {
-    const sortedJoueurs = [...this.scoresCompet].sort((scoreA, scoreB) => {
+    const sortedJoueurs = [...this.scoresCompet()].sort((scoreA, scoreB) => {
       if (scoreB.score !== scoreA.score) {
         return scoreA.score - scoreB.score;
       }
-      const positionA = this.scoresCompet.findIndex((panneau) => panneau.joueur === scoreA.joueur);
-      const positionB = this.scoresCompet.findIndex((panneau) => panneau.joueur === scoreB.joueur);
+      const positionA = this.scoresCompet().findIndex(
+        (panneau) => panneau.joueur === scoreA.joueur,
+      );
+      const positionB = this.scoresCompet().findIndex(
+        (panneau) => panneau.joueur === scoreB.joueur,
+      );
       return positionA - positionB;
     });
     this.ordreJoueurSuperCash = sortedJoueurs.map((panneau) => panneau.joueur);
@@ -239,10 +256,10 @@ export class CompetComponent implements OnInit {
 
   preparerSelectedQuestion(idQuestion: number) {
     this.competStore.passerEtatSuivant();
-    if (this.currentCompetState === EtatCompet.QUESTION_SUPER_CASH_CHOISIE) {
+    if (this.currentCompetState() === EtatCompet.QUESTION_SUPER_CASH_CHOISIE) {
       this.selectedQuestion.set(idQuestion, true);
       this.alreadyPlayed.set(idQuestion, false);
-      this.currentQuestion = this.questionList[idQuestion];
+      this.indexCurrentQuestion.set(idQuestion);
     }
   }
 
@@ -253,40 +270,44 @@ export class CompetComponent implements OnInit {
   }
 
   resetReponsesJoueurs() {
-    this.scoresCompet = this.scoresCompet.map((panneau) => {
-      return {
-        ...panneau,
-        reponseJoueur: '',
-      };
-    });
-    this.joueursAvecBonneReponse = [];
+    this.scoresCompet.set(
+      this.scoresCompet().map((panneau) => {
+        return {
+          ...panneau,
+          reponseJoueur: '',
+        };
+      }),
+    );
+    this.joueursAvecBonneReponse.set([]);
   }
 
   enregistrerJoueurAvecBonneReponse(nomJoueur: string) {
-    this.joueursAvecBonneReponse.push(nomJoueur);
+    this.joueursAvecBonneReponse.update((joueurs) => [...joueurs, nomJoueur]);
   }
 
   augmenterScore() {
     const incrementScore = this.getIncrementScore();
-    this.joueursAvecBonneReponse.forEach((joueur) => {
+    this.joueursAvecBonneReponse().forEach((joueur) => {
       this.modifierScoreJoueur(joueur, incrementScore);
     });
   }
 
   modifierScoreJoueur(joueur: string, increment: number) {
-    this.scoresCompet = this.scoresCompet.map((panneau) => {
-      if (panneau.joueur === joueur) {
-        return {
-          ...panneau,
-          score: panneau.score + increment,
-        };
-      }
-      return panneau;
-    });
+    this.scoresCompet.set(
+      this.scoresCompet().map((panneau) => {
+        if (panneau.joueur === joueur) {
+          return {
+            ...panneau,
+            score: panneau.score + increment,
+          };
+        }
+        return panneau;
+      }),
+    );
   }
 
   getIncrementScore() {
-    switch (this.currentQuestion?.mode) {
+    switch (this.currentQuestion()?.mode) {
       case ModeQuestion.Duo:
         return 1;
       case ModeQuestion.Carre:
@@ -299,40 +320,43 @@ export class CompetComponent implements OnInit {
   }
 
   calculerQualification() {
-    const sortedJoueurs = [...this.scoresCompet].sort(
+    const sortedJoueurs = [...this.scoresCompet()].sort(
       (scoreA, scoreB) => scoreB.score - scoreA.score,
     );
 
     const scorePremier = sortedJoueurs[0].score;
 
-    this.scoresCompet = this.scoresCompet.map((scoreJoueur) => {
-      let statutJoueur: StatutJoueur;
-      if (scoreJoueur.score === scorePremier) {
-        statutJoueur = StatutJoueur.BALLOTAGE;
-      } else {
-        statutJoueur = StatutJoueur.ELIMINE;
-      }
-      return { ...scoreJoueur, statut: statutJoueur };
-    });
+    this.scoresCompet.set(
+      this.scoresCompet().map((scoreJoueur) => {
+        let statutJoueur: StatutJoueur;
+        if (scoreJoueur.score === scorePremier) {
+          statutJoueur = StatutJoueur.BALLOTAGE;
+        } else {
+          statutJoueur = StatutJoueur.ELIMINE;
+        }
+        return { ...scoreJoueur, statut: statutJoueur };
+      }),
+    );
 
-    const nbJoueursBallotage = this.scoresCompet.filter(
+    const nbJoueursBallotage = this.scoresCompet().filter(
       (scoreJoueur) => scoreJoueur.statut === StatutJoueur.BALLOTAGE,
     ).length;
 
     if (nbJoueursBallotage === 1) {
       let challenger: string = '';
-      this.scoresCompet = this.scoresCompet.map((panneauJoueur) => {
-        if (panneauJoueur.statut !== StatutJoueur.BALLOTAGE) {
-          return { ...panneauJoueur, statut: StatutJoueur.ELIMINE };
-        } else {
-          challenger = panneauJoueur.joueur;
-          this.competTermmine = true;
-          return { ...panneauJoueur, statut: StatutJoueur.QUALIFIE };
-        }
-      });
+      this.scoresCompet.set(
+        this.scoresCompet().map((panneauJoueur) => {
+          if (panneauJoueur.statut !== StatutJoueur.BALLOTAGE) {
+            return { ...panneauJoueur, statut: StatutJoueur.ELIMINE };
+          } else {
+            challenger = panneauJoueur.joueur;
+            this.competTermmine = true;
+            return { ...panneauJoueur, statut: StatutJoueur.QUALIFIE };
+          }
+        }),
+      );
       if (this.competTermmine) {
-        this.joueursStore.setChallenger(challenger);
-        this.partieStore.resetIndexCurrentQuestion();
+        this.setChallenger([challenger]);
       }
     }
   }
@@ -348,19 +372,19 @@ export class CompetComponent implements OnInit {
     switch ($event.code) {
       case CodeTouches.spacebarCode:
         if (
-          !this.currentCompetState.includes('BONNE_REPONSE') &&
+          !this.currentCompetState().includes('BONNE_REPONSE') &&
           ![
             EtatCompet.VOTES_OUVERTS,
             EtatCompet.START_QUESTION_SUPER_CASH,
             EtatCompet.REPONSE_SUPER_CASH_DONNEE,
-          ].includes(this.currentCompetState)
+          ].includes(this.currentCompetState())
         ) {
           this.competStore.passerEtatSuivant();
         }
         break;
       case CodeTouches.rightArrowCode:
-        if (this.currentCompetState.includes('BONNE_REPONSE')) {
-          switch (this.currentCompetState) {
+        if (this.currentCompetState().includes('BONNE_REPONSE')) {
+          switch (this.currentCompetState()) {
             case EtatCompet.BONNE_REPONSE_AFFICHEE:
               this.augmenterScore();
               this.resetReponsesJoueurs();
@@ -383,21 +407,21 @@ export class CompetComponent implements OnInit {
         }
         break;
       case CodeTouches.buttonTCode:
-        if (this.currentCompetState === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
+        if (this.currentCompetState() === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
           this.competStore.passerEtatSuivant();
           this.modifierScoreJoueur(this.selectedJoueurSuperCash, 5);
           Jingles.sonBonneReponse.play();
         }
         break;
       case CodeTouches.buttonFCode:
-        if (this.currentCompetState === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
+        if (this.currentCompetState() === EtatCompet.REPONSE_SUPER_CASH_DONNEE) {
           this.competStore.passerEtatSuivant();
           this.modifierScoreJoueur(this.selectedJoueurSuperCash, -5);
           Jingles.sonMauvaiseReponse.play();
         }
         break;
       case CodeTouches.buttonSCode:
-        if (this.currentCompetState === EtatCompet.CHRONO_SUPER_CASH_LANCE) {
+        if (this.currentCompetState() === EtatCompet.CHRONO_SUPER_CASH_LANCE) {
           this.stopChrono();
           Jingles.sonFinChronoCompet.play();
         }

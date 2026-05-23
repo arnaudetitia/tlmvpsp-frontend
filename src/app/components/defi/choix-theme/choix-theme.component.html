@@ -1,10 +1,13 @@
-<div *ngFor="let i of [0, 1]" class="couple-theme">
-  <champ-theme
-    *ngFor="let j of [0, 1]"
-    [idTheme]="themesDefi[2 * i + j].idtheme"
-    [libelleTheme]="themesDefi[2 * i + j].libelletheme"
-    [isThemeChallenger]="themeChallenger === themesDefi[2 * i + j].idtheme"
-    [isThemeChampion]="themeChampion === themesDefi[2 * i + j].idtheme"
-    (onSelectedTheme)="selectTheme($event)"
-  ></champ-theme>
-</div>
+@for (i of [0, 1]; track i) {
+  <div class="couple-theme">
+    @for (j of [0, 1]; track j) {
+      <champ-theme
+        [idTheme]="themesDefi[2 * i + j].idtheme"
+        [libelleTheme]="themesDefi[2 * i + j].libelletheme"
+        [isThemeChallenger]="themeChallenger === themesDefi[2 * i + j].idtheme"
+        [isThemeChampion]="themeChampion === themesDefi[2 * i + j].idtheme"
+        (onSelectedTheme)="selectTheme($event)"
+      ></champ-theme>
+    }
+  </div>
+}
