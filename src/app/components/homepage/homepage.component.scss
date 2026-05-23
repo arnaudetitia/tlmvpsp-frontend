@@ -1,0 +1,33 @@
+.homepage-container {
+  background-image: url('../../../assets/backgrounds/background-qualifs.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  img {
+    width: 40vh;
+    height: auto;
+  }
+
+  button {
+    width: 40vw;
+  }
+
+  .btn-launch-partie {
+    font-size: 4vh;
+    background-color: orange;
+    border: 2vh solid white;
+    border-radius: 2vh;
+
+    &:hover {
+      border-color: blue;
+      color: white;
+    }
+  }
+}
