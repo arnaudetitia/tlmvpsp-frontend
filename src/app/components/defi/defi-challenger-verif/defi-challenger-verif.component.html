@@ -5,24 +5,25 @@
     {{ currentQuestion.question }}
   </div>
 
-  <mat-grid-list
-    [cols]="2"
-    rowHeight="12vh"
-    gutterSize="2vh"
-    *ngIf="currentQuestion.propositions.length; else reponseCash"
-  >
-    <mat-grid-tile *ngFor="let reponse of currentQuestion.propositions">
-      <champ-reponse
-        [reponse]="reponse"
-        [selected]="reponse === currentQuestion.reponseDonnee"
-        [bonneReponseShown]="showBonneReponse"
-        [reponseAlreadySelected]="true"
-        [isBonneReponse]="currentQuestion.bonneReponse === reponse"
-      ></champ-reponse>
-    </mat-grid-tile>
-  </mat-grid-list>
-
-  <ng-template #reponseCash>
+  @if (currentQuestion.propositions.length) {
+    <mat-grid-list
+      [cols]="2"
+      rowHeight="12vh"
+      gutterSize="2vh"
+      >
+      @for (reponse of currentQuestion.propositions; track reponse) {
+        <mat-grid-tile>
+          <champ-reponse
+            [reponse]="reponse"
+            [selected]="reponse === currentQuestion.reponseDonnee"
+            [bonneReponseShown]="showBonneReponse"
+            [reponseAlreadySelected]="true"
+            [isBonneReponse]="currentQuestion.bonneReponse === reponse"
+          ></champ-reponse>
+        </mat-grid-tile>
+      }
+    </mat-grid-list>
+  } @else {
     <div class="reponse-cash-container">
       <champ-reponse
         class="reponse-cash"
@@ -31,5 +32,6 @@
         [bonneReponseShown]="showBonneReponse"
       ></champ-reponse>
     </div>
-  </ng-template>
+  }
+
 </div>

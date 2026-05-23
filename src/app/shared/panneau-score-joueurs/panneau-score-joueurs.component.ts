@@ -7,6 +7,8 @@ import {
   Input,
   OnInit,
   Output,
+  Signal,
+  signal,
 } from '@angular/core';
 import { PanneauJoueur, StatutJoueur } from '../../models/score.model';
 import { JoueursStore } from '../../store/joueurs.store';
@@ -27,7 +29,7 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './panneau-score-joueurs.component.scss',
 })
 export class PanneauScoreJoueursComponent implements OnInit {
-  @Input() panneaux: PanneauJoueur[] = [];
+  @Input() panneaux = signal<PanneauJoueur[]>([]);
 
   @Input() bonneReponse: string | null | undefined;
 
@@ -70,16 +72,18 @@ export class PanneauScoreJoueursComponent implements OnInit {
       this.bonneReponse ? this.bonneReponse : '',
       this.aliases,
     );
-    this.panneaux = this.panneaux.map((panneau) => {
-      if (panneau.joueur.localeCompare(joueur) === 0) {
-        return {
-          ...panneau,
-          reponseJoueur: reponse,
-          bonneReponseGiven: bonneReponseDonne,
-        };
-      }
-      return panneau;
-    });
+    this.panneaux.set(
+      this.panneaux().map((panneau) => {
+        if (panneau.joueur.localeCompare(joueur) === 0) {
+          return {
+            ...panneau,
+            reponseJoueur: reponse,
+            bonneReponseGiven: bonneReponseDonne,
+          };
+        }
+        return panneau;
+      }),
+    );
     this.cdr.detectChanges();
     if (bonneReponseDonne) {
       this.onBonneReponseGiven.emit(joueur);
@@ -87,15 +91,17 @@ export class PanneauScoreJoueursComponent implements OnInit {
   }
 
   changerScore(joueur: string, increment: number) {
-    this.panneaux = this.panneaux.map((pan) => {
-      if (pan.joueur === joueur) {
-        return {
-          ...pan,
-          score: pan.score + increment,
-        };
-      }
-      return pan;
-    });
+    this.panneaux.set(
+      this.panneaux().map((pan) => {
+        if (pan.joueur === joueur) {
+          return {
+            ...pan,
+            score: pan.score + increment,
+          };
+        }
+        return pan;
+      }),
+    );
   }
 
   onJoueurNameFocus() {
@@ -108,39 +114,43 @@ export class PanneauScoreJoueursComponent implements OnInit {
 
   repecher(scoreJoueur: PanneauJoueur) {
     if (scoreJoueur.statut === StatutJoueur.BALLOTAGE) {
-      this.panneaux = this.panneaux.map((s) => {
-        if (s === scoreJoueur) {
-          return { ...s, statut: StatutJoueur.QUALIFIE };
-        }
-        return s;
-      });
+      this.panneaux.set(
+        this.panneaux().map((s) => {
+          if (s === scoreJoueur) {
+            return { ...s, statut: StatutJoueur.QUALIFIE };
+          }
+          return s;
+        }),
+      );
     }
 
-    const nbJoueursQualifie = this.panneaux.filter(
+    const nbJoueursQualifie = this.panneaux().filter(
       (panneauJoueur) => panneauJoueur.statut === StatutJoueur.QUALIFIE,
     ).length;
 
     if (nbJoueursQualifie === this.nbJoueurAQualifier) {
       let joueursQualifies: string[] = [];
-      this.panneaux = this.panneaux.map((panneauJoueur) => {
-        if (panneauJoueur.statut !== StatutJoueur.QUALIFIE) {
-          return { ...panneauJoueur, statut: StatutJoueur.ELIMINE };
-        } else {
-          joueursQualifies.push(panneauJoueur.joueur);
-        }
-        return panneauJoueur;
-      });
+      this.panneaux.set(
+        this.panneaux().map((panneauJoueur) => {
+          if (panneauJoueur.statut !== StatutJoueur.QUALIFIE) {
+            return { ...panneauJoueur, statut: StatutJoueur.ELIMINE };
+          } else {
+            joueursQualifies.push(panneauJoueur.joueur);
+          }
+          return panneauJoueur;
+        }),
+      );
       this.onAllJoueursQualifies.emit(joueursQualifies);
     }
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent($event: KeyboardEvent) {
-    const canChangeScore = this.panneaux.every((pan) => !pan.reponseJoueur);
+    const canChangeScore = this.panneaux().every((pan) => !pan.reponseJoueur);
     if ($event.code === CodeTouches.buttonRCode && !this.isEditJoueurName && canChangeScore) {
       this.modeRegie = !this.modeRegie;
       if (!this.modeRegie) {
-        this.scoresStores.setPanneauJoueurs(this.panneaux);
+        this.scoresStores.setPanneauJoueurs(this.panneaux());
       }
     }
 

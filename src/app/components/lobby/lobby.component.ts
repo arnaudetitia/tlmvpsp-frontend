@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -19,13 +19,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 @Component({
   selector: 'app-main-menu',
   imports: [
-    CommonModule,
     MatGridListModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    ReactiveFormsModule,
-  ],
+    ReactiveFormsModule
+],
   templateUrl: 'lobby.component.html',
   styleUrl: './lobby.component.scss',
 })

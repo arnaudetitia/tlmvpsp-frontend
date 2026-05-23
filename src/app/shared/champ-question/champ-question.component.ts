@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TypeChamp } from '../champ-reponse/type-champ.enum';
 
 @Component({
   selector: 'champ-question',
-  imports: [CommonModule, MatIconModule],
+  imports: [MatIconModule],
   templateUrl: './champ-question.component.html',
   styleUrl: './champ-question.component.scss',
 })

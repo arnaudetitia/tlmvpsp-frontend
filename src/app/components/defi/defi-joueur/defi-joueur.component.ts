@@ -1,6 +1,15 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import { ModeQuestion } from '../../../models/mode-question.models';
-import { CommonModule } from '@angular/common';
+
 import { ChoixModeComponent } from '../../../shared/choix-mode/choix-mode.compoent';
 import { ChampReponseComponent } from '../../../shared/champ-reponse/champ-reponse.component';
 import { Defi, QuestionDefi } from '../../../models/defi.model';
@@ -21,7 +30,6 @@ import { tap } from 'rxjs';
 @Component({
   selector: 'defi-joueur',
   imports: [
-    CommonModule,
     ChoixModeComponent,
     ChampQuestionComponent,
     ChampReponseComponent,
@@ -42,17 +50,18 @@ export class DefiJoueurComponent implements OnInit {
   TypeChamp = TypeChamp;
   EtatQuestion = EtatQuestion;
   mancheDefi = ManchesEnum.DEFI_CHALLENGER;
-  currentQuestionState: EtatQuestion = EtatQuestion.START_QUESTION;
+  currentQuestionState = signal<EtatQuestion>(EtatQuestion.START_QUESTION);
 
-  indexQuestion: number = 0;
-  currentQuestion: QuestionDefi = {} as QuestionDefi;
+  indexQuestion = signal<number>(0);
+  currentQuestion = computed(() => this.defi?.questionsDefi[this.indexQuestion()]);
   modeQuestionSelected: ModeQuestion | null = null;
   reponsesDisplay: string[] = [];
 
-  bonneReponse = '';
+  bonneReponse = computed(() => this.currentQuestion()?.bonneReponse || '');
   bonneReponseShown = false;
-  isBonneReponseGiven = false;
-  reponseGiven = '';
+  reponseGiven = signal<string>('');
+
+  isBonneReponseGiven = computed(() => this.reponseGiven() === this.bonneReponse());
 
   modeQuestion = ModeQuestion;
 
@@ -66,24 +75,23 @@ export class DefiJoueurComponent implements OnInit {
 
   ngOnInit() {
     this.mancheDefi = this.isChampion ? ManchesEnum.DEFI_CHAMPION : ManchesEnum.DEFI_CHALLENGER;
-    this.currentQuestion = this.defi?.questionsDefi[this.indexQuestion];
+
     if (this.currentQuestion) {
-      this.bonneReponse = this.currentQuestion.bonneReponse;
       this.reponsesDisplay = [
-        this.currentQuestion?.bonneReponse,
-        ...this.currentQuestion?.mauvaisesReponses,
+        this.currentQuestion().bonneReponse,
+        ...this.currentQuestion().mauvaisesReponses,
       ];
     }
     this.questionStore.etatQuestion$
       .pipe(
         tap((etat) => {
-          this.currentQuestionState = etat;
+          this.currentQuestionState.set(etat);
           if (
             this.isChampion &&
-            this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
+            this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
             this.modeQuestionSelected !== ModeQuestion.Cash
           ) {
-            if (this.isBonneReponseGiven) {
+            if (this.isBonneReponseGiven()) {
               Jingles.sonBonneReponse.play();
               this.onBonneReponseGiven.emit(this.modeQuestionSelected);
             } else {
@@ -100,7 +108,7 @@ export class DefiJoueurComponent implements OnInit {
     this.reponsesDisplay = SortAndMixReponsesUtils.trierReponses(
       this.reponsesDisplay,
       this.modeQuestionSelected,
-      this.currentQuestion?.tri,
+      this.currentQuestion()?.tri,
     );
     this.questionStore.passerEtatSuivant(this.mancheDefi);
     Jingles.sonChronoDefi.play();
@@ -108,8 +116,7 @@ export class DefiJoueurComponent implements OnInit {
 
   onReponseSelected($event: any) {
     this.questionStore.passerEtatSuivant(this.mancheDefi);
-    this.reponseGiven = $event;
-    this.isBonneReponseGiven = $event === this.bonneReponse;
+    this.reponseGiven.set($event);
     this.stopChrono();
   }
 
@@ -119,22 +126,17 @@ export class DefiJoueurComponent implements OnInit {
   }
 
   prepareNextQuestion() {
-    this.indexQuestion++;
-    if (this.indexQuestion === 6) {
+    this.indexQuestion.update((value) => value + 1);
+    if (this.indexQuestion() === 6) {
       this.onDefiTermine.emit();
       this.questionStore.passerEtatSuivant(this.mancheDefi);
     } else {
-      this.partireStore.setIndexCurrentQuestion(this.indexQuestion);
-      this.currentQuestion = this.defi?.questionsDefi[this.indexQuestion];
-      if (this.currentQuestion) {
-        this.bonneReponse = this.currentQuestion.bonneReponse;
-        this.reponsesDisplay = [
-          this.currentQuestion?.bonneReponse,
-          ...this.currentQuestion?.mauvaisesReponses,
-        ];
+      this.partireStore.setIndexCurrentQuestion(this.indexQuestion());
+      if (this.currentQuestion()) {
+        this.reponsesDisplay = [this.bonneReponse(), ...this.currentQuestion().mauvaisesReponses];
         this.questionStore.passerEtatSuivant(this.mancheDefi);
+        this.reponseGiven.set('');
         this.reponseCash = '';
-        this.reponseGiven = '';
       }
     }
   }
@@ -157,10 +159,10 @@ export class DefiJoueurComponent implements OnInit {
             EtatQuestion.REPONSES_PROPOSEES,
             EtatQuestion.BONNE_REPONSE_AFFICHEE,
             ...(!this.isChampion ? [EtatQuestion.REPONSE_JOUEUR_DONNEE] : []),
-          ].includes(this.currentQuestionState)
+          ].includes(this.currentQuestionState())
         ) {
           if (
-            this.currentQuestionState !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
+            this.currentQuestionState() !== EtatQuestion.REPONSE_JOUEUR_DONNEE ||
             this.modeQuestionSelected !== ModeQuestion.Cash
           ) {
             this.questionStore.passerEtatSuivant(this.mancheDefi);
@@ -179,7 +181,7 @@ export class DefiJoueurComponent implements OnInit {
       case CodeTouches.buttonTCode:
         if (
           this.isChampion &&
-          this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
+          this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
           this.modeQuestionSelected === ModeQuestion.Cash
         ) {
           this.questionStore.passerEtatSuivant(this.mancheDefi);
@@ -191,7 +193,7 @@ export class DefiJoueurComponent implements OnInit {
       case CodeTouches.buttonFCode:
         if (
           this.isChampion &&
-          this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
+          this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
           this.modeQuestionSelected === ModeQuestion.Cash
         ) {
           this.questionStore.passerEtatSuivant(this.mancheDefi);
@@ -201,16 +203,17 @@ export class DefiJoueurComponent implements OnInit {
 
       case CodeTouches.rightArrowCode:
         if (
-          (!this.isChampion && this.currentQuestionState === EtatQuestion.REPONSE_JOUEUR_DONNEE) ||
-          (this.isChampion && this.currentQuestionState === EtatQuestion.BONNE_REPONSE_AFFICHEE)
+          (!this.isChampion &&
+            this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE) ||
+          (this.isChampion && this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE)
         ) {
           if (!this.isChampion) {
             this.onQuestionRepondue.emit({
-              question: this.currentQuestion ? this.currentQuestion.question : '',
+              question: this.currentQuestion() ? this.currentQuestion().question : '',
               modeQuestion: this.modeQuestionSelected,
               propositions: this.reponsesDisplay,
-              reponseDonnee: this.reponseGiven || this.reponseCash,
-              bonneReponse: this.bonneReponse,
+              reponseDonnee: this.reponseGiven() || this.reponseCash,
+              bonneReponse: this.bonneReponse(),
             });
           }
           this.prepareNextQuestion();
