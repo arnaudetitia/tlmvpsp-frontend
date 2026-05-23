@@ -1,0 +1,38 @@
+[mat-dialog-title] {
+  margin-bottom: 2vh;
+  font-family: 'Segoe UI';
+  font-size: 3vh;
+}
+
+mat-dialog-content {
+  background-image: url('../../../../assets/backgrounds/background-qualifs.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  .joueur {
+    border-color: white;
+    font-size: 3vh;
+  }
+}
+
+.champ {
+  border-color: orange;
+  border-width: 1vh;
+
+  &.annuler {
+    background-color: lightgray;
+    margin-right: 1vh;
+    color: black;
+  }
+
+  &.lancer {
+    background-color: orange;
+    border-color: lightgray;
+    color: white;
+  }
+
+  &:hover {
+    border-color: blue;
+  }
+}

@@ -1,4 +1,4 @@
-.lobby-container {
+.homepage-container {
   background-image: url('../../../assets/backgrounds/background-qualifs.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -11,34 +11,23 @@
   justify-content: space-around;
 
   img {
-    width: 400px;
+    width: 40vh;
     height: auto;
   }
 
-  .joueur {
+  button {
+    width: 40vw;
+  }
+
+  .btn-launch-partie {
     font-size: 4vh;
-  }
-
-  a {
-    margin: 0;
-    font-size: 50px;
-    padding-left: 10rem;
-    padding-right: 10rem;
-
-    border: 20px solid white;
-    border-radius: 10px;
-  }
-
-  a[disabled] {
-    background-color: grey;
-  }
-
-  .btn-qualifs {
     background-color: orange;
-  }
+    border: 2vh solid white;
+    border-radius: 2vh;
 
-  mat-grid-list {
-    width: 75vw;
-    height: 100vh;
+    &:hover {
+      border-color: blue;
+      color: white;
+    }
   }
 }
