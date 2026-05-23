@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { DefiService } from '../../services/defi.service';
 import { combineLatest, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ChoixThemeComponent } from './choix-theme/choix-theme.component';
@@ -32,7 +32,7 @@ import { EtatDefi } from '../../models/enums/etat-defi.enum';
 })
 export class DefiComponent implements OnInit {
   EtatDefi = EtatDefi;
-  currentEtatDefi: EtatDefi = EtatDefi.CHOIX_THEME;
+  currentEtatDefi = signal<EtatDefi>(EtatDefi.CHOIX_THEME);
 
   themesDefi$: Observable<ThemeDefi[]> = of([]);
 
@@ -45,12 +45,12 @@ export class DefiComponent implements OnInit {
   indexCurrentJoueur: number = 0;
   currentJoueur: string = '';
 
-  reponsesChallenger: RecapDefiChallenger = {
+  reponsesChallenger = signal<RecapDefiChallenger>({
     theme: '',
     recapQuestions: [],
-  };
+  });
 
-  panneauxDefi: PanneauJoueur[] = [];
+  panneauxDefi = signal<PanneauJoueur[]>([]);
 
   constructor(
     private defiService: DefiService,
@@ -61,7 +61,9 @@ export class DefiComponent implements OnInit {
 
   ngOnInit() {
     this.themesDefi$ = this.defiService.getThemesDefi().pipe();
-    this.defiStore.etatDefi$.pipe(tap((etatDefi) => (this.currentEtatDefi = etatDefi))).subscribe();
+    this.defiStore.etatDefi$
+      .pipe(tap((etatDefi) => this.currentEtatDefi.set(etatDefi)))
+      .subscribe();
     combineLatest([
       this.scoresStore.getPanneauxJoueurs(),
       this.defiService.getChampion(),
@@ -70,7 +72,7 @@ export class DefiComponent implements OnInit {
       .pipe(
         tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
           const panneauChall = panneauChallenger[0];
-          this.panneauxDefi = [
+          this.panneauxDefi.set([
             {
               joueur: panneauChall.joueur,
               score: 0,
@@ -82,8 +84,8 @@ export class DefiComponent implements OnInit {
               score: 0,
               statut: StatutJoueur.CHAMPION,
             },
-          ];
-          this.scoresStore.setPanneauJoueurs(this.panneauxDefi);
+          ]);
+          this.scoresStore.setPanneauJoueurs(this.panneauxDefi());
           this.joueursDefi = [panneauChall.joueur, champion];
           this.indexCurrentJoueur = indexCurrentJoueurDefi;
           this.currentJoueur = this.joueursDefi[this.indexCurrentJoueur];
@@ -107,7 +109,7 @@ export class DefiComponent implements OnInit {
     this.scoresStore.panneauxJoueurs$
       .pipe(
         tap((panneauJoueurs) => {
-          this.panneauxDefi = panneauJoueurs;
+          this.panneauxDefi.set(panneauJoueurs);
         }),
       )
       .subscribe();
@@ -120,7 +122,10 @@ export class DefiComponent implements OnInit {
       .pipe(
         tap((defi) => {
           this.defiChallenger = defi;
-          this.reponsesChallenger.theme = this.defiChallenger.libelleTheme;
+          this.reponsesChallenger.update((current) => ({
+            ...current,
+            theme: this.defiChallenger.libelleTheme,
+          }));
         }),
       )
       .subscribe();
@@ -139,8 +144,11 @@ export class DefiComponent implements OnInit {
   }
 
   recordQuestion($event: RecapQuestion) {
-    this.reponsesChallenger.recapQuestions.push($event);
-    this.partieStore.setRecapDefiChallenger(this.reponsesChallenger.recapQuestions);
+    this.reponsesChallenger.update((current) => ({
+      ...current,
+      recapQuestions: [...current.recapQuestions, $event],
+    }));
+    this.partieStore.setRecapDefiChallenger(this.reponsesChallenger().recapQuestions);
   }
 
   switchToDefiChampion() {
@@ -161,16 +169,18 @@ export class DefiComponent implements OnInit {
 
   augmenterScore(modeQuestion: ModeQuestion | null, statutjoueur: string) {
     if (modeQuestion !== null) {
-      this.panneauxDefi = this.panneauxDefi.map((panneau) => {
-        if (panneau.statut === statutjoueur) {
-          return {
-            ...panneau,
-            score: panneau.score + this.getIncrementScore(modeQuestion),
-          };
-        }
-        return panneau;
-      });
-      this.scoresStore.setPanneauJoueurs(this.panneauxDefi);
+      this.panneauxDefi.set(
+        this.panneauxDefi().map((panneau) => {
+          if (panneau.statut === statutjoueur) {
+            return {
+              ...panneau,
+              score: panneau.score + this.getIncrementScore(modeQuestion),
+            };
+          }
+          return panneau;
+        }),
+      );
+      this.scoresStore.setPanneauJoueurs(this.panneauxDefi());
     }
   }
 
@@ -188,10 +198,10 @@ export class DefiComponent implements OnInit {
   }
 
   declarerChampion() {
-    const scoreChampion = this.panneauxDefi.find(
+    const scoreChampion = this.panneauxDefi().find(
       (panneau) => panneau.statut === StatutJoueur.CHAMPION,
     )?.score;
-    const scoreChallenger = this.panneauxDefi.find(
+    const scoreChallenger = this.panneauxDefi().find(
       (panneau) => panneau.statut === StatutJoueur.CHALLENGER,
     )?.score;
     if (scoreChampion && scoreChallenger) {
@@ -210,7 +220,7 @@ export class DefiComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent($event: KeyboardEvent) {
     if ($event.code === CodeTouches.rightArrowCode) {
-      if (this.currentEtatDefi === EtatDefi.CHOIX_THEME && this.defiChallenger) {
+      if (this.currentEtatDefi() === EtatDefi.CHOIX_THEME && this.defiChallenger) {
         this.defiStore.passerEtatSuivant();
       }
     }

@@ -1,36 +1,44 @@
 <div class="defi-container">
-  <div *ngIf="currentEtatDefi === EtatDefi.CHOIX_THEME && (themesDefi$ | async) as themesDefi">
-    <choix-theme
-      [themesDefi]="themesDefi"
-      (onThemeChallengerSelected)="getDefiChallenger($event)"
-      (onThemeChampionSelected)="getDefiChampion($event)"
-    ></choix-theme>
-  </div>
-  <defi-joueur
-    *ngIf="currentEtatDefi === EtatDefi.DEFI_CHALLENGER"
-    [defi]="defiChallenger"
-    (onDefiTermine)="switchToDefiChampion()"
-    (onQuestionRepondue)="recordQuestion($event)"
-  ></defi-joueur>
-  <defi-joueur
-    *ngIf="currentEtatDefi === EtatDefi.DEFI_CHAMPION"
-    [defi]="defiChampion"
-    [isChampion]="true"
-    (onDefiTermine)="switchToDefiVerifChallenger()"
-    (onBonneReponseGiven)="augmenterScore($event, 'Champion')"
-  ></defi-joueur>
-  <defi-challenger-verif
-    *ngIf="currentEtatDefi === EtatDefi.VERIF_DEFI_CHALLENGER"
-    [recap]="reponsesChallenger"
-    (onBonneReponseGiven)="augmenterScore($event, 'Challenger')"
-    (onVerifDefiTermine)="declarerChampion()"
-  ></defi-challenger-verif>
-  <div class="champ final-result" *ngIf="currentEtatDefi === EtatDefi.FIN_DEFI">
-    {{ isNouveauChampion ? 'Nous avons un nouveau champion ! ' : 'Le champion reste champion !' }}
-  </div>
-  <panneau-score-joueurs
-    *ngIf="currentEtatDefi !== EtatDefi.CHOIX_THEME"
-    [panneaux]="panneauxDefi"
-    [selectedJoueur]="currentJoueur"
-  ></panneau-score-joueurs>
+  @if (currentEtatDefi() === EtatDefi.CHOIX_THEME && (themesDefi$ | async); as themesDefi) {
+    <div>
+      <choix-theme
+        [themesDefi]="themesDefi"
+        (onThemeChallengerSelected)="getDefiChallenger($event)"
+        (onThemeChampionSelected)="getDefiChampion($event)"
+      ></choix-theme>
+    </div>
+  }
+  @if (currentEtatDefi() === EtatDefi.DEFI_CHALLENGER) {
+    <defi-joueur
+      [defi]="defiChallenger"
+      (onDefiTermine)="switchToDefiChampion()"
+      (onQuestionRepondue)="recordQuestion($event)"
+    ></defi-joueur>
+  }
+  @if (currentEtatDefi() === EtatDefi.DEFI_CHAMPION) {
+    <defi-joueur
+      [defi]="defiChampion"
+      [isChampion]="true"
+      (onDefiTermine)="switchToDefiVerifChallenger()"
+      (onBonneReponseGiven)="augmenterScore($event, 'Champion')"
+    ></defi-joueur>
+  }
+  @if (currentEtatDefi() === EtatDefi.VERIF_DEFI_CHALLENGER) {
+    <defi-challenger-verif
+      [recap]="reponsesChallenger()"
+      (onBonneReponseGiven)="augmenterScore($event, 'Challenger')"
+      (onVerifDefiTermine)="declarerChampion()"
+    ></defi-challenger-verif>
+  }
+  @if (currentEtatDefi() === EtatDefi.FIN_DEFI) {
+    <div class="champ final-result">
+      {{ isNouveauChampion ? 'Nous avons un nouveau champion ! ' : 'Le champion reste champion !' }}
+    </div>
+  }
+  @if (currentEtatDefi() !== EtatDefi.CHOIX_THEME) {
+    <panneau-score-joueurs
+      [panneaux]="panneauxDefi"
+      [selectedJoueur]="currentJoueur"
+    ></panneau-score-joueurs>
+  }
 </div>

@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'choix-super-cash',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './choix-super-cash.component.html',
   styleUrl: './choix-super-cash.component.scss',
 })

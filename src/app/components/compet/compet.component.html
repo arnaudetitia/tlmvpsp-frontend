@@ -1,88 +1,92 @@
-<div class="compet-container" *ngIf="compet$ | async">
-  <div class="champ theme">{{ theme }}</div>
-
-  <div class="question-compet-container">
-    <choix-super-cash
-      *ngIf="currentCompetState.includes('SUPER_CASH')"
-      [selectedQuestion]="selectedQuestion"
-      [alreadyPlayed]="alreadyPlayed"
-      (onQuestionSelected)="preparerSelectedQuestion($event)"
-    ></choix-super-cash>
-    <champ-question
-      [typeChamp]="typeChampCompet"
-      [showQuestion]="
-        ![
-          EtatCompet.START_QUESTION_NORMALE,
-          EtatCompet.QUESTION_SUPER_CASH_CHOISIE,
-          EtatCompet.START_QUESTION_SUPER_CASH,
-        ].includes(currentCompetState)
-      "
-      [question]="currentQuestion.question"
-      [extraitMusique]="currentQuestion.musique"
-      [extraitBloque]="
-        currentQuestion.joueeApresQuestion &&
-        ![
-          EtatCompet.VOTES_FERMES,
-          EtatCompet.BONNE_REPONSE_AFFICHEE,
-          EtatCompet.REPONSE_SUPER_CASH_DONNEE,
-          EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
-        ].includes(currentCompetState)
-      "
-    ></champ-question>
-
-    <div
-      class="reponses-list-container"
-      *ngIf="
+@if (compet$ | async) {
+  <div class="compet-container">
+    <div class="champ theme">{{ theme }}</div>
+    <div class="question-compet-container">
+      @if (currentCompetState().includes('SUPER_CASH')) {
+        <choix-super-cash
+          [selectedQuestion]="selectedQuestion"
+          [alreadyPlayed]="alreadyPlayed"
+          (onQuestionSelected)="preparerSelectedQuestion($event)"
+        ></choix-super-cash>
+      }
+      <champ-question
+        [typeChamp]="typeChampCompet"
+        [showQuestion]="
+          ![
+            EtatCompet.START_QUESTION_NORMALE,
+            EtatCompet.QUESTION_SUPER_CASH_CHOISIE,
+            EtatCompet.START_QUESTION_SUPER_CASH,
+          ].includes(currentCompetState())
+        "
+        [question]="currentQuestion().question"
+        [extraitMusique]="currentQuestion().musique"
+        [extraitBloque]="
+          currentQuestion().joueeApresQuestion &&
+          ![
+            EtatCompet.VOTES_FERMES,
+            EtatCompet.BONNE_REPONSE_AFFICHEE,
+            EtatCompet.REPONSE_SUPER_CASH_DONNEE,
+            EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
+          ].includes(currentCompetState())
+        "
+      ></champ-question>
+      @if (
         [
           EtatCompet.VOTES_OUVERTS,
           EtatCompet.VOTES_FERMES,
           EtatCompet.BONNE_REPONSE_AFFICHEE,
-        ].includes(currentCompetState) && reponsesDisplay.length > 0
-      "
-    >
-      <mat-grid-list [cols]="2" rowHeight="12vh" gutterSize="2vh">
-        <mat-grid-tile *ngFor="let reponse of reponsesDisplay">
-          <champ-reponse
-            [typeChamp]="TypeChamp.COMPET"
-            [reponse]="reponse"
-            [isBonneReponse]="reponse === currentQuestion.bonneReponse"
-            [isSelectionnable]="false"
-            [isProposition]="true"
-            [bonneReponseShown]="currentCompetState === EtatCompet.BONNE_REPONSE_AFFICHEE"
-          ></champ-reponse>
-        </mat-grid-tile>
-      </mat-grid-list>
+        ].includes(currentCompetState()) && reponsesDisplay().length > 0
+      ) {
+        <div class="reponses-list-container">
+          <mat-grid-list [cols]="2" rowHeight="12vh" gutterSize="2vh">
+            @for (reponse of reponsesDisplay(); track reponse) {
+              <mat-grid-tile>
+                <champ-reponse
+                  [typeChamp]="TypeChamp.COMPET"
+                  [reponse]="reponse"
+                  [isBonneReponse]="reponse === currentQuestion().bonneReponse"
+                  [isSelectionnable]="false"
+                  [isProposition]="true"
+                  [bonneReponseShown]="currentCompetState() === EtatCompet.BONNE_REPONSE_AFFICHEE"
+                ></champ-reponse>
+              </mat-grid-tile>
+            }
+          </mat-grid-list>
+        </div>
+      }
+      @if (currentQuestion()) {
+        <div class="reponse-cash-container">
+          @if (
+            currentQuestion().mode === 'Cash' &&
+            [
+              EtatCompet.BONNE_REPONSE_AFFICHEE,
+              EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
+            ].includes(currentCompetState())
+          ) {
+            <champ-reponse
+              class="reponse-cash"
+              [reponse]="currentQuestion().bonneReponse"
+              [bonneReponseShown]="true"
+              [isBonneReponse]="true"
+            ></champ-reponse>
+          }
+        </div>
+      }
     </div>
-
-    <div class="reponse-cash-container" *ngIf="currentQuestion">
-      <champ-reponse
-        class="reponse-cash"
-        *ngIf="
-          currentQuestion.mode === 'Cash' &&
-          [
-            EtatCompet.BONNE_REPONSE_AFFICHEE,
-            EtatCompet.BONNE_REPONSE_SUPER_CASH_AFFICHEE,
-          ].includes(currentCompetState)
-        "
-        [reponse]="currentQuestion.bonneReponse"
-        [bonneReponseShown]="true"
-        [isBonneReponse]="true"
-      ></champ-reponse>
-    </div>
+    <panneau-score-joueurs
+      [panneaux]="scoresCompet"
+      [bonneReponse]="currentQuestion()?.bonneReponse"
+      [showBonneReopnseGiven]="currentCompetState() === EtatCompet.BONNE_REPONSE_AFFICHEE"
+      [selectedJoueur]="selectedJoueurSuperCash"
+      [nbJoueurAQualifier]="1"
+      [aliases]="currentQuestion().aliases"
+      (onBonneReponseGiven)="enregistrerJoueurAvecBonneReponse($event)"
+      (onAllJoueursQualifies)="setChallenger($event)"
+    ></panneau-score-joueurs>
+    @if (competTermmine) {
+      <div class="bouton-to-defi">
+        <a class="btn btn-defi" routerLink="/defi">Le défi<mat-icon>arrow_forward</mat-icon></a>
+      </div>
+    }
   </div>
-
-  <panneau-score-joueurs
-    [panneaux]="scoresCompet"
-    [bonneReponse]="currentQuestion?.bonneReponse"
-    [showBonneReopnseGiven]="currentCompetState === EtatCompet.BONNE_REPONSE_AFFICHEE"
-    [selectedJoueur]="selectedJoueurSuperCash"
-    [nbJoueurAQualifier]="1"
-    [aliases]="currentQuestion.aliases"
-    (onBonneReponseGiven)="enregistrerJoueurAvecBonneReponse($event)"
-    (onAllJoueursQualifies)="setChallenger($event)"
-  ></panneau-score-joueurs>
-
-  <div class="bouton-to-defi" *ngIf="competTermmine">
-    <a class="btn btn-defi" routerLink="/defi">Le défi<mat-icon>arrow_forward</mat-icon></a>
-  </div>
-</div>
+}

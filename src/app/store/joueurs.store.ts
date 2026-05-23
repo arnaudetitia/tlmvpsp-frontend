@@ -29,7 +29,6 @@ export class JoueursStore {
   setChallenger(nom: string) {
     this.challenger.next(nom);
     this.flushReponseJoueur(nom);
-    this.scoresStore.initScores([nom]);
   }
 
   recordReponseJoueur(joueur: string, reponse: string) {

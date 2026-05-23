@@ -1,48 +1,54 @@
 <div class="qualifs-scores-container">
   <div class="champ scorboard">
-    <div
-      class="champ scoreboard-joueur"
-      *ngFor="let panneau of panneaux"
-      [ngClass]="{
-        'joueur-qualifie': panneau.statut === 'Qualifié',
-        'joueur-ballotage': panneau.statut === 'Ballotage',
-        'joueur-elimine': panneau.statut === 'Eliminé',
-        'joueur-challenger': panneau.statut === 'Challenger',
-        'joueur-champion': panneau.statut === 'Champion',
-        'joueur-selected': panneau.joueur === selectedJoueur,
-      }"
-      (click)="repecher(panneau)"
-    >
-      <div class="nom-joueur" *ngIf="!modeRegie; else editJoueurName">{{ panneau.joueur }}</div>
-      <ng-template #editJoueurName>
-        <input
-          matInput
-          class="nom-joueur-input"
-          [(ngModel)]="panneau.joueur"
-          (focus)="onJoueurNameFocus()"
-          (blur)="onJoueurNameBlur()"
-        />
-      </ng-template>
+    @for (panneau of panneaux(); track panneau) {
       <div
-        class="champ reponse-joueur"
-        *ngIf="panneau.reponseJoueur; else showScore"
+        class="champ scoreboard-joueur"
         [ngClass]="{
-          'bonne-reponse-given': showBonneReopnseGiven && panneau.bonneReponseGiven,
+          'joueur-qualifie': panneau.statut === 'Qualifié',
+          'joueur-ballotage': panneau.statut === 'Ballotage',
+          'joueur-elimine': panneau.statut === 'Eliminé',
+          'joueur-challenger': panneau.statut === 'Challenger',
+          'joueur-champion': panneau.statut === 'Champion',
+          'joueur-selected': panneau.joueur === selectedJoueur,
         }"
+        (click)="repecher(panneau)"
       >
-        {{ panneau.reponseJoueur }}
+        @if (!modeRegie) {
+          <div class="nom-joueur">{{ panneau.joueur }}</div>
+        } @else {
+          <input
+            matInput
+            class="nom-joueur-input"
+            [(ngModel)]="panneau.joueur"
+            (focus)="onJoueurNameFocus()"
+            (blur)="onJoueurNameBlur()"
+          />
+        }
+        @if (panneau.reponseJoueur) {
+          <div
+            class="champ reponse-joueur"
+            [ngClass]="{
+              'bonne-reponse-given': showBonneReopnseGiven && panneau.bonneReponseGiven,
+            }"
+          >
+            {{ panneau.reponseJoueur }}
+          </div>
+        } @else {
+          <div class="score-joueur-layout">
+            @if (modeRegie) {
+              <button matIconButton (click)="changerScore(panneau.joueur, -1)">
+                <mat-icon>do_not_disturb_on</mat-icon>
+              </button>
+            }
+            <div class="score-joueur">{{ panneau.score }}</div>
+            @if (modeRegie) {
+              <button matIconButton (click)="changerScore(panneau.joueur, 1)">
+                <mat-icon>add_circle</mat-icon>
+              </button>
+            }
+          </div>
+        }
       </div>
-      <ng-template #showScore>
-        <div class="score-joueur-layout">
-          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, -1)">
-            <mat-icon>do_not_disturb_on</mat-icon>
-          </button>
-          <div class="score-joueur">{{ panneau.score }}</div>
-          <button matIconButton *ngIf="modeRegie" (click)="changerScore(panneau.joueur, 1)">
-            <mat-icon>add_circle</mat-icon>
-          </button>
-        </div>
-      </ng-template>
-    </div>
+    }
   </div>
 </div>
