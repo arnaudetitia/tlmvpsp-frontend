@@ -23,8 +23,8 @@ export class DefiService {
     return this.httpClient.get<string>(environment.apiUrl + `/defi/champion`);
   }
 
-  setNouveauChampion(nomNouveauChampion: string) {
-    return this.httpClient.put(environment.apiUrl + '/defi/champion', {
+  setNouveauChampion(idChampion: number, nomNouveauChampion: string) {
+    return this.httpClient.put(environment.apiUrl + `/defi/champion/${idChampion}`, {
       newChampion: nomNouveauChampion,
     });
   }

@@ -34,6 +34,8 @@ export class DefiComponent implements OnInit {
   EtatDefi = EtatDefi;
   currentEtatDefi = signal<EtatDefi>(EtatDefi.CHOIX_THEME);
 
+  idPartie: number = 0;
+
   themesDefi$: Observable<ThemeDefi[]> = of([]);
 
   defiChallenger: Defi = {} as Defi;
@@ -61,6 +63,9 @@ export class DefiComponent implements OnInit {
 
   ngOnInit() {
     this.themesDefi$ = this.partieStore.getPartieEnCours().pipe(
+      tap((idPartie) => {
+        this.idPartie = idPartie;
+      }),
       switchMap((idPartie) => {
         return this.defiService.getThemesDefi(idPartie);
       }),
@@ -214,7 +219,7 @@ export class DefiComponent implements OnInit {
       } else {
         this.isNouveauChampion = true;
         Jingles.sonNouveauChampion.play();
-        this.defiService.setNouveauChampion(this.joueursDefi[0]).subscribe();
+        this.defiService.setNouveauChampion(this.idPartie, this.joueursDefi[0]).subscribe();
       }
     }
     this.defiStore.passerEtatSuivant();
