@@ -164,14 +164,17 @@ export class CompetComponent implements OnInit {
         }),
       )
       .subscribe();
-    this.compet$ = combineLatest([
-      this.competService.getCompet(),
-      this.partieStore.getIndexCurrentQuestion(),
-      this.partieStore.getAlreadyPlayedQuestions(),
-      this.partieStore.getOrdreJoueursSuperCash(),
-      this.partieStore.getIndexJoueurSuperCash(),
-      this.competStore.getEtatCompet(),
-    ]).pipe(
+    this.compet$ = this.partieStore.getPartieEnCours().pipe(
+      switchMap((idPartie) => {
+        return combineLatest([
+          this.competService.getCompet(idPartie),
+          this.partieStore.getIndexCurrentQuestion(),
+          this.partieStore.getAlreadyPlayedQuestions(),
+          this.partieStore.getOrdreJoueursSuperCash(),
+          this.partieStore.getIndexJoueurSuperCash(),
+          this.competStore.getEtatCompet(),
+        ]);
+      }),
       tap(
         ([
           compet,
