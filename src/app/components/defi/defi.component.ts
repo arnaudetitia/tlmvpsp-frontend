@@ -1,6 +1,16 @@
 import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { DefiService } from '../../services/defi.service';
-import { combineLatest, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  combineLatest,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 import { ChoixThemeComponent } from './choix-theme/choix-theme.component';
 import { ThemeDefi } from '../../models/theme-defi.model';
 import { CommonModule } from '@angular/common';
@@ -17,6 +27,7 @@ import { PartieStore } from '../../store/partie.store';
 import { ScoresStore } from '../../store/scores.store';
 import { DefiStore } from '../../store/defi.store';
 import { EtatDefi } from '../../models/enums/etat-defi.enum';
+import { JoueursStore } from '../../store/joueurs.store';
 
 @Component({
   selector: 'app-defi-component',
@@ -33,6 +44,8 @@ import { EtatDefi } from '../../models/enums/etat-defi.enum';
 export class DefiComponent implements OnInit {
   EtatDefi = EtatDefi;
   currentEtatDefi = signal<EtatDefi>(EtatDefi.CHOIX_THEME);
+
+  idPartie: number = 0;
 
   themesDefi$: Observable<ThemeDefi[]> = of([]);
 
@@ -56,29 +69,36 @@ export class DefiComponent implements OnInit {
     private defiService: DefiService,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
+    private joueursStore: JoueursStore,
     private defiStore: DefiStore,
   ) {}
 
   ngOnInit() {
-    this.themesDefi$ = this.partieStore.getPartieEnCours().pipe(
-      switchMap((idPartie) => {
-        return this.defiService.getThemesDefi(idPartie);
-      }),
-    );
     this.defiStore.etatDefi$
       .pipe(tap((etatDefi) => this.currentEtatDefi.set(etatDefi)))
       .subscribe();
-    combineLatest([
-      this.scoresStore.getPanneauxJoueurs(),
-      this.defiService.getChampion(),
-      this.partieStore.getIndexCurrentJoueurDefi(),
-    ])
+
+    const idPartie$ = this.partieStore.getPartieEnCours().pipe(
+      tap((id) => (this.idPartie = id)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.themesDefi$ = idPartie$.pipe(
+      switchMap((idPartie) => this.defiService.getThemesDefi(idPartie)),
+    );
+    idPartie$
       .pipe(
-        tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
-          const panneauChall = panneauChallenger[0];
+        switchMap((idPartie) => {
+          return combineLatest([
+            this.joueursStore.challenger$,
+            this.defiService.getChampion(idPartie),
+            this.partieStore.getIndexCurrentJoueurDefi(),
+          ]);
+        }),
+        tap(([challenger, champion, indexCurrentJoueurDefi]) => {
           this.panneauxDefi.set([
             {
-              joueur: panneauChall.joueur,
+              joueur: challenger,
               score: 0,
               statut: StatutJoueur.CHALLENGER,
               reponseJoueur: '',
@@ -90,7 +110,7 @@ export class DefiComponent implements OnInit {
             },
           ]);
           this.scoresStore.setPanneauJoueurs(this.panneauxDefi());
-          this.joueursDefi = [panneauChall.joueur, champion];
+          this.joueursDefi = [challenger, champion];
           this.indexCurrentJoueur = indexCurrentJoueurDefi;
           this.currentJoueur = this.joueursDefi[this.indexCurrentJoueur];
         }),
@@ -214,7 +234,7 @@ export class DefiComponent implements OnInit {
       } else {
         this.isNouveauChampion = true;
         Jingles.sonNouveauChampion.play();
-        this.defiService.setNouveauChampion(this.joueursDefi[0]).subscribe();
+        this.defiService.setNouveauChampion(this.idPartie, this.joueursDefi[0]).subscribe();
       }
     }
     this.defiStore.passerEtatSuivant();

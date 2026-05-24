@@ -19,12 +19,12 @@ export class DefiService {
     return this.httpClient.get<Defi>(environment.apiUrl + `/defi/questions/${idTheme}`);
   }
 
-  getChampion(): Observable<string> {
-    return this.httpClient.get<string>(environment.apiUrl + `/defi/champion`);
+  getChampion(idPartie: number): Observable<string> {
+    return this.httpClient.get<string>(environment.apiUrl + `/defi/champion/${idPartie}`);
   }
 
-  setNouveauChampion(nomNouveauChampion: string) {
-    return this.httpClient.put(environment.apiUrl + '/defi/champion', {
+  setNouveauChampion(idChampion: number, nomNouveauChampion: string) {
+    return this.httpClient.put(environment.apiUrl + `/defi/champion/${idChampion}`, {
       newChampion: nomNouveauChampion,
     });
   }
