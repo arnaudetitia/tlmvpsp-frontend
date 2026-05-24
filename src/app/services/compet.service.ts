@@ -10,8 +10,8 @@ import { environment } from '../../environments/environment';
 export class CompetService {
   constructor(private http: HttpClient) {}
 
-  getCompet(): Observable<Compet> {
-    return this.http.get<Compet>(environment.apiUrl + '/compet/questions');
+  getCompet(idPartie: number): Observable<Compet> {
+    return this.http.get<Compet>(environment.apiUrl + `/compet/questions/${idPartie}`);
   }
 
   getJoueursCompet(): Observable<JoueurCompet[]> {

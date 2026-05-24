@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LobbyDialogComponent } from './lobby-dialog/lobby-dialog.component';
 import { Router } from '@angular/router';
 import { JoueursStore } from '../../store/joueurs.store';
+import { PartieStore } from '../../store/partie.store';
 
 @Component({
   selector: 'app-homepage.component',
@@ -16,6 +17,7 @@ export class HomepageComponent {
 
   constructor(
     private router: Router,
+    private partieStore: PartieStore,
     private joueursStore: JoueursStore,
   ) {}
 
@@ -25,9 +27,11 @@ export class HomepageComponent {
       disableClose: true,
     });
 
-    dialogRef.afterClosed().subscribe((joueurs) => {
-      if (joueurs) {
-        this.joueursStore.setJoueursQualifs(joueurs);
+    dialogRef.afterClosed().subscribe((nouvellePartie) => {
+      if (nouvellePartie) {
+        const { listeJoueurs, idPartie } = nouvellePartie;
+        this.joueursStore.setJoueursQualifs(listeJoueurs);
+        this.partieStore.setPartieEnCours(idPartie);
         this.router.navigate(['/qualifs']);
       }
     });

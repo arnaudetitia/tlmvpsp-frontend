@@ -11,8 +11,8 @@ import { Defi } from '../models/defi.model';
 export class DefiService {
   constructor(private httpClient: HttpClient) {}
 
-  getThemesDefi(): Observable<ThemeDefi[]> {
-    return this.httpClient.get<ThemeDefi[]>(environment.apiUrl + '/defi/themes');
+  getThemesDefi(idPartie: number): Observable<ThemeDefi[]> {
+    return this.httpClient.get<ThemeDefi[]>(environment.apiUrl + `/defi/themes/${idPartie}`);
   }
 
   getDefiTheme(idTheme: number): Observable<Defi> {

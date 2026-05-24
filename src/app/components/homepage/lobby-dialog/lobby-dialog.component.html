@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Lancer une nouvelle partie</h2>
 <mat-dialog-content>
-  <form [formGroup]="joueurListForm">
+  <form [formGroup]="partieForm">
     <mat-grid-list cols="2" rowHeight="10vh" gutterSize="1vh">
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
         <mat-grid-tile>
@@ -8,11 +8,19 @@
         </mat-grid-tile>
       }
     </mat-grid-list>
+    <mat-form-field class="champ-id-partie">
+      <mat-label>Id de la partie</mat-label>
+      <mat-select formControlName="idPartie">
+        @for (partie of listeParties; track partie) {
+          <mat-option [value]="partie.id">{{ partie.nomPartie }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button class="btn champ annuler" mat-dialog-close>Annuler</button>
-  <button class="btn champ lancer" (click)="lancerPartie()" [disabled]="joueurListForm.invalid">
+  <button class="btn champ lancer" (click)="lancerPartie()" [disabled]="partieForm.invalid">
     Lancer la partie
   </button>
 </mat-dialog-actions>

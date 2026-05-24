@@ -9,7 +9,7 @@ import { QuestionQualif } from '../models/qualifs.models';
 export class QualifsService {
   constructor(private httpClient: HttpClient) {}
 
-  getQuestionsQualifs() {
-    return this.httpClient.get<QuestionQualif[]>(environment.apiUrl + '/qualifs');
+  getQuestionsQualifs(idPartie: number) {
+    return this.httpClient.get<QuestionQualif[]>(environment.apiUrl + `/qualifs/${idPartie}`);
   }
 }

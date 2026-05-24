@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { QualifsService } from '../../services/qualifs.service';
-import { combineLatest, merge, tap } from 'rxjs';
+import { combineLatest, merge, switchMap, tap } from 'rxjs';
 import { ModeQuestion, valeurModeQuestion } from '../../models/mode-question.models';
 import { QuestionQualif } from '../../models/qualifs.models';
 import { PanneauScoreJoueursComponent } from '../../shared/panneau-score-joueurs/panneau-score-joueurs.component';
@@ -105,11 +105,15 @@ export class QualifsComponent implements OnInit {
         }),
       )
       .subscribe();
-    combineLatest([
-      this.qualifsService.getQuestionsQualifs(),
-      this.partieStore.getIndexCurrentQuestion(),
-    ])
+    this.partieStore
+      .getPartieEnCours()
       .pipe(
+        switchMap((idPartie) => {
+          return combineLatest([
+            this.qualifsService.getQuestionsQualifs(idPartie),
+            this.partieStore.getIndexCurrentQuestion(),
+          ]);
+        }),
         tap(([questions, questionIndex]) => {
           this.questionsQualifs.set(questions);
           this.questionIndex.set(questionIndex);

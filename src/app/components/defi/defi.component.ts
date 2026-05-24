@@ -60,7 +60,11 @@ export class DefiComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.themesDefi$ = this.defiService.getThemesDefi().pipe();
+    this.themesDefi$ = this.partieStore.getPartieEnCours().pipe(
+      switchMap((idPartie) => {
+        return this.defiService.getThemesDefi(idPartie);
+      }),
+    );
     this.defiStore.etatDefi$
       .pipe(tap((etatDefi) => this.currentEtatDefi.set(etatDefi)))
       .subscribe();
