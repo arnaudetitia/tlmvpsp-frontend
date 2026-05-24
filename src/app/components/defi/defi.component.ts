@@ -1,6 +1,16 @@
 import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { DefiService } from '../../services/defi.service';
-import { combineLatest, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  combineLatest,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 import { ChoixThemeComponent } from './choix-theme/choix-theme.component';
 import { ThemeDefi } from '../../models/theme-defi.model';
 import { CommonModule } from '@angular/common';
@@ -62,23 +72,27 @@ export class DefiComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.themesDefi$ = this.partieStore.getPartieEnCours().pipe(
-      tap((idPartie) => {
-        this.idPartie = idPartie;
-      }),
-      switchMap((idPartie) => {
-        return this.defiService.getThemesDefi(idPartie);
-      }),
-    );
     this.defiStore.etatDefi$
       .pipe(tap((etatDefi) => this.currentEtatDefi.set(etatDefi)))
       .subscribe();
-    combineLatest([
-      this.scoresStore.getPanneauxJoueurs(),
-      this.defiService.getChampion(),
-      this.partieStore.getIndexCurrentJoueurDefi(),
-    ])
+
+    const idPartie$ = this.partieStore.getPartieEnCours().pipe(
+      tap((id) => (this.idPartie = id)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.themesDefi$ = idPartie$.pipe(
+      switchMap((idPartie) => this.defiService.getThemesDefi(idPartie)),
+    );
+    idPartie$
       .pipe(
+        switchMap((idPartie) => {
+          return combineLatest([
+            this.scoresStore.getPanneauxJoueurs(),
+            this.defiService.getChampion(idPartie),
+            this.partieStore.getIndexCurrentJoueurDefi(),
+          ]);
+        }),
         tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
           const panneauChall = panneauChallenger[0];
           this.panneauxDefi.set([
