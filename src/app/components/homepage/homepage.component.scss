@@ -15,11 +15,14 @@
     height: auto;
   }
 
-  button {
+  button,
+  a {
     width: 40vw;
+    height: auto;
   }
 
-  .btn-launch-partie {
+  .btn-launch-partie,
+  .btn-gestion {
     font-size: 4vh;
     background-color: orange;
     border: 2vh solid white;
