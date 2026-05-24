@@ -27,6 +27,7 @@ import { PartieStore } from '../../store/partie.store';
 import { ScoresStore } from '../../store/scores.store';
 import { DefiStore } from '../../store/defi.store';
 import { EtatDefi } from '../../models/enums/etat-defi.enum';
+import { JoueursStore } from '../../store/joueurs.store';
 
 @Component({
   selector: 'app-defi-component',
@@ -68,6 +69,7 @@ export class DefiComponent implements OnInit {
     private defiService: DefiService,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
+    private joueursStore: JoueursStore,
     private defiStore: DefiStore,
   ) {}
 
@@ -88,16 +90,15 @@ export class DefiComponent implements OnInit {
       .pipe(
         switchMap((idPartie) => {
           return combineLatest([
-            this.scoresStore.getPanneauxJoueurs(),
+            this.joueursStore.challenger$,
             this.defiService.getChampion(idPartie),
             this.partieStore.getIndexCurrentJoueurDefi(),
           ]);
         }),
-        tap(([panneauChallenger, champion, indexCurrentJoueurDefi]) => {
-          const panneauChall = panneauChallenger[0];
+        tap(([challenger, champion, indexCurrentJoueurDefi]) => {
           this.panneauxDefi.set([
             {
-              joueur: panneauChall.joueur,
+              joueur: challenger,
               score: 0,
               statut: StatutJoueur.CHALLENGER,
               reponseJoueur: '',
@@ -109,7 +110,7 @@ export class DefiComponent implements OnInit {
             },
           ]);
           this.scoresStore.setPanneauJoueurs(this.panneauxDefi());
-          this.joueursDefi = [panneauChall.joueur, champion];
+          this.joueursDefi = [challenger, champion];
           this.indexCurrentJoueur = indexCurrentJoueurDefi;
           this.currentJoueur = this.joueursDefi[this.indexCurrentJoueur];
         }),
