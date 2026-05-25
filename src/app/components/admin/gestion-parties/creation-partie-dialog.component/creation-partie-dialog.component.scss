@@ -1,0 +1,65 @@
+.partie-form-container {
+  background-image: url('../../../../../assets/backgrounds/background-admin.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.champ {
+  border-color: orange;
+  border-width: 1vh;
+
+  &.selection {
+    border-color: white;
+    font-size: 2vh;
+    margin-left: 0.5vw;
+  }
+
+  &.annuler {
+    background-color: lightgray;
+    margin-right: 1vh;
+    color: black;
+  }
+
+  &.creer {
+    background-color: orange;
+    border-color: lightgray;
+    color: white;
+  }
+
+  &:hover {
+    border-color: blue;
+  }
+}
+
+.questions-qualifs-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.nom-partie-field,
+.nom-lignee-field {
+  width: 48%;
+  margin-top: 1vh;
+}
+
+.nom-lignee-field {
+  margin-left: 4%;
+}
+
+.theme-compet-field {
+  width: 100%;
+}
+
+.theme-defi-field {
+  width: 100%;
+}
+
+.question-qualifs-field {
+  width: 60%;
+}

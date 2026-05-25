@@ -22,6 +22,21 @@
     border-width: 1vh;
   }
 
+  button {
+    margin-bottom: 1.5vh;
+
+    width: 15vw;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    mat-icon {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  }
+
   .table-wrapper {
     flex: 1;
     overflow: auto;

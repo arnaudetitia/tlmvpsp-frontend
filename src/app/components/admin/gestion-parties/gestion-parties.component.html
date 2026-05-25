@@ -1,6 +1,9 @@
 <div class="gestion-parties-container">
   <bouton-retour></bouton-retour>
   <h2 class="champ">Gestion des parties</h2>
+  <button class="btn btn-primary" (click)="openCreationPartieDialog()">
+    <mat-icon>add</mat-icon>Créer une nouvelle partie
+  </button>
   <div class="table-wrapper">
     <table mat-table [dataSource]="partieList()">
       <ng-container matColumnDef="nomPartie">
