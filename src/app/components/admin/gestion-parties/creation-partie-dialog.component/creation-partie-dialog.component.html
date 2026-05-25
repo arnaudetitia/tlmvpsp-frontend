@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>Création d'une partie</h2>
+<mat-dialog-content class="partie-form-container">
+  <form [formGroup]="newPartieForm">
+    <div>
+      <mat-form-field class="nom-partie-field">
+        <mat-label>Nom de la partie</mat-label>
+        <input matInput formControlName="nomPartie" />
+      </mat-form-field>
+      <mat-form-field class="nom-lignee-field">
+        <mat-label>Lignee de champions</mat-label>
+        <mat-select formControlName="ligneeChampion">
+          @for (lignee of ligneesChampion(); track lignee.nomLignee) {
+            <mat-option [value]="lignee.id"
+              >{{ lignee.nomLignee }} (champion actuel : {{ lignee.nomChampion }})</mat-option
+            >
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="questions-qualifs-container">
+      <mat-form-field class="question-qualifs-field">
+        <mat-label>Questions des qualifs</mat-label>
+        <mat-select formControlName="questionQualifs" multiple>
+          @for (question of questionQualifList(); track question) {
+            <mat-option
+              [value]="question.id"
+              [disabled]="
+                newPartieForm.get('questionQualifs')?.value.length === 12 &&
+                !newPartieForm.get('questionQualifs')?.value.includes(question.id)
+              "
+              >{{ question.question }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button
+        class="btn champ selection"
+        (click)="selectRemainingQuestion()"
+        [disabled]="[0, 12].includes(newPartieForm.get('questionQualifs')?.value.length)"
+      >
+        @if (newPartieForm.get('questionQualifs')?.value.length === 0) {
+          Veuillez selectionner au moins une question
+        } @else if (newPartieForm.get('questionQualifs')?.value.length === 12) {
+          Vous avez selectionné toutes les questions
+        } @else {
+          Selectionner les {{ 12 - newPartieForm.get('questionQualifs')?.value.length }} questions
+          suivantes
+        }
+      </button>
+    </div>
+    <mat-form-field class="theme-compet-field">
+      <mat-label>Thème de la Compet</mat-label>
+      <mat-select formControlName="themeCompet">
+        @for (theme of themesCompet(); track theme) {
+          <mat-option [value]="theme.id">{{ theme.libelle }} </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="theme-defi-field">
+      <mat-label>Thèmes du défi</mat-label>
+      <mat-select formControlName="themesDefi" multiple>
+        @for (theme of themesDefiList(); track theme) {
+          <mat-option
+            [value]="theme.id"
+            [disabled]="
+              newPartieForm.get('themesDefi')?.value.length === 4 &&
+              !newPartieForm.get('themesDefi')?.value.includes(theme.id)
+            "
+            >{{ theme.libelle }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="btn champ annuler" mat-dialog-close>Annuler</button>
+  <button
+    class="btn champ creer"
+    (click)="creerNouvellePartie()"
+    [disabled]="newPartieForm.invalid"
+  >
+    Créer la partie
+  </button>
+</mat-dialog-actions>
