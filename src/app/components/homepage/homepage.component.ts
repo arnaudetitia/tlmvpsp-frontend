@@ -2,13 +2,13 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { LobbyDialogComponent } from './lobby-dialog/lobby-dialog.component';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { JoueursStore } from '../../store/joueurs.store';
 import { PartieStore } from '../../store/partie.store';
 
 @Component({
   selector: 'app-homepage.component',
-  imports: [MatButtonModule],
+  imports: [MatButtonModule, RouterLink],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
 })
