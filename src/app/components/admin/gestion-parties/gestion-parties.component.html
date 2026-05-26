@@ -1,0 +1,43 @@
+<div class="gestion-parties-container">
+  <bouton-retour></bouton-retour>
+  <h2 class="champ">Gestion des parties</h2>
+  <button class="btn btn-primary" (click)="openCreationPartieDialog()">
+    <mat-icon>add</mat-icon>Créer une nouvelle partie
+  </button>
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="partieList()">
+      <ng-container matColumnDef="nomPartie">
+        <th mat-header-cell *matHeaderCellDef>Nom de la partie</th>
+        <td mat-cell *matCellDef="let partie">{{ partie.nomPartie }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="qualifs">
+        <th mat-header-cell *matHeaderCellDef>Questions Qualifs</th>
+        <td mat-cell *matCellDef="let partie">
+          <mat-grid-list cols="2" rowHeight="4vh" gutterSize="0.5vh">
+            @for (question of partie.questionsQualifs; track question) {
+              <mat-grid-tile>{{ question.question }}</mat-grid-tile>
+            }
+          </mat-grid-list>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="compet">
+        <th mat-header-cell *matHeaderCellDef>Thème de la compet</th>
+        <td mat-cell *matCellDef="let partie">{{ partie.themeCompet }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="defi">
+        <th mat-header-cell *matHeaderCellDef>Thème de la compet</th>
+        <td mat-cell *matCellDef="let partie">
+          @for (theme of partie.themesDefi; track theme) {
+            <div>{{ theme }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</div>

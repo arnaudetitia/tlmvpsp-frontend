@@ -5,6 +5,11 @@ import { RecapQuestion } from '../components/defi/model/recap-defi-challenger.mo
 
 @Injectable({ providedIn: 'root' })
 export class PartieStore {
+  idPartie: number = 0;
+
+  idPartieSource = new BehaviorSubject<number | null>(null);
+  idPartie$ = this.idPartieSource.asObservable();
+
   indexCurrentQuestion: number = 0;
 
   ordreJoueursSuperCash: string[] = [];
@@ -48,6 +53,22 @@ export class PartieStore {
 
   recapDefiChallengerSource = new BehaviorSubject<RecapQuestion[]>([]);
   recapDefiChallenger$ = this.recapDefiChallengerSource.asObservable();
+
+  setPartieEnCours(idPartie: number) {
+    this.idPartie = idPartie;
+    this.idPartieSource.next(idPartie);
+    localStorage.setItem(EtatPartieKeys.ID_PARTIE_EN_COURS, idPartie.toString());
+  }
+
+  getPartieEnCours(): Observable<number> {
+    const savedIdPartie = localStorage.getItem(EtatPartieKeys.ID_PARTIE_EN_COURS);
+    if (savedIdPartie) {
+      this.idPartie = Number.parseInt(savedIdPartie);
+    } else {
+      this.idPartie = 0;
+    }
+    return of(this.idPartie);
+  }
 
   setIndexCurrentQuestion(indexQuestion: number) {
     this.indexCurrentQuestion = indexQuestion;

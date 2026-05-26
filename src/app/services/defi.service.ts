@@ -11,20 +11,20 @@ import { Defi } from '../models/defi.model';
 export class DefiService {
   constructor(private httpClient: HttpClient) {}
 
-  getThemesDefi(): Observable<ThemeDefi[]> {
-    return this.httpClient.get<ThemeDefi[]>(environment.apiUrl + '/defi/themes');
+  getThemesDefi(idPartie: number): Observable<ThemeDefi[]> {
+    return this.httpClient.get<ThemeDefi[]>(environment.apiUrl + `/defi/themes/${idPartie}`);
   }
 
   getDefiTheme(idTheme: number): Observable<Defi> {
     return this.httpClient.get<Defi>(environment.apiUrl + `/defi/questions/${idTheme}`);
   }
 
-  getChampion(): Observable<string> {
-    return this.httpClient.get<string>(environment.apiUrl + `/defi/champion`);
+  getChampion(idPartie: number): Observable<string> {
+    return this.httpClient.get<string>(environment.apiUrl + `/defi/champion/${idPartie}`);
   }
 
-  setNouveauChampion(nomNouveauChampion: string) {
-    return this.httpClient.put(environment.apiUrl + '/defi/champion', {
+  setNouveauChampion(idChampion: number, nomNouveauChampion: string) {
+    return this.httpClient.put(environment.apiUrl + `/defi/champion/${idChampion}`, {
       newChampion: nomNouveauChampion,
     });
   }

@@ -1,0 +1,69 @@
+@import '../../../../assets/palette.scss';
+
+.gestion-parties-container {
+  background-image: url('../../../../assets/backgrounds/background-admin.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  padding: 3vh;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  font-family: 'Segoe UI';
+
+  .champ {
+    margin-top: 1vh;
+    width: 15vw;
+    padding: 0.5vh;
+    background-color: blueviolet;
+    border-width: 1vh;
+  }
+
+  button {
+    margin-bottom: 1.5vh;
+
+    width: 15vw;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    mat-icon {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  }
+
+  .table-wrapper {
+    flex: 1;
+    overflow: auto;
+    background: white;
+    border: 1vh solid black;
+    border-radius: 2vh;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    th {
+      font-weight: bold;
+    }
+
+    .mat-column-qualifs {
+      min-width: 30vw;
+
+      mat-grid-list {
+        margin: 0.5vh 0;
+        mat-grid-tile {
+          text-align: center;
+        }
+        mat-grid-tile:not(:last-of-type):not(:nth-of-type(11)) {
+          border-bottom: 0.25vh solid black;
+        }
+      }
+    }
+  }
+}

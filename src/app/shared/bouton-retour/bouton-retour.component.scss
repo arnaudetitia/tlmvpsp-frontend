@@ -1,0 +1,15 @@
+.champ {
+  background-color: lightgray;
+  border-color: white;
+  color: black;
+  font-size: 2vh;
+
+  align-items: center;
+  &:hover {
+    border-color: blue;
+  }
+
+  mat-icon {
+    margin-right: 0.25vw;
+  }
+}
