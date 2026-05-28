@@ -116,9 +116,9 @@ export class DefiJoueurComponent implements OnInit {
   }
 
   onReponseSelected($event: any) {
-    this.questionStore.passerEtatSuivant(this.mancheDefi);
-    this.reponseGiven.set($event);
     this.stopChrono();
+    this.reponseGiven.set($event);
+    this.questionStore.passerEtatSuivant(this.mancheDefi);
   }
 
   stopChrono() {
