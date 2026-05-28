@@ -98,7 +98,7 @@ export class DefiComponent implements OnInit {
         tap(([challenger, champion, indexCurrentJoueurDefi]) => {
           this.panneauxDefi.set([
             {
-              joueur: challenger,
+              joueur: challenger || 'tests',
               score: 0,
               statut: StatutJoueur.CHALLENGER,
               reponseJoueur: '',
