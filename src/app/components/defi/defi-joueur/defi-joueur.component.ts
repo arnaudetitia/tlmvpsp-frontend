@@ -43,6 +43,7 @@ export class DefiJoueurComponent implements OnInit {
   @Input() defi: Defi = {} as Defi;
   @Input() isChampion: boolean = false;
 
+  @Output() onReponseCashInEdition = new EventEmitter<boolean>();
   @Output() onQuestionRepondue = new EventEmitter<RecapQuestion>();
   @Output() onBonneReponseGiven = new EventEmitter<ModeQuestion | null>();
   @Output() onDefiTermine = new EventEmitter<void>();
@@ -143,10 +144,12 @@ export class DefiJoueurComponent implements OnInit {
 
   onReponseCashFocus() {
     this.reponseCashEditing = true;
+    this.onReponseCashInEdition.emit(true);
   }
 
   onReponseCashBlur() {
     this.reponseCashEditing = false;
+    this.onReponseCashInEdition.emit(false);
   }
 
   @HostListener('window:keydown', ['$event'])

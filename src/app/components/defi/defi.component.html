@@ -19,6 +19,7 @@
     <defi-joueur
       [defi]="defiChampion"
       [isChampion]="true"
+      (onReponseCashInEdition)="setRegieBlocked($event)"
       (onDefiTermine)="switchToDefiVerifChallenger()"
       (onBonneReponseGiven)="augmenterScore($event, 'Champion')"
     ></defi-joueur>
@@ -39,6 +40,7 @@
     <panneau-score-joueurs
       [panneaux]="panneauxDefi"
       [selectedJoueur]="currentJoueur"
+      [regieBlocked]="isReponseChallengerInEdition()"
     ></panneau-score-joueurs>
   }
 </div>
