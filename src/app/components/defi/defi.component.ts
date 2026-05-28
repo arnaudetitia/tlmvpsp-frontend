@@ -58,6 +58,8 @@ export class DefiComponent implements OnInit {
   indexCurrentJoueur: number = 0;
   currentJoueur: string = '';
 
+  isReponseChallengerInEdition = signal<boolean>(false);
+
   reponsesChallenger = signal<RecapDefiChallenger>({
     theme: '',
     recapQuestions: [],
@@ -239,6 +241,10 @@ export class DefiComponent implements OnInit {
     }
     this.defiStore.passerEtatSuivant();
     localStorage.clear();
+  }
+
+  setRegieBlocked($event: boolean) {
+    this.isReponseChallengerInEdition.set($event);
   }
 
   @HostListener('window:keydown', ['$event'])

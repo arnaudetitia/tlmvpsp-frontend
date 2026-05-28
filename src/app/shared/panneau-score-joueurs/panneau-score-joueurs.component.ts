@@ -41,6 +41,8 @@ export class PanneauScoreJoueursComponent implements OnInit {
 
   @Input() nbJoueurAQualifier: number = 4;
 
+  @Input() regieBlocked: boolean = false;
+
   @Output() onAllJoueursQualifies = new EventEmitter<string[]>();
 
   @Output() onBonneReponseGiven = new EventEmitter<string>();
@@ -148,7 +150,7 @@ export class PanneauScoreJoueursComponent implements OnInit {
   handleKeyboardEvent($event: KeyboardEvent) {
     const canChangeScore = this.panneaux().every((pan) => !pan.reponseJoueur);
     if ($event.code === CodeTouches.buttonRCode && !this.isEditJoueurName && canChangeScore) {
-      this.modeRegie = !this.modeRegie;
+      this.modeRegie = !this.modeRegie && !this.regieBlocked;
       if (!this.modeRegie) {
         this.scoresStores.setPanneauJoueurs(this.panneaux());
       }
