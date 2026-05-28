@@ -1,0 +1,75 @@
+<div class="gestion-questions-container">
+  <bouton-retour></bouton-retour>
+  <h2 class="champ">Gestion des questions</h2>
+  <div class="choix-manche-container">
+    @for (manche of [MancheEnum.QUALIFS, MancheEnum.COMPET, MancheEnum.DEFI]; track manche) {
+      <div
+        class="champ"
+        [ngClass]="{
+          'manche-choisie': manche === mancheChoisie(),
+        }"
+        (click)="setMancheChoisie(manche)"
+      >
+        {{ manche | capitalise }}
+      </div>
+    }
+  </div>
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="allQuestions()">
+      <ng-container matColumnDef="theme">
+        <th mat-header-cell *matHeaderCellDef>Thème</th>
+        <td mat-cell *matCellDef="let question">
+          {{ question.libelleTheme }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="question">
+        <th mat-header-cell *matHeaderCellDef>Question</th>
+        <td mat-cell *matCellDef="let question">{{ question.question }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="bonneReponse">
+        <th mat-header-cell *matHeaderCellDef>Bonne Réponse</th>
+        <td mat-cell *matCellDef="let question">{{ question.bonneReponse }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="mauvaisesReponses">
+        <th mat-header-cell *matHeaderCellDef>Mauvaise Réponses</th>
+        <td mat-cell *matCellDef="let question">
+          @for (reponse of question.mauvaisesReponses; track reponse) {
+            <div>{{ reponse }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="triReponse">
+        <th mat-header-cell *matHeaderCellDef>Réponses triées par</th>
+        <td mat-cell *matCellDef="let question">{{ question.tri }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="musique">
+        <th mat-header-cell *matHeaderCellDef>Extrait musical</th>
+        <td mat-cell *matCellDef="let question">
+          @if (question.musique !== null) {
+            <mat-icon class="ecoute-musique" (click)="ecouterMusique(question.musique)"
+              >music_note</mat-icon
+            >
+            @if (question.musique === musiqueEnEcoute) {
+              <mat-icon class="stop-musique" (click)="arreterMusique()">stop</mat-icon>
+            }
+          } @else {
+            <mat-icon>music_off</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="aliases">
+        <th mat-header-cell *matHeaderCellDef>Aliases</th>
+        <td mat-cell *matCellDef="let question">[{{ getStringAliases(question.aliases) }}]</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
+  </div>
+</div>

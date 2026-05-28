@@ -1,6 +1,7 @@
 export enum ManchesEnum {
   QUALIFS = 'QUALIFS',
   COMPET = 'COMPET',
+  DEFI = 'DEFI',
   DEFI_CHALLENGER = 'DEFI_CHALLENGER',
   DEFI_CHAMPION = 'DEFI_CHAMPION',
 }
