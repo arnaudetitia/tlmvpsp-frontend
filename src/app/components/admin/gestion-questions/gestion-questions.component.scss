@@ -1,0 +1,85 @@
+@import '../../../../assets/palette.scss';
+
+.gestion-questions-container {
+  background-image: url('../../../../assets/backgrounds/background-admin.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  padding: 3vh;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  font-family: 'Segoe UI';
+
+  .champ {
+    margin-top: 1vh;
+    width: 15vw;
+    padding: 0.5vh;
+    background-color: blueviolet;
+    border-width: 1vh;
+  }
+
+  .choix-manche-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin-bottom: 1.5vh;
+    width: 20vw;
+
+    .champ {
+      margin-right: 0.5vw;
+      font-size: 2vh;
+
+      &.manche-choisie {
+        background-color: orange;
+      }
+
+      &:not(.manche-choisie) {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .table-wrapper {
+    flex: 1;
+    overflow: auto;
+    background: white;
+    border: 1vh solid black;
+    border-radius: 2vh;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    th {
+      font-weight: bold;
+    }
+
+    .mat-column-aliases {
+      min-width: 15vw;
+    }
+
+    .ecoute-musique {
+      color: orange;
+
+      &:hover {
+        color: blue;
+        cursor: pointer;
+      }
+    }
+
+    .stop-musique {
+      color: orange;
+      margin-right: 0.5vw;
+
+      &:hover {
+        color: red;
+        cursor: pointer;
+      }
+    }
+  }
+}
