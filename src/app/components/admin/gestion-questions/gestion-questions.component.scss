@@ -41,6 +41,11 @@
       &:not(.manche-choisie) {
         cursor: pointer;
       }
+
+      &.manche-bloquee {
+        background-color: grey;
+        cursor: not-allowed;
+      }
     }
   }
 
