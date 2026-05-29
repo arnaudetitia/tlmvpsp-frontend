@@ -2,6 +2,7 @@ export interface Partie {
   id: number;
   nomPartie: string;
   questionsQualifs: {
+    idQuestion: number;
     question: string;
     bonneReponse: string;
   }[];

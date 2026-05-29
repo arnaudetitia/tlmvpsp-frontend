@@ -1,0 +1,21 @@
+.filtre-question-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: flex-start;
+
+  .filtre-type-selector,
+  .filtre-type-theme-selector {
+    margin-right: 1vw;
+  }
+
+  mat-icon {
+    margin-top: 1.5vh;
+    margin-left: 1vw;
+    transform: scale(2);
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

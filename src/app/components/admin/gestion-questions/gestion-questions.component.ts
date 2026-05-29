@@ -1,17 +1,27 @@
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, OnDestroy, OnInit, signal } from '@angular/core';
 import { BoutonRetourComponent } from '../../../shared/bouton-retour/bouton-retour.component';
 import { QuestionService } from '../../../services/question.service';
 import { QuestionExtended } from '../../../models/question.model';
-import { tap } from 'rxjs';
 import { ManchesEnum } from '../../../models/enums/manches.enum';
 import { CapitalisationPipe } from '../../../pipes/capitalisation.pipe';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
+import { FiltreQuestionsComponent } from './filtre-questions/filtre-questions.component';
+import { Partie } from '../../../models/partie.model';
+import { FiltreQuestionType } from '../../../models/enums/filtre-questions.enum';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-gestion-questions.component',
-  imports: [CommonModule, BoutonRetourComponent, CapitalisationPipe, MatTableModule, MatIconModule],
+  imports: [
+    CommonModule,
+    BoutonRetourComponent,
+    CapitalisationPipe,
+    FiltreQuestionsComponent,
+    MatTableModule,
+    MatIconModule,
+  ],
   templateUrl: './gestion-questions.component.html',
   styleUrl: './gestion-questions.component.scss',
 })
@@ -23,6 +33,11 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   mancheChoisie = signal<ManchesEnum>(ManchesEnum.QUALIFS);
 
   displayedColumnsBase = ['question', 'bonneReponse', 'mauvaisesReponses', 'triReponse'];
+
+  bloquageManche = new Map([
+    [ManchesEnum.QUALIFS, FiltreQuestionType.THEME],
+    [ManchesEnum.DEFI, FiltreQuestionType.MUSIQUE],
+  ]);
 
   displayedColumns = computed(() => {
     let newDisplayedColumn = this.displayedColumnsBase;
@@ -38,42 +53,107 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     return newDisplayedColumn;
   });
 
+  currentFiltreType = signal<FiltreQuestionType | null>(null);
+  filterPartie = signal<Partie | null>(null);
+  filterTheme = signal<number | null>(null);
+  filterMusique = signal<boolean | null>(null);
+  filterTexte = signal<string>('');
+
   filtre = computed(() => {
     return {
       manche: this.mancheChoisie(),
+      partie: this.filterPartie(),
+      theme: this.filterTheme(),
+      musique: this.filterMusique(),
+      texte: this.filterTexte(),
     };
   });
 
   musiqueEnEcoute = '';
   extraitEnEcoute: HTMLAudioElement | null = null;
 
-  constructor(private questionService: QuestionService) {}
+  constructor(private questionService: QuestionService) {
+    effect(() => {
+      if (
+        this.currentFiltreType() === FiltreQuestionType.THEME &&
+        this.mancheChoisie() === ManchesEnum.QUALIFS
+      ) {
+        this.mancheChoisie.set(ManchesEnum.COMPET);
+      }
+      if (
+        this.currentFiltreType() === FiltreQuestionType.MUSIQUE &&
+        this.mancheChoisie() === ManchesEnum.DEFI
+      ) {
+        this.mancheChoisie.set(ManchesEnum.QUALIFS);
+      }
+      this.allQuestions().filter = JSON.stringify(this.filtre());
+    });
+  }
 
   ngOnInit() {
     this.questionService
       .getAllQuestions()
       .pipe(
         tap((allQuestions) => {
-          this.allQuestions().data = allQuestions.map((q) => {
-            return {
-              ...q,
-              idTheme: Number(q.idTheme),
-            };
-          });
+          this.allQuestions().data = allQuestions;
         }),
       )
       .subscribe();
     this.allQuestions().filterPredicate = (question: QuestionExtended, filtre: string) => {
       const filtreParsed = JSON.parse(filtre);
-      return question.mancheQuestion === filtreParsed.manche;
+      let questionInPartie = true;
+      if (filtreParsed.partie) {
+        const partieFilter = filtreParsed.partie;
+        questionInPartie =
+          [
+            partieFilter.idCompet,
+            ...partieFilter.themesDefi.map((theme: any) => theme.idTheme),
+          ].includes(question.idTheme) ||
+          [
+            ...partieFilter.questionsQualifs.map(
+              (questionQualif: any) => questionQualif.idQuestion,
+            ),
+          ].includes(question.id);
+      }
+      const themefilter = filtreParsed.theme;
+      let questionHasRightTheme = true;
+      if (themefilter) {
+        questionHasRightTheme = themefilter === question.idTheme;
+      }
+      const musiqueFilter = filtreParsed.musique;
+      let questionInFilterMusic = true;
+      if (musiqueFilter !== null) {
+        if (musiqueFilter) {
+          questionInFilterMusic = question.musique !== null;
+        } else {
+          questionInFilterMusic = question.musique === null;
+        }
+      }
+      const textFilter = filtreParsed.texte;
+      let questionContainsTexte = true;
+      if (textFilter) {
+        questionContainsTexte = question.question.includes(textFilter);
+        questionContainsTexte = questionContainsTexte || question.bonneReponse.includes(textFilter);
+        questionContainsTexte =
+          questionContainsTexte || question.mauvaisesReponses.some((mr) => mr.includes(textFilter));
+      }
+      return (
+        question.mancheQuestion === filtreParsed.manche &&
+        questionInPartie &&
+        questionHasRightTheme &&
+        questionInFilterMusic &&
+        questionContainsTexte
+      );
     };
     this.allQuestions().filter = JSON.stringify(this.filtre());
   }
 
   setMancheChoisie($event: ManchesEnum) {
-    this.mancheChoisie.set($event);
-    this.allQuestions().filter = JSON.stringify(this.filtre());
-    this.arreterMusique();
+    if (this.currentFiltreType() !== this.bloquageManche.get($event)) {
+      this.mancheChoisie.set($event);
+      this.allQuestions().filter = JSON.stringify(this.filtre());
+      this.arreterMusique();
+    }
   }
 
   getRowspan(question: QuestionExtended): number {
@@ -100,6 +180,36 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   getStringAliases(aliases: string[]) {
     return aliases?.join(', ');
+  }
+
+  updateFiltreType(typeFiltre: FiltreQuestionType | null) {
+    this.currentFiltreType.set(typeFiltre);
+  }
+
+  updateFiltre(filtre: {
+    typeFiltre: FiltreQuestionType;
+    value: Partie | number | boolean | string;
+  }) {
+    this.filterPartie.set(null);
+    this.filterTheme.set(null);
+    this.filterMusique.set(null);
+    this.filterTexte.set('');
+    switch (filtre.typeFiltre) {
+      case FiltreQuestionType.PARTIE:
+        this.filterPartie.set(filtre.value as Partie);
+        break;
+      case FiltreQuestionType.THEME:
+        this.filterTheme.set(filtre.value as number);
+        break;
+      case FiltreQuestionType.MUSIQUE:
+        this.filterMusique.set(filtre.value as boolean);
+        break;
+      case FiltreQuestionType.TEXTE:
+        this.filterTexte.set(filtre.value as string);
+        break;
+    }
+
+    this.allQuestions().filter = JSON.stringify(this.filtre());
   }
 
   ngOnDestroy() {

@@ -7,6 +7,7 @@
         class="champ"
         [ngClass]="{
           'manche-choisie': manche === mancheChoisie(),
+          'manche-bloquee': currentFiltreType() === bloquageManche.get(manche),
         }"
         (click)="setMancheChoisie(manche)"
       >
@@ -14,6 +15,10 @@
       </div>
     }
   </div>
+  <filtre-questions
+    (onFiltreTypeChange)="updateFiltreType($event)"
+    (onFiltreValueChange)="updateFiltre($event)"
+  ></filtre-questions>
   <div class="table-wrapper">
     <table mat-table [dataSource]="allQuestions()">
       <ng-container matColumnDef="theme">
