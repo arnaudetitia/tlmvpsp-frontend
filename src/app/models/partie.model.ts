@@ -6,7 +6,10 @@ export interface Partie {
     bonneReponse: string;
   }[];
   themeCompet: string;
-  themesDefi: string[];
+  themesDefi: {
+    idTheme: number;
+    libelleTheme: string;
+  }[];
   champion: string;
 }
 
