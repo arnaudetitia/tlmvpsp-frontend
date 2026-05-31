@@ -35,8 +35,8 @@
     @case (FiltreQuestionType.MUSIQUE) {
       <mat-form-field>
         <mat-select (selectionChange)="onFilterValueChange($event)">
-          <mat-option value="false">Sans muqsiue</mat-option>
-          <mat-option value="true">Avec muqsiue</mat-option>
+          <mat-option [value]="false">Sans muqsiue</mat-option>
+          <mat-option [value]="true">Avec muqsiue</mat-option>
         </mat-select>
       </mat-form-field>
     }
