@@ -1,4 +1,4 @@
-import { Component, computed, effect, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { BoutonRetourComponent } from '../../../shared/bouton-retour/bouton-retour.component';
 import { QuestionService } from '../../../services/question.service';
 import { QuestionExtended } from '../../../models/question.model';
@@ -11,6 +11,9 @@ import { FiltreQuestionsComponent } from './filtre-questions/filtre-questions.co
 import { Partie } from '../../../models/partie.model';
 import { FiltreQuestionType } from '../../../models/enums/filtre-questions.enum';
 import { tap } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { AddEditQuestionDialogComponent } from './add-edit-question-dialog.component/add-edit-question-dialog.component';
 
 @Component({
   selector: 'app-gestion-questions.component',
@@ -21,6 +24,7 @@ import { tap } from 'rxjs';
     FiltreQuestionsComponent,
     MatTableModule,
     MatIconModule,
+    MatButtonModule,
   ],
   templateUrl: './gestion-questions.component.html',
   styleUrl: './gestion-questions.component.scss',
@@ -50,7 +54,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     if (this.mancheChoisie() === ManchesEnum.COMPET) {
       newDisplayedColumn = [...newDisplayedColumn, 'aliases'];
     }
-    return newDisplayedColumn;
+    return [...newDisplayedColumn, 'actions'];
   });
 
   currentFiltreType = signal<FiltreQuestionType | null>(null);
@@ -71,6 +75,8 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   musiqueEnEcoute = '';
   extraitEnEcoute: HTMLAudioElement | null = null;
+
+  openAddEditQuestionDialog = inject(MatDialog);
 
   constructor(private questionService: QuestionService) {
     effect(() => {
@@ -210,6 +216,28 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     }
 
     this.allQuestions().filter = JSON.stringify(this.filtre());
+  }
+
+  openEditQuestionDialog(question: QuestionExtended) {
+    const dialogRef = this.openAddEditQuestionDialog.open(AddEditQuestionDialogComponent, {
+      data: {
+        question: question,
+      },
+      width: '75vw',
+      disableClose: true,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        tap((questionUpdated) => {
+          if (questionUpdated) {
+            this.allQuestions().data = questionUpdated;
+            this.allQuestions().filter = JSON.stringify(this.filtre());
+          }
+        }),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
