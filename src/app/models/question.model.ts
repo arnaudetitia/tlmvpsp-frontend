@@ -23,3 +23,13 @@ export interface QuestionExtended {
   musique: string;
   joueeApresQuestion: boolean;
 }
+
+export interface QuestionVo {
+  question: string;
+  bonneReponse: string;
+  mauvaisesReponses: string[];
+  tri: string;
+  aliases: string[];
+  musique: string;
+  joueeApresQuestion: boolean;
+}

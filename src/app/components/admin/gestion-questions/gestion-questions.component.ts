@@ -200,7 +200,6 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     this.filterTheme.set(null);
     this.filterMusique.set(null);
     this.filterTexte.set('');
-    console.log(filtre);
     switch (filtre.typeFiltre) {
       case FiltreQuestionType.PARTIE:
         this.filterPartie.set(filtre.value as Partie);
@@ -227,6 +226,18 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
       width: '75vw',
       disableClose: true,
     });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        tap((questionUpdated) => {
+          if (questionUpdated) {
+            this.allQuestions().data = questionUpdated;
+            this.allQuestions().filter = JSON.stringify(this.filtre());
+          }
+        }),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {

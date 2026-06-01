@@ -2,17 +2,25 @@ import { Component, effect, inject, Inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogTitle } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { QuestionExtended } from '../../../../models/question.model';
+import { QuestionExtended, QuestionVo } from '../../../../models/question.model';
 import { TriTypeEnum } from '../../../../models/enums/tri.enum';
 import { MatIconModule } from '@angular/material/icon';
 import { ManchesEnum } from '../../../../models/enums/manches.enum';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { GestionQuestionsComponent } from '../gestion-questions.component';
+import { QuestionService } from '../../../../services/question.service';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-question-dialog.component',
@@ -33,6 +41,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   styleUrl: './add-edit-question-dialog.component.scss',
 })
 export class AddEditQuestionDialogComponent {
+  readonly dialogRef = inject(MatDialogRef<GestionQuestionsComponent>);
+
   questionForm: FormGroup;
 
   data = inject<{ question: QuestionExtended }>(MAT_DIALOG_DATA);
@@ -41,13 +51,20 @@ export class AddEditQuestionDialogComponent {
     (value) => typeof value === 'string',
   ) as string[];
 
+  mayHaveMusic: boolean = true;
+  musicFile: File | null = null;
+
   mayHaveAliases: boolean = false;
 
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   aliases = signal<string[]>([]);
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private questionService: QuestionService,
+    private formBuilder: FormBuilder,
+  ) {
     const questionToEdit = this.data.question;
+    this.mayHaveMusic = questionToEdit.mancheQuestion !== ManchesEnum.DEFI;
     this.mayHaveAliases =
       questionToEdit.mancheQuestion === ManchesEnum.COMPET && [7, 8].includes(questionToEdit.ordre);
     this.aliases.set(questionToEdit.aliases || []);
@@ -61,7 +78,7 @@ export class AddEditQuestionDialogComponent {
       ),
       tri: [questionToEdit.tri, [Validators.required]],
       musique: [questionToEdit.musique, []],
-      joueeApresQuestion: [questionToEdit.joueeApresQuestion],
+      joueeApresQuestion: [questionToEdit.joueeApresQuestion || false],
       aliases: [this.aliases(), []],
     });
 
@@ -87,6 +104,7 @@ export class AddEditQuestionDialogComponent {
       this.questionForm.patchValue({
         musique: fileName,
       });
+      this.musicFile = file;
     }
   }
 
@@ -107,5 +125,28 @@ export class AddEditQuestionDialogComponent {
     }
   }
 
-  addEditQuestion() {}
+  addEditQuestion() {
+    const questionEdited: QuestionVo = {
+      question: this.questionForm.get('question')?.value,
+      bonneReponse: this.questionForm.get('bonneReponse')?.value,
+      mauvaisesReponses: this.questionForm.get('mauvaisesReponses')?.value,
+      tri: this.questionForm.get('tri')?.value,
+      aliases: this.questionForm.get('aliases')?.value,
+      musique: this.questionForm.get('musique')?.value || null,
+      joueeApresQuestion: this.questionForm.get('joueeApresQuestion')?.value,
+    };
+
+    this.questionService
+      .updateQuestion(this.data.question.id, questionEdited, this.musicFile)
+      .pipe(
+        tap((questionsUpdated) => {
+          this.dialogRef.close(questionsUpdated);
+        }),
+        catchError((error) => {
+          console.log(error);
+          return of();
+        }),
+      )
+      .subscribe();
+  }
 }
