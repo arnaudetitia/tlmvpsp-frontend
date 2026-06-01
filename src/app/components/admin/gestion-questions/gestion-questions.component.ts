@@ -73,7 +73,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     };
   });
 
-  musiqueEnEcoute = '';
+  musiqueEnEcoute = signal<string>('');
   extraitEnEcoute: HTMLAudioElement | null = null;
 
   openAddEditQuestionDialog = inject(MatDialog);
@@ -170,16 +170,20 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   }
 
   ecouterMusique(musique: string) {
-    this.musiqueEnEcoute = musique;
-    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute}.mp3`);
+    this.musiqueEnEcoute.set(musique);
+    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute()}.mp3`);
     this.extraitEnEcoute.play();
+    this.extraitEnEcoute.onended = () => {
+      this.musiqueEnEcoute.set('');
+      this.extraitEnEcoute = null;
+    };
   }
 
   arreterMusique() {
     if (this.extraitEnEcoute) {
       this.extraitEnEcoute.pause();
       this.extraitEnEcoute.currentTime = 0;
-      this.musiqueEnEcoute = '';
+      this.musiqueEnEcoute.set('');
       this.extraitEnEcoute = null;
     }
   }
@@ -218,9 +222,32 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     this.allQuestions().filter = JSON.stringify(this.filtre());
   }
 
+  openAddQuestionDialog() {
+    const dialogRef = this.openAddEditQuestionDialog.open(AddEditQuestionDialogComponent, {
+      data: {
+        action: 'add',
+      },
+      width: '75vw',
+      disableClose: true,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        tap((questionUpdated) => {
+          if (questionUpdated) {
+            this.allQuestions().data = questionUpdated;
+            this.allQuestions().filter = JSON.stringify(this.filtre());
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   openEditQuestionDialog(question: QuestionExtended) {
     const dialogRef = this.openAddEditQuestionDialog.open(AddEditQuestionDialogComponent, {
       data: {
+        action: 'edit',
         question: question,
       },
       width: '75vw',

@@ -27,7 +27,7 @@
     flex-direction: row;
     justify-content: space-between;
 
-    margin-bottom: 1.5vh;
+    margin-bottom: 1vh;
     width: 20vw;
 
     .champ {
@@ -45,6 +45,28 @@
       &.manche-bloquee {
         background-color: grey;
         cursor: not-allowed;
+      }
+    }
+  }
+
+  .actions-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 1vh;
+
+    button {
+      width: 15vw;
+
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+
+      mat-icon {
+        font-weight: bold;
+        margin-right: 10px;
       }
     }
   }

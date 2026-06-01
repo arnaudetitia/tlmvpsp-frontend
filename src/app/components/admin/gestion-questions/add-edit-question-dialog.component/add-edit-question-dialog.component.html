@@ -1,4 +1,6 @@
-<h2 mat-dialog-title>Édition d'une question</h2>
+<h2 mat-dialog-title>
+  {{ data.action === 'add' ? "Ajout d'une question" : "Édition d'une question" }}
+</h2>
 <mat-dialog-content class="question-form-container">
   <form [formGroup]="questionForm">
     <mat-form-field class="question-intitule-field">
@@ -101,6 +103,6 @@
 <mat-dialog-actions align="end">
   <button class="btn champ annuler" mat-dialog-close>Annuler</button>
   <button class="btn champ creer" (click)="addEditQuestion()" [disabled]="questionForm.invalid">
-    Éditer la question
+    {{ data.action === 'add' ? 'Créer la question' : 'Éditer la question' }}
   </button>
 </mat-dialog-actions>
