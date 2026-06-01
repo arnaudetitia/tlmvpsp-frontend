@@ -218,9 +218,32 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     this.allQuestions().filter = JSON.stringify(this.filtre());
   }
 
+  openAddQuestionDialog() {
+    const dialogRef = this.openAddEditQuestionDialog.open(AddEditQuestionDialogComponent, {
+      data: {
+        action: 'add',
+      },
+      width: '75vw',
+      disableClose: true,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        tap((questionUpdated) => {
+          if (questionUpdated) {
+            this.allQuestions().data = questionUpdated;
+            this.allQuestions().filter = JSON.stringify(this.filtre());
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   openEditQuestionDialog(question: QuestionExtended) {
     const dialogRef = this.openAddEditQuestionDialog.open(AddEditQuestionDialogComponent, {
       data: {
+        action: 'edit',
         question: question,
       },
       width: '75vw',

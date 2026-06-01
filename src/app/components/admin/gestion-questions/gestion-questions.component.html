@@ -15,10 +15,16 @@
       </div>
     }
   </div>
-  <filtre-questions
-    (onFiltreTypeChange)="updateFiltreType($event)"
-    (onFiltreValueChange)="updateFiltre($event)"
-  ></filtre-questions>
+  <div class="actions-container">
+    <button class="btn btn-primary" (click)="openAddQuestionDialog()">
+      <mat-icon>add</mat-icon>Créer une nouvelle question
+    </button>
+    <filtre-questions
+      (onFiltreTypeChange)="updateFiltreType($event)"
+      (onFiltreValueChange)="updateFiltre($event)"
+    ></filtre-questions>
+  </div>
+
   <div class="table-wrapper">
     <table mat-table [dataSource]="allQuestions()">
       <ng-container matColumnDef="theme">

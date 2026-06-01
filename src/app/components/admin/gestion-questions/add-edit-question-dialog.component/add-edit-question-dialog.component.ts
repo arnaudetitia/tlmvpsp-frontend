@@ -45,7 +45,7 @@ export class AddEditQuestionDialogComponent {
 
   questionForm: FormGroup;
 
-  data = inject<{ question: QuestionExtended }>(MAT_DIALOG_DATA);
+  data = inject<{ action: 'add' | 'edit'; question?: QuestionExtended }>(MAT_DIALOG_DATA);
 
   TriTypeLabels = Object.values(TriTypeEnum).filter(
     (value) => typeof value === 'string',
@@ -63,7 +63,8 @@ export class AddEditQuestionDialogComponent {
     private questionService: QuestionService,
     private formBuilder: FormBuilder,
   ) {
-    const questionToEdit = this.data.question;
+    const questionToEdit =
+      this.data.question || ({ mauvaisesReponses: ['', '', ''] } as QuestionExtended);
     this.mayHaveMusic = questionToEdit.mancheQuestion !== ManchesEnum.DEFI;
     this.mayHaveAliases =
       questionToEdit.mancheQuestion === ManchesEnum.COMPET && [7, 8].includes(questionToEdit.ordre);
@@ -136,8 +137,11 @@ export class AddEditQuestionDialogComponent {
       joueeApresQuestion: this.questionForm.get('joueeApresQuestion')?.value,
     };
 
-    this.questionService
-      .updateQuestion(this.data.question.id, questionEdited, this.musicFile)
+    const addEditObservable = this.data.question
+      ? this.questionService.updateQuestion(this.data.question.id, questionEdited, this.musicFile)
+      : this.questionService.addQuestion(questionEdited, this.musicFile);
+
+    addEditObservable
       .pipe(
         tap((questionsUpdated) => {
           this.dialogRef.close(questionsUpdated);
