@@ -73,7 +73,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     };
   });
 
-  musiqueEnEcoute = '';
+  musiqueEnEcoute = signal<string>('');
   extraitEnEcoute: HTMLAudioElement | null = null;
 
   openAddEditQuestionDialog = inject(MatDialog);
@@ -170,16 +170,20 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   }
 
   ecouterMusique(musique: string) {
-    this.musiqueEnEcoute = musique;
-    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute}.mp3`);
+    this.musiqueEnEcoute.set(musique);
+    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute()}.mp3`);
     this.extraitEnEcoute.play();
+    this.extraitEnEcoute.onended = () => {
+      this.musiqueEnEcoute.set('');
+      this.extraitEnEcoute = null;
+    };
   }
 
   arreterMusique() {
     if (this.extraitEnEcoute) {
       this.extraitEnEcoute.pause();
       this.extraitEnEcoute.currentTime = 0;
-      this.musiqueEnEcoute = '';
+      this.musiqueEnEcoute.set('');
       this.extraitEnEcoute = null;
     }
   }

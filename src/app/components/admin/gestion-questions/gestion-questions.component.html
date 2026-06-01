@@ -65,7 +65,7 @@
             <mat-icon class="ecoute-musique" (click)="ecouterMusique(question.musique)"
               >music_note</mat-icon
             >
-            @if (question.musique === musiqueEnEcoute) {
+            @if (question.musique === musiqueEnEcoute()) {
               <mat-icon class="stop-musique" (click)="arreterMusique()">stop</mat-icon>
             }
           } @else {

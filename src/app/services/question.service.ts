@@ -19,9 +19,7 @@ export class QuestionService {
     if (musicFile) {
       formData.append('musicFile', musicFile);
     }
-    return this.http.post<QuestionExtended[]>(environment.apiUrl + '/questions', {
-      formData,
-    });
+    return this.http.post<QuestionExtended[]>(environment.apiUrl + '/questions', formData);
   }
 
   updateQuestion(
