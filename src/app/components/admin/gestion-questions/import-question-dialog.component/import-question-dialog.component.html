@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>Importer un fichier CSV ({{ data.manche }})</h2>
+<mat-dialog-content class="import-questions-container">
+  <div class="file-selector">
+    <input
+      class="import-file-input"
+      #fileInput
+      type="file"
+      accept=".csv"
+      (change)="onFileSelected($event)"
+    />
+    <button class="btn champ fichier" (click)="fileInput.click()">
+      <mat-icon>file</mat-icon>
+      Choisir...
+    </button>
+    @if (fileName()) {
+      <div class="champ file-name-display">{{ fileName() }}</div>
+    }
+  </div>
+  @if (isChecking()) {
+    <mat-spinner></mat-spinner>
+  }
+  @if (!isChecking() && checkDone()) {
+    @if (errorsImport().length) {
+      <table>
+        <thead>
+          <th>Ligne</th>
+          <th>Erreur</th>
+        </thead>
+        @for (error of errorsImport(); track error) {
+          <tr
+            [ngClass]="{
+              error: error.type === 'error',
+              warning: error.type === 'warning',
+            }"
+          >
+            <td>{{ error.ligne }}</td>
+            <td>{{ error.message }}</td>
+          </tr>
+        }
+      </table>
+    } @else {
+      <div class="champ pret-a-import">
+        Votre fichier peut être importé<mat-icon>check</mat-icon>
+      </div>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="btn champ annuler" mat-dialog-close>Annuler</button>
+  <button
+    class="btn champ checker"
+    (click)="checkImportQuestion()"
+    [disabled]="csvFileContent() === null"
+  >
+    Vérifier le fichier
+  </button>
+  <button
+    class="btn champ importer"
+    (click)="importQuestions()"
+    [disabled]="!checkDone() || errorsImport().length"
+  >
+    Importer le fichier
+  </button>
+</mat-dialog-actions>

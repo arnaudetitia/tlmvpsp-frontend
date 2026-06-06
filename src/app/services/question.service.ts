@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { QuestionExtended, QuestionVo } from '../models/question.model';
+import { ImporError } from '../models/import-errors.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +36,34 @@ export class QuestionService {
     return this.http.put<QuestionExtended[]>(
       environment.apiUrl + '/questions/' + idQuestion,
       formData,
+    );
+  }
+
+  checkImportQuestions(
+    manche: string,
+    csvFileContent: any,
+  ): Observable<{ erreurs: ImporError[]; questions: QuestionExtended[] }> {
+    return this.http.post<{ erreurs: ImporError[]; questions: QuestionExtended[] }>(
+      environment.apiUrl + '/questions/import',
+      {
+        manche,
+        csvFileContent,
+        doImport: false,
+      },
+    );
+  }
+
+  importQuestions(
+    manche: string,
+    csvFileContent: any,
+  ): Observable<{ erreurs: ImporError[]; questions: QuestionExtended[] }> {
+    return this.http.post<{ erreurs: ImporError[]; questions: QuestionExtended[] }>(
+      environment.apiUrl + '/questions/import',
+      {
+        manche,
+        csvFileContent,
+        doImport: true,
+      },
     );
   }
 }

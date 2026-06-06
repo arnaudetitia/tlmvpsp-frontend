@@ -13,7 +13,9 @@ import { FiltreQuestionType } from '../../../models/enums/filtre-questions.enum'
 import { tap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { AddEditQuestionDialogComponent } from './add-edit-question-dialog.component/add-edit-question-dialog.component';
+import { AddEditQuestionDialogComponent } from './add-edit-question-dialog/add-edit-question-dialog.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { ImportQuestionDialogComponent } from './import-question-dialog.component/import-question-dialog.component';
 
 @Component({
   selector: 'app-gestion-questions.component',
@@ -21,6 +23,7 @@ import { AddEditQuestionDialogComponent } from './add-edit-question-dialog.compo
     CommonModule,
     BoutonRetourComponent,
     CapitalisationPipe,
+    MatMenuModule,
     FiltreQuestionsComponent,
     MatTableModule,
     MatIconModule,
@@ -32,7 +35,7 @@ import { AddEditQuestionDialogComponent } from './add-edit-question-dialog.compo
 export class GestionQuestionsComponent implements OnInit, OnDestroy {
   allQuestions = signal(new MatTableDataSource<QuestionExtended>([]));
 
-  MancheEnum = ManchesEnum;
+  ManchesEnum = ManchesEnum;
 
   mancheChoisie = signal<ManchesEnum>(ManchesEnum.QUALIFS);
 
@@ -77,6 +80,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   extraitEnEcoute: HTMLAudioElement | null = null;
 
   openAddEditQuestionDialog = inject(MatDialog);
+  openImportQuestionDialogRef = inject(MatDialog);
 
   constructor(private questionService: QuestionService) {
     effect(() => {
@@ -260,6 +264,28 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
         tap((questionUpdated) => {
           if (questionUpdated) {
             this.allQuestions().data = questionUpdated;
+            this.allQuestions().filter = JSON.stringify(this.filtre());
+          }
+        }),
+      )
+      .subscribe();
+  }
+
+  openImportQuestionDialog(manche: ManchesEnum) {
+    const dialogRef = this.openImportQuestionDialogRef.open(ImportQuestionDialogComponent, {
+      data: {
+        manche,
+      },
+      width: '75vw',
+      disableClose: true,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        tap((questions) => {
+          if (questions) {
+            this.allQuestions().data = questions;
             this.allQuestions().filter = JSON.stringify(this.filtre());
           }
         }),

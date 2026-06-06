@@ -1,0 +1,101 @@
+.import-questions-container {
+  background-image: url('../../../../../assets/backgrounds/background-admin.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.import-file-input {
+  display: none;
+}
+
+.file-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .file-name-display {
+    padding: 1vh;
+    color: white;
+    font-size: 1vw;
+    border-color: black;
+  }
+}
+
+.champ {
+  border-color: orange;
+  border-width: 1vh;
+
+  &.annuler {
+    background-color: lightgray;
+    margin-right: 1vh;
+    color: black;
+  }
+
+  &.importer,
+  &.checker {
+    background-color: orange;
+    border-color: lightgray;
+    color: white;
+  }
+
+  &.checker {
+    margin-right: 1vh;
+  }
+
+  &.fichier {
+    margin-top: 1vh;
+    width: 15vw;
+    background-color: orange;
+    border-color: lightgray;
+    color: white;
+    font-size: 1vw;
+    margin-right: 1vw;
+  }
+
+  &.pret-a-import {
+    margin-top: 1vh;
+    padding: 1vh;
+    border-color: white;
+    background-color: #00a933;
+
+    &:hover {
+      border-color: inherit;
+    }
+
+    mat-icon {
+      font-weight: bold;
+      transform: scale(2);
+      margin-left: 1vw;
+    }
+  }
+
+  &:hover {
+    border-color: blue;
+  }
+}
+
+table {
+  margin-top: 1vh;
+  background-color: white;
+
+  color: black;
+
+  tr {
+    &.error {
+      background-color: red;
+    }
+
+    &.warning {
+      background-color: orange;
+    }
+  }
+  th,
+  td {
+    border: 0.2vh solid black;
+    padding: 0.2vh;
+  }
+}
