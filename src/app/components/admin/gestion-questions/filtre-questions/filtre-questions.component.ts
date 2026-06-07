@@ -45,6 +45,7 @@ export class FiltreQuestionsComponent implements OnInit {
   });
 
   @Output() onFiltreTypeChange = new EventEmitter<FiltreQuestionType | null>();
+  @Output() onFiltreThemeTypeChange = new EventEmitter<TypeThemeEnum | null>();
   @Output() onResetFilter = new EventEmitter<void>();
   @Output() onFiltreValueChange = new EventEmitter<{
     typeFiltre: FiltreQuestionType;
@@ -54,6 +55,7 @@ export class FiltreQuestionsComponent implements OnInit {
   constructor(private partieService: PartieService) {
     effect(() => {
       this.onFiltreTypeChange.emit(this.currentFiltreType());
+      this.onFiltreThemeTypeChange.emit(this.currentTypeThemeType());
     });
   }
 

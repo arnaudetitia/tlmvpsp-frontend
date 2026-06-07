@@ -7,7 +7,9 @@
         class="champ"
         [ngClass]="{
           'manche-choisie': manche === mancheChoisie(),
-          'manche-bloquee': currentFiltreType() === bloquageManche.get(manche),
+          'manche-bloquee':
+            currentFiltreType() === bloquageManche.get(manche) ||
+            currentFiltreThemeType() === bloquageTheme.get(manche),
         }"
         (click)="setMancheChoisie(manche)"
       >
@@ -37,6 +39,7 @@
     <filtre-questions
       (onFiltreTypeChange)="updateFiltreType($event)"
       (onFiltreValueChange)="updateFiltre($event)"
+      (onFiltreThemeTypeChange)="updateThemeFiltreType($event)"
     ></filtre-questions>
   </div>
 
