@@ -2,11 +2,15 @@ export interface Partie {
   id: number;
   nomPartie: string;
   questionsQualifs: {
+    idQuestion: number;
     question: string;
     bonneReponse: string;
   }[];
   themeCompet: string;
-  themesDefi: string[];
+  themesDefi: {
+    idTheme: number;
+    libelleTheme: string;
+  }[];
   champion: string;
 }
 

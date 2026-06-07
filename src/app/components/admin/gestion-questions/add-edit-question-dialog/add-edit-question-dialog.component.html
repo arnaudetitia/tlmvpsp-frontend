@@ -1,0 +1,108 @@
+<h2 mat-dialog-title>
+  {{ data.action === 'add' ? "Ajout d'une question" : "Édition d'une question" }}
+</h2>
+<mat-dialog-content class="question-form-container">
+  <form [formGroup]="questionForm">
+    <mat-form-field class="question-intitule-field">
+      <mat-label>Question</mat-label>
+      <input matInput formControlName="question" />
+    </mat-form-field>
+
+    <div class="reponses-field">
+      <mat-form-field class="bonne-reponse-field">
+        <mat-label>Bonne réponse</mat-label>
+        <input matInput formControlName="bonneReponse" />
+      </mat-form-field>
+
+      <div class="mauvaises-reponses-field" formArrayName="mauvaisesReponses">
+        @for (repControl of mauvaisesReponsesFormArray.controls; track $index) {
+          <mat-form-field class="mauvaise-reponse-field">
+            <mat-label>Autre réponse {{ $index + 1 }}</mat-label>
+            <input matInput [formControlName]="$index" />
+          </mat-form-field>
+        }
+      </div>
+    </div>
+
+    <mat-form-field class="sort-field">
+      <mat-label>Tri à appliquer</mat-label>
+      <mat-select formControlName="tri">
+        @for (label of TriTypeLabels; track label) {
+          <mat-option [value]="label">{{ label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (mayHaveMusic) {
+      <div class="music-container">
+        <mat-form-field class="music-field">
+          <mat-label>Extrait musical</mat-label>
+          <input matInput readonly formControlName="musique" />
+          @if (questionForm.get('musique')?.value) {
+            <button
+              matSuffix
+              mat-icon-button
+              aria-label="Effacer"
+              (click)="questionForm.patchValue({ musique: '' })"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <input
+          type="file"
+          #fileInput
+          accept="audio/*"
+          class="hidden"
+          (change)="onFileSelected($event)"
+        />
+        <button class="btn champ music" (click)="fileInput.click()">
+          <mat-icon>audio_file</mat-icon>
+          Choisir...
+        </button>
+
+        <div class="played-after-wrapper">
+          @if (questionForm.get('musique')?.value) {
+            <mat-slide-toggle
+              class="played-after-field"
+              color="primary"
+              formControlName="joueeApresQuestion"
+              >La musique sera jouee
+              {{ questionForm.get('joueeApresQuestion')?.value === true ? 'après' : 'avant' }} la
+              question</mat-slide-toggle
+            >
+          }
+        </div>
+      </div>
+    }
+
+    @if (mayHaveAliases) {
+      <mat-form-field class="aliases-field">
+        <mat-label>Aliases</mat-label>
+        <mat-chip-grid #aliasGrid formControlName="aliases">
+          @for (alias of questionForm.get('aliases')?.value; track alias) {
+            <mat-chip-row (removed)="removeAlias(alias)">
+              {{ alias }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+          <input
+            [matChipInputFor]="aliasGrid"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="true"
+            (matChipInputTokenEnd)="addAlias($event)"
+          />
+        </mat-chip-grid>
+      </mat-form-field>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="btn champ annuler" mat-dialog-close>Annuler</button>
+  <button class="btn champ creer" (click)="addEditQuestion()" [disabled]="questionForm.invalid">
+    {{ data.action === 'add' ? 'Créer la question' : 'Éditer la question' }}
+  </button>
+</mat-dialog-actions>

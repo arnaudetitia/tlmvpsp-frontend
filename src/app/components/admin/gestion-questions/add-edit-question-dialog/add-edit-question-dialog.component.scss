@@ -1,0 +1,90 @@
+.question-form-container {
+  background-image: url('../../../../../assets/backgrounds/background-admin.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.champ {
+  border-color: orange;
+  border-width: 1vh;
+
+  &.selection {
+    border-color: white;
+    font-size: 2vh;
+    margin-left: 0.5vw;
+  }
+
+  &.annuler {
+    background-color: lightgray;
+    margin-right: 1vh;
+    color: black;
+  }
+
+  &.creer,
+  &.music {
+    background-color: orange;
+    border-color: lightgray;
+    color: white;
+  }
+
+  &.music {
+    margin-top: -1.5%;
+  }
+
+  &:hover {
+    border-color: blue;
+  }
+}
+
+.question-intitule-field,
+.aliases-field {
+  margin-top: 1vh;
+  width: 100%;
+}
+
+.reponses-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+
+  .bonne-reponse-field {
+    width: 48%;
+    margin-right: 2%;
+  }
+  .mauvaises-reponses-field {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+  }
+}
+
+.sort-field {
+  width: 100%;
+}
+
+.music-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .music-field {
+    width: 48%;
+    margin-right: 1%;
+  }
+
+  .played-after-wrapper {
+    margin-left: 5%;
+    width: 30%;
+    .played-after-field {
+      transform: scale(1.25);
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}

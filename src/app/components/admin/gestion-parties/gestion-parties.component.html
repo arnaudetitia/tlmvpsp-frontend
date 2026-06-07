@@ -31,7 +31,7 @@
         <th mat-header-cell *matHeaderCellDef>Thème de la compet</th>
         <td mat-cell *matCellDef="let partie">
           @for (theme of partie.themesDefi; track theme) {
-            <div>{{ theme }}</div>
+            <div>{{ theme.libelleTheme }}</div>
           }
         </td>
       </ng-container>

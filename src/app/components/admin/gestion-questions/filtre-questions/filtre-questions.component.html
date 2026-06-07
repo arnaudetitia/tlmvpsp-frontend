@@ -1,0 +1,53 @@
+<div class="filtre-question-container">
+  <mat-form-field class="filtre-type-selector">
+    <mat-select (selectionChange)="registerFilterType($event.value)">
+      @for (label of FiltreQuestionTypeLabels; track label) {
+        <mat-option [value]="label">{{ label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  @switch (currentFiltreType()) {
+    @case (FiltreQuestionType.PARTIE) {
+      <mat-form-field>
+        <mat-select (selectionChange)="onFilterValueChange($event)">
+          @for (partie of allParties(); track partie) {
+            <mat-option [value]="partie">{{ partie.nomPartie }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    @case (FiltreQuestionType.THEME) {
+      <mat-form-field class="filtre-type-theme-selector">
+        <mat-select (selectionChange)="registerFilterThemeType($event.value)">
+          @for (label of TypeThemeLabels; track label) {
+            <mat-option [value]="label">{{ label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select (selectionChange)="onFilterValueChange($event)">
+          @for (theme of themesDisplayed(); track theme) {
+            <mat-option [value]="theme.id">{{ theme.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    @case (FiltreQuestionType.MUSIQUE) {
+      <mat-form-field>
+        <mat-select (selectionChange)="onFilterValueChange($event)">
+          <mat-option [value]="false">Sans muqsiue</mat-option>
+          <mat-option [value]="true">Avec muqsiue</mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
+    @case (FiltreQuestionType.TEXTE) {
+      <mat-form-field>
+        <input
+          matInput
+          placeholder="Rechercher par texte"
+          (input)="onFilterValueChange($event.target.value)"
+        />
+      </mat-form-field>
+    }
+  }
+</div>
