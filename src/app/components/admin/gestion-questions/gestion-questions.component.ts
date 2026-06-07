@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddEditQuestionDialogComponent } from './add-edit-question-dialog/add-edit-question-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { ImportQuestionDialogComponent } from './import-question-dialog.component/import-question-dialog.component';
+import { TypeThemeEnum } from '../../../models/enums/type-theme.enum';
 
 @Component({
   selector: 'app-gestion-questions.component',
@@ -46,6 +47,11 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
     [ManchesEnum.DEFI, FiltreQuestionType.MUSIQUE],
   ]);
 
+  bloquageTheme = new Map([
+    [ManchesEnum.COMPET, TypeThemeEnum.DEFI],
+    [ManchesEnum.DEFI, TypeThemeEnum.COMPET],
+  ]);
+
   displayedColumns = computed(() => {
     let newDisplayedColumn = this.displayedColumnsBase;
     if (this.mancheChoisie() !== ManchesEnum.QUALIFS) {
@@ -61,6 +67,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   });
 
   currentFiltreType = signal<FiltreQuestionType | null>(null);
+  currentFiltreThemeType = signal<TypeThemeEnum | null>(null);
   filterPartie = signal<Partie | null>(null);
   filterTheme = signal<number | null>(null);
   filterMusique = signal<boolean | null>(null);
@@ -84,13 +91,13 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   constructor(private questionService: QuestionService) {
     effect(() => {
-      if (
-        this.currentFiltreType() === FiltreQuestionType.THEME &&
-        this.mancheChoisie() === ManchesEnum.QUALIFS
-      ) {
-        this.mancheChoisie.set(ManchesEnum.COMPET);
-      }
-      if (
+      if (this.currentFiltreType() === FiltreQuestionType.THEME) {
+        if (this.currentFiltreThemeType() === TypeThemeEnum.DEFI) {
+          this.mancheChoisie.set(ManchesEnum.DEFI);
+        } else {
+          this.mancheChoisie.set(ManchesEnum.COMPET);
+        }
+      } else if (
         this.currentFiltreType() === FiltreQuestionType.MUSIQUE &&
         this.mancheChoisie() === ManchesEnum.DEFI
       ) {
@@ -198,6 +205,10 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   updateFiltreType(typeFiltre: FiltreQuestionType | null) {
     this.currentFiltreType.set(typeFiltre);
+  }
+
+  updateThemeFiltreType(typeThemeFiltre: TypeThemeEnum | null) {
+    this.currentFiltreThemeType.set(typeThemeFiltre);
   }
 
   updateFiltre(filtre: {
