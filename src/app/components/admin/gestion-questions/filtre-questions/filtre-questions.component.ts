@@ -36,10 +36,8 @@ export class FiltreQuestionsComponent implements OnInit {
   themesDisplayed = computed(() => {
     switch (this.currentTypeThemeType()) {
       case TypeThemeEnum.COMPET:
-        console.log(this.allThemesCompet());
         return this.allThemesCompet();
       case TypeThemeEnum.DEFI:
-        console.log(this.allThemesDefi());
         return this.allThemesDefi();
       default:
         return null;
