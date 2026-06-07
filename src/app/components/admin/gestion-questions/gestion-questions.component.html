@@ -2,7 +2,7 @@
   <bouton-retour></bouton-retour>
   <h2 class="champ">Gestion des questions</h2>
   <div class="choix-manche-container">
-    @for (manche of [MancheEnum.QUALIFS, MancheEnum.COMPET, MancheEnum.DEFI]; track manche) {
+    @for (manche of [ManchesEnum.QUALIFS, ManchesEnum.COMPET, ManchesEnum.DEFI]; track manche) {
       <div
         class="champ"
         [ngClass]="{
@@ -16,9 +16,24 @@
     }
   </div>
   <div class="actions-container">
-    <button class="btn btn-primary" (click)="openAddQuestionDialog()">
-      <mat-icon>add</mat-icon>Créer une nouvelle question
-    </button>
+    @if (mancheChoisie() === ManchesEnum.QUALIFS) {
+      <button class="btn btn-primary" [matMenuTriggerFor]="newQuestionsQualifsMenu">
+        <mat-icon>add</mat-icon>Créér une nouvelle question qualif...
+      </button>
+      <mat-menu #newQuestionsQualifsMenu="matMenu">
+        <button mat-menu-item (click)="openAddQuestionDialog()">Unitairement</button>
+        <button mat-menu-item (click)="openImportQuestionDialog(mancheChoisie())">
+          Par Import de fichier
+        </button>
+      </mat-menu>
+    } @else {
+      <button class="btn btn-primary" (click)="openImportQuestionDialog(mancheChoisie())">
+        <mat-icon>add</mat-icon>
+        Importer
+        {{ mancheChoisie() === ManchesEnum.COMPET ? 'de nouvelles compet' : 'de nouveaux défis' }}
+      </button>
+    }
+
     <filtre-questions
       (onFiltreTypeChange)="updateFiltreType($event)"
       (onFiltreValueChange)="updateFiltre($event)"
