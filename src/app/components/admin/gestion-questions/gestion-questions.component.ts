@@ -213,7 +213,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   updateFiltre(filtre: {
     typeFiltre: FiltreQuestionType;
-    value: Partie | number | boolean | string;
+    value: Partie | number | boolean | string | null;
   }) {
     this.filterPartie.set(null);
     this.filterTheme.set(null);
