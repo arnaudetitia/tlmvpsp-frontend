@@ -13,13 +13,13 @@
       [defi]="defiChallenger"
       (onDefiTermine)="switchToDefiChampion()"
       (onQuestionRepondue)="recordQuestion($event)"
+      (onReponseCashInEdition)="setRegieBlocked($event)"
     ></defi-joueur>
   }
   @if (currentEtatDefi() === EtatDefi.DEFI_CHAMPION) {
     <defi-joueur
       [defi]="defiChampion"
       [isChampion]="true"
-      (onReponseCashInEdition)="setRegieBlocked($event)"
       (onDefiTermine)="switchToDefiVerifChallenger()"
       (onBonneReponseGiven)="augmenterScore($event, 'Champion')"
     ></defi-joueur>
