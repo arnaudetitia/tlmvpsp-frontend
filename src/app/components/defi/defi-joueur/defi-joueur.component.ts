@@ -9,10 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { ModeQuestion } from '../../../models/mode-question.models';
-
 import { ChoixModeComponent } from '../../../shared/choix-mode/choix-mode.compoent';
 import { ChampReponseComponent } from '../../../shared/champ-reponse/champ-reponse.component';
-import { Defi, QuestionDefi } from '../../../models/defi.model';
+import { Defi } from '../../../models/defi.model';
 import { CodeTouches } from '../../../models/enums/code-touches.enum';
 import { TypeChamp } from '../../../shared/champ-reponse/type-champ.enum';
 import { FormsModule } from '@angular/forms';
@@ -89,8 +88,7 @@ export class DefiJoueurComponent implements OnInit {
           this.currentQuestionState.set(etat);
           if (
             this.isChampion &&
-            this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE &&
-            this.modeQuestionSelected !== ModeQuestion.Cash
+            this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE
           ) {
             if (this.isBonneReponseGiven()) {
               Jingles.sonBonneReponse.play();
@@ -187,8 +185,8 @@ export class DefiJoueurComponent implements OnInit {
           this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
           this.modeQuestionSelected === ModeQuestion.Cash
         ) {
+          this.reponseGiven.set(this.currentQuestion().bonneReponse);
           this.questionStore.passerEtatSuivant(this.mancheDefi);
-          Jingles.sonBonneReponse.play();
           this.onBonneReponseGiven.emit(this.modeQuestionSelected);
         }
         break;
@@ -199,8 +197,8 @@ export class DefiJoueurComponent implements OnInit {
           this.currentQuestionState() === EtatQuestion.REPONSE_JOUEUR_DONNEE &&
           this.modeQuestionSelected === ModeQuestion.Cash
         ) {
+          this.reponseGiven.set('');
           this.questionStore.passerEtatSuivant(this.mancheDefi);
-          Jingles.sonMauvaiseReponse.play();
         }
         break;
 
