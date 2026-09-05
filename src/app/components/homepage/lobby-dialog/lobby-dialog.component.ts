@@ -71,6 +71,13 @@ export class LobbyDialogComponent implements OnInit {
       .filter((field) => field[0].includes('joueur'))
       .map((joueurField) => joueurField[1] as string);
     const idPartie = this.partieForm.value.idPartie as number;
-    this.dialogRef.close({ listeJoueurs, idPartie });
+    this.partieService
+      .flagPartieEnCours(idPartie)
+      .pipe(
+        tap(() => {
+          this.dialogRef.close({ listeJoueurs, idPartie });
+        }),
+      )
+      .subscribe();
   }
 }
