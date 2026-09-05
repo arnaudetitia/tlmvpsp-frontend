@@ -187,7 +187,6 @@ export class DefiJoueurComponent implements OnInit {
         ) {
           this.reponseGiven.set(this.currentQuestion().bonneReponse);
           this.questionStore.passerEtatSuivant(this.mancheDefi);
-          this.onBonneReponseGiven.emit(this.modeQuestionSelected);
         }
         break;
 
