@@ -28,6 +28,7 @@ import { ScoresStore } from '../../store/scores.store';
 import { DefiStore } from '../../store/defi.store';
 import { EtatDefi } from '../../models/enums/etat-defi.enum';
 import { JoueursStore } from '../../store/joueurs.store';
+import { PartieService } from '../../services/partie.service';
 
 @Component({
   selector: 'app-defi-component',
@@ -69,6 +70,7 @@ export class DefiComponent implements OnInit {
 
   constructor(
     private defiService: DefiService,
+    private partieService: PartieService,
     private scoresStore: ScoresStore,
     private partieStore: PartieStore,
     private joueursStore: JoueursStore,
@@ -240,6 +242,7 @@ export class DefiComponent implements OnInit {
       }
     }
     this.defiStore.passerEtatSuivant();
+    this.partieService.unflagPartieEnCours().subscribe();
     localStorage.clear();
   }
 

@@ -50,4 +50,12 @@ export class PartieService {
       idsThemesDefi,
     });
   }
+
+  flagPartieEnCours(partieId: number): Observable<void> {
+    return this.http.put<void>(environment.apiUrl + `/parties/${partieId}/flag`, {});
+  }
+
+  unflagPartieEnCours(): Observable<void> {
+    return this.http.put<void>(environment.apiUrl + `/parties/unflag`, {});
+  }
 }
