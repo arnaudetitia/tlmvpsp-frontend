@@ -44,7 +44,7 @@ export class ImportQuestionDialogComponent {
       reader.onload = () => {
         this.csvFileContent.set(reader.result);
       };
-      reader.readAsText(file, 'ISO-8859-1');
+      reader.readAsText(file, 'UTF-8');
     }
   }
 
