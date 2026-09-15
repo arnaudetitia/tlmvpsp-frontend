@@ -66,7 +66,7 @@ export class ChampQuestionComponent {
   playExtrait() {
     const extrait = this.extraitMusique
       ? new Audio(
-          `https://qzbbzhygbgzincuuuzqa.supabase.co/storage/v1/object/public/tlmvpsp-extraits${this.extraitMusique}.mp3`,
+          `https://qzbbzhygbgzincuuuzqa.supabase.co/storage/v1/object/public/tlmvpsp-extraits/${this.extraitMusique}.mp3`,
         )
       : null;
     if (extrait !== null && this.extraitBloque === false && this.canPlayExtrait) {

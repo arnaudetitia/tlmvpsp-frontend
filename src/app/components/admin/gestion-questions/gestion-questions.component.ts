@@ -182,7 +182,9 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   ecouterMusique(musique: string) {
     this.musiqueEnEcoute.set(musique);
-    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute()}.mp3`);
+    this.extraitEnEcoute = new Audio(
+      `https://qzbbzhygbgzincuuuzqa.supabase.co/storage/v1/object/public/tlmvpsp-extraits/${this.musiqueEnEcoute()}.mp3`,
+    );
     this.extraitEnEcoute.play();
     this.extraitEnEcoute.onended = () => {
       this.musiqueEnEcoute.set('');
