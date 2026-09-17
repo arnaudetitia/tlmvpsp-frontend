@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TypeChamp } from '../champ-reponse/type-champ.enum';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'champ-question',
@@ -65,9 +66,7 @@ export class ChampQuestionComponent {
 
   playExtrait() {
     const extrait = this.extraitMusique
-      ? new Audio(
-          `https://qzbbzhygbgzincuuuzqa.supabase.co/storage/v1/object/public/tlmvpsp-extraits/${this.extraitMusique}.mp3`,
-        )
+      ? new Audio(`${environment.soundDirectory}/extraits/${this.extraitMusique}.mp3`)
       : null;
     if (extrait !== null && this.extraitBloque === false && this.canPlayExtrait) {
       this.canPlayExtrait = false;

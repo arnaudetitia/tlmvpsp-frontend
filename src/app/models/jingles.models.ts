@@ -1,12 +1,16 @@
+import { environment } from '../../environments/environment';
+
 export class Jingles {
-  private static fileDirectory = '/assets/jingles';
+  private static fileDirectory = `${environment.soundDirectory}/jingles`;
 
   static sonChronoQualif: HTMLAudioElement = new Audio(`${this.fileDirectory}/chronoQualif.mp3`);
   static sonChronoCompet: HTMLAudioElement = new Audio(`${this.fileDirectory}/chronoCompet.mp3`);
   static sonChronoCompetLong: HTMLAudioElement = new Audio(
     `${this.fileDirectory}/chronoCompetLong.mp3`,
   );
-  static sonFinChronoCompet: HTMLAudioElement = new Audio(`assets/jingles/finChronoCompet.mp3`);
+  static sonFinChronoCompet: HTMLAudioElement = new Audio(
+    `${this.fileDirectory}/finChronoCompet.mp3`,
+  );
   static sonChronoDefi: HTMLAudioElement = new Audio(`${this.fileDirectory}/chronoQualif.mp3`);
   static selectionReponse: HTMLAudioElement = new Audio(
     `${this.fileDirectory}/selectionReponse.mp3`,
