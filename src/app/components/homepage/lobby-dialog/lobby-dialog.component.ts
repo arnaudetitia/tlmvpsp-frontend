@@ -11,6 +11,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { PartieService } from '../../../services/partie.service';
 import { Partie } from '../../../models/partie.model';
 import { tap } from 'rxjs';
+import { EtatPartieUtil } from '../../../utils/etat-partie.util';
 
 @Component({
   selector: 'app-lobby-dialog',
@@ -66,7 +67,7 @@ export class LobbyDialogComponent implements OnInit {
   }
 
   lancerPartie() {
-    localStorage.clear();
+    EtatPartieUtil.resetPartie();
     const listeJoueurs = Object.entries(this.partieForm.value)
       .filter((field) => field[0].includes('joueur'))
       .map((joueurField) => joueurField[1] as string);

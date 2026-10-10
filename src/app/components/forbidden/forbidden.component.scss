@@ -1,0 +1,27 @@
+.forbidden-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+  width: 100vw;
+  padding: auto;
+
+  .icon-container {
+    height: 25vh;
+    mat-icon {
+      color: red;
+      transform: scale(20);
+    }
+  }
+
+  .status {
+    font-weight: bolder;
+    font-size: 5vw;
+  }
+
+  .message {
+    font-size: 3vw;
+  }
+}

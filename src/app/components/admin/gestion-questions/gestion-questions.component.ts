@@ -17,6 +17,7 @@ import { AddEditQuestionDialogComponent } from './add-edit-question-dialog/add-e
 import { MatMenuModule } from '@angular/material/menu';
 import { ImportQuestionDialogComponent } from './import-question-dialog.component/import-question-dialog.component';
 import { TypeThemeEnum } from '../../../models/enums/type-theme.enum';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-gestion-questions.component',
@@ -182,7 +183,9 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
 
   ecouterMusique(musique: string) {
     this.musiqueEnEcoute.set(musique);
-    this.extraitEnEcoute = new Audio(`/assets/extraits/${this.musiqueEnEcoute()}.mp3`);
+    this.extraitEnEcoute = new Audio(
+      `${environment.soundDirectory}/extraits/${this.musiqueEnEcoute()}.mp3`,
+    );
     this.extraitEnEcoute.play();
     this.extraitEnEcoute.onended = () => {
       this.musiqueEnEcoute.set('');
