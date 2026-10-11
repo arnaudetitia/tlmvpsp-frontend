@@ -21,6 +21,7 @@ export interface QuestionExtended {
   tri: string;
   aliases: string[];
   musiqueQuestion: string;
+  musiqueReponse: string;
 }
 
 export interface QuestionVo {
@@ -29,6 +30,6 @@ export interface QuestionVo {
   mauvaisesReponses: string[];
   tri: string;
   aliases: string[];
-  musique: string;
-  joueeApresQuestion: boolean;
+  musiqueQuestion: string;
+  musiqueReponse: string;
 }
