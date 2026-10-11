@@ -14,11 +14,18 @@ export class QuestionService {
     return this.http.get<QuestionExtended[]>(environment.apiUrl + '/questions');
   }
 
-  addQuestion(newQuestion: QuestionVo, musicFile: File | null): Observable<QuestionExtended[]> {
+  addQuestion(
+    newQuestion: QuestionVo,
+    musicQuestionFile: File | null,
+    musicReponseFile: File | null,
+  ): Observable<QuestionExtended[]> {
     const formData = new FormData();
     formData.append('question', JSON.stringify(newQuestion));
-    if (musicFile) {
-      formData.append('musicFile', musicFile);
+    if (musicQuestionFile) {
+      formData.append('musicQuestionFile', musicQuestionFile);
+    }
+    if (musicReponseFile) {
+      formData.append('musicReponseFile', musicReponseFile);
     }
     return this.http.post<QuestionExtended[]>(environment.apiUrl + '/questions', formData);
   }
@@ -26,12 +33,16 @@ export class QuestionService {
   updateQuestion(
     idQuestion: number,
     question: QuestionVo,
-    musicFile: File | null,
+    musicQuestionFile: File | null,
+    musicReponseFile: File | null,
   ): Observable<QuestionExtended[]> {
     const formData = new FormData();
     formData.append('question', JSON.stringify(question));
-    if (musicFile) {
-      formData.append('musicFile', musicFile);
+    if (musicQuestionFile) {
+      formData.append('musicQuestionFile', musicQuestionFile);
+    }
+    if (musicReponseFile) {
+      formData.append('musicReponseFile', musicReponseFile);
     }
     return this.http.put<QuestionExtended[]>(
       environment.apiUrl + '/questions/' + idQuestion,
