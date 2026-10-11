@@ -20,8 +20,7 @@ export interface QuestionExtended {
   mauvaisesReponses: string[];
   tri: string;
   aliases: string[];
-  musique: string;
-  joueeApresQuestion: boolean;
+  musiqueQuestion: string;
 }
 
 export interface QuestionVo {
