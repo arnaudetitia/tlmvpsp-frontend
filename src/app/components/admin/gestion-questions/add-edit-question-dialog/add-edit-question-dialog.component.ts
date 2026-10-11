@@ -78,8 +78,8 @@ export class AddEditQuestionDialogComponent {
         ),
       ),
       tri: [questionToEdit.tri, [Validators.required]],
-      musique: [questionToEdit.musique, []],
-      joueeApresQuestion: [questionToEdit.joueeApresQuestion || false],
+      musique: [questionToEdit.musiqueQuestion, []],
+      joueeApresQuestion: false,
       aliases: [this.aliases(), []],
     });
 
