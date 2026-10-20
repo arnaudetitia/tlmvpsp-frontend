@@ -19,9 +19,9 @@
           ].includes(currentCompetState())
         "
         [question]="currentQuestion().question"
-        [extraitMusique]="currentQuestion().musique"
-        [extraitBloque]="
-          currentQuestion().joueeApresQuestion &&
+        [extraitQuestion]="currentQuestion().musiqueQuestion"
+        [extraitReponse]="currentQuestion().musiqueReponse"
+        [extraitReponseBloque]="
           ![
             EtatCompet.VOTES_FERMES,
             EtatCompet.BONNE_REPONSE_AFFICHEE,

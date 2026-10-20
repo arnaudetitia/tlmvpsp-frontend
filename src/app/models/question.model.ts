@@ -4,9 +4,9 @@ export interface Question {
   question: string;
   bonneReponse: string;
   mauvaisesReponses: string[];
-  musique: string;
+  musiqueQuestion: string;
+  musiqueReponse: string;
   tri: TriTypeEnum;
-  joueeApresQuestion: boolean;
 }
 
 export interface QuestionExtended {
