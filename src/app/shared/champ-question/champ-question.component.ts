@@ -10,65 +10,27 @@ import { environment } from '../../../environments/environment';
   styleUrl: './champ-question.component.scss',
 })
 export class ChampQuestionComponent {
-  private _question: string = '';
+  @Input() question: string = '';
 
-  @Input() set question(q: string) {
-    this._question = q;
-  }
+  @Input() extraitQuestion: string = '';
 
-  get question() {
-    return this._question;
-  }
+  @Input() extraitReponse: string = '';
 
-  private _extraitMusique: string = '';
+  @Input() showQuestion: boolean = false;
 
-  @Input() set extraitMusique(e: string) {
-    this._extraitMusique = e;
-  }
+  @Input() extraitReponseBloque: boolean = true;
 
-  get extraitMusique() {
-    return this._extraitMusique;
-  }
-
-  private _extraitBloque: boolean = false;
-
-  @Input() set extraitBloque(eb: boolean) {
-    this._extraitBloque = eb;
-  }
-
-  get extraitBloque() {
-    return this._extraitBloque;
-  }
-
-  private _showQuestion: boolean = false;
-
-  @Input() set showQuestion(show: boolean) {
-    this._showQuestion = show;
-  }
-
-  get showQuestion() {
-    return this._showQuestion;
-  }
-
-  private _typeChamp: TypeChamp = TypeChamp.QUALIF;
-
-  @Input() set typeChamp(typeChamp: TypeChamp) {
-    this._typeChamp = typeChamp;
-  }
-
-  get typeChamp() {
-    return this._typeChamp;
-  }
+  @Input() typeChamp: TypeChamp = TypeChamp.QUALIF;
 
   TypeChamp = TypeChamp;
 
   canPlayExtrait: boolean = true;
 
-  playExtrait() {
-    const extrait = this.extraitMusique
-      ? new Audio(`${environment.soundDirectory}/extraits/${this.extraitMusique}.mp3`)
+  playExtrait(exrtaitToPlay: string, bloque: boolean = false) {
+    const extrait = exrtaitToPlay
+      ? new Audio(`${environment.soundDirectory}/extraits/${exrtaitToPlay}.mp3`)
       : null;
-    if (extrait !== null && this.extraitBloque === false && this.canPlayExtrait) {
+    if (extrait !== null && !bloque && this.canPlayExtrait) {
       this.canPlayExtrait = false;
       extrait.onended = () => {
         this.canPlayExtrait = true;

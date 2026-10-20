@@ -1,11 +1,11 @@
 <div class="qualifs-container">
   <div class="question-qualif-container">
     <champ-question
-      [showQuestion]="currentQuestionState() !== EtatQuestion.START_QUESTION"
       [question]="currentQuestion().question"
-      [extraitMusique]="currentQuestion().musique"
-      [extraitBloque]="
-        currentQuestion().joueeApresQuestion &&
+      [extraitQuestion]="currentQuestion().musiqueQuestion"
+      [extraitReponse]="currentQuestion().musiqueReponse"
+      [showQuestion]="currentQuestionState() !== EtatQuestion.START_QUESTION"
+      [extraitReponseBloque]="
         ![EtatQuestion.REPONSE_JOUEUR_DONNEE, EtatQuestion.BONNE_REPONSE_AFFICHEE].includes(
           currentQuestionState()
         )
