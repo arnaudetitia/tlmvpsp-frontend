@@ -52,7 +52,8 @@ export class AddEditQuestionDialogComponent {
   ) as string[];
 
   mayHaveMusic: boolean = true;
-  musicFile: File | null = null;
+  musicQuestionFile: File | null = null;
+  musicReponseFile: File | null = null;
 
   mayHaveAliases: boolean = false;
 
@@ -78,8 +79,8 @@ export class AddEditQuestionDialogComponent {
         ),
       ),
       tri: [questionToEdit.tri, [Validators.required]],
-      musique: [questionToEdit.musique, []],
-      joueeApresQuestion: [questionToEdit.joueeApresQuestion || false],
+      musiqueQuestion: [questionToEdit.musiqueQuestion, []],
+      musiqueReponse: [questionToEdit.musiqueReponse, []],
       aliases: [this.aliases(), []],
     });
 
@@ -96,16 +97,24 @@ export class AddEditQuestionDialogComponent {
     return this.questionForm.get('mauvaisesReponses') as FormArray;
   }
 
-  onFileSelected($event: Event) {
+  onFileSelected($event: Event, typeMusique: 'question' | 'reponse') {
     const input = $event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       const fileName = file.name.replace('.mp3', '');
-      this.questionForm.patchValue({
-        musique: fileName,
-      });
-      this.musicFile = file;
+      if (typeMusique === 'question') {
+        this.questionForm.patchValue({
+          musiqueQuestion: fileName,
+        });
+        this.musicQuestionFile = file;
+      }
+      if (typeMusique === 'reponse') {
+        this.questionForm.patchValue({
+          musiqueReponse: fileName,
+        });
+        this.musicReponseFile = file;
+      }
     }
   }
 
@@ -133,13 +142,22 @@ export class AddEditQuestionDialogComponent {
       mauvaisesReponses: this.questionForm.get('mauvaisesReponses')?.value,
       tri: this.questionForm.get('tri')?.value,
       aliases: this.questionForm.get('aliases')?.value,
-      musique: this.questionForm.get('musique')?.value || null,
-      joueeApresQuestion: this.questionForm.get('joueeApresQuestion')?.value,
+      musiqueQuestion: this.questionForm.get('musiqueQuestion')?.value || null,
+      musiqueReponse: this.questionForm.get('musiqueReponse')?.value || null,
     };
 
     const addEditObservable = this.data.question
-      ? this.questionService.updateQuestion(this.data.question.id, questionEdited, this.musicFile)
-      : this.questionService.addQuestion(questionEdited, this.musicFile);
+      ? this.questionService.updateQuestion(
+          this.data.question.id,
+          questionEdited,
+          this.musicQuestionFile,
+          this.musicReponseFile,
+        )
+      : this.questionService.addQuestion(
+          questionEdited,
+          this.musicQuestionFile,
+          this.musicReponseFile,
+        );
 
     addEditObservable
       .pipe(

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TypeChamp } from './type-champ.enum';
+import { Jingles } from '../../models/jingles.models';
 
 @Component({
   selector: 'champ-reponse',
@@ -19,15 +20,13 @@ export class ChampReponseComponent {
   @Output() reponseSelected = new EventEmitter<string>();
   TypeChamp = TypeChamp;
 
-  selectionReponseAudio: HTMLAudioElement = new Audio('/assets/jingles/selectionReponse.mp3');
-
   constructor() {}
 
   selectionReponse() {
     if (!this.reponseAlreadySelected && this.isSelectionnable) {
       this.selected = true;
       if (this.typeChamp !== TypeChamp.COMPET) {
-        this.selectionReponseAudio.play();
+        Jingles.selectionReponse.play();
         this.reponseSelected.emit(this.reponse);
       }
     }

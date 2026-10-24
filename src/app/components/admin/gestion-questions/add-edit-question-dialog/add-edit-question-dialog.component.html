@@ -36,14 +36,14 @@
     @if (mayHaveMusic) {
       <div class="music-container">
         <mat-form-field class="music-field">
-          <mat-label>Extrait musical</mat-label>
-          <input matInput readonly formControlName="musique" />
-          @if (questionForm.get('musique')?.value) {
+          <mat-label>Extrait musical (avant de répondre)</mat-label>
+          <input matInput readonly formControlName="musiqueQuestion" />
+          @if (questionForm.get('musiqueQuestion')?.value) {
             <button
               matSuffix
               mat-icon-button
               aria-label="Effacer"
-              (click)="questionForm.patchValue({ musique: '' })"
+              (click)="questionForm.patchValue({ musiqueQuestion: '' })"
             >
               <mat-icon>close</mat-icon>
             </button>
@@ -52,28 +52,44 @@
 
         <input
           type="file"
-          #fileInput
+          #fileInputQuestion
           accept="audio/*"
           class="hidden"
-          (change)="onFileSelected($event)"
+          (change)="onFileSelected($event, 'question')"
         />
-        <button class="btn champ music" (click)="fileInput.click()">
+        <button class="btn champ music" (click)="fileInputQuestion.click()">
           <mat-icon>audio_file</mat-icon>
           Choisir...
         </button>
+      </div>
 
-        <div class="played-after-wrapper">
-          @if (questionForm.get('musique')?.value) {
-            <mat-slide-toggle
-              class="played-after-field"
-              color="primary"
-              formControlName="joueeApresQuestion"
-              >La musique sera jouee
-              {{ questionForm.get('joueeApresQuestion')?.value === true ? 'après' : 'avant' }} la
-              question</mat-slide-toggle
+      <div class="music-container">
+        <mat-form-field class="music-field">
+          <mat-label>Extrait musical (après la réponse) </mat-label>
+          <input matInput readonly formControlName="musiqueReponse" />
+          @if (questionForm.get('musiqueReponse')?.value) {
+            <button
+              matSuffix
+              mat-icon-button
+              aria-label="Effacer"
+              (click)="questionForm.patchValue({ musiqueReponse: '' })"
             >
+              <mat-icon>close</mat-icon>
+            </button>
           }
-        </div>
+        </mat-form-field>
+
+        <input
+          type="file"
+          #fileInputReponse
+          accept="audio/*"
+          class="hidden"
+          (change)="onFileSelected($event, 'reponse')"
+        />
+        <button class="btn champ music" (click)="fileInputReponse.click()">
+          <mat-icon>audio_file</mat-icon>
+          Choisir...
+        </button>
       </div>
     }
 

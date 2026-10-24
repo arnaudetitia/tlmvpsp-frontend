@@ -76,14 +76,30 @@
         <td mat-cell *matCellDef="let question">{{ question.tri }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="musique">
-        <th mat-header-cell *matHeaderCellDef>Extrait musical</th>
+      <ng-container matColumnDef="musiqueQuestion">
+        <th mat-header-cell *matHeaderCellDef>Extrait musical (Avant)</th>
         <td mat-cell *matCellDef="let question">
-          @if (question.musique !== null) {
-            <mat-icon class="ecoute-musique" (click)="ecouterMusique(question.musique)"
+          @if (question.musiqueQuestion !== null) {
+            <mat-icon class="ecoute-musique" (click)="ecouterMusique(question.musiqueQuestion)"
               >music_note</mat-icon
             >
-            @if (question.musique === musiqueEnEcoute()) {
+            @if (question.musiqueQuestion === musiqueEnEcoute()) {
+              <mat-icon class="stop-musique" (click)="arreterMusique()">stop</mat-icon>
+            }
+          } @else {
+            <mat-icon>music_off</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="musiqueReponse">
+        <th mat-header-cell *matHeaderCellDef>Extrait musical (après)</th>
+        <td mat-cell *matCellDef="let question">
+          @if (question.musiqueReponse !== null) {
+            <mat-icon class="ecoute-musique" (click)="ecouterMusique(question.musiqueReponse)"
+              >music_note</mat-icon
+            >
+            @if (question.musiqueReponse === musiqueEnEcoute()) {
               <mat-icon class="stop-musique" (click)="arreterMusique()">stop</mat-icon>
             }
           } @else {

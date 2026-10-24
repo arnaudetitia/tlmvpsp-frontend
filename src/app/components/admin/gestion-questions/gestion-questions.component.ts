@@ -59,7 +59,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
       newDisplayedColumn = ['theme', ...newDisplayedColumn];
     }
     if (this.mancheChoisie() !== ManchesEnum.DEFI) {
-      newDisplayedColumn = [...newDisplayedColumn, 'musique'];
+      newDisplayedColumn = [...newDisplayedColumn, 'musiqueQuestion', 'musiqueReponse'];
     }
     if (this.mancheChoisie() === ManchesEnum.COMPET) {
       newDisplayedColumn = [...newDisplayedColumn, 'aliases'];
@@ -142,9 +142,9 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
       let questionInFilterMusic = true;
       if (musiqueFilter !== null) {
         if (musiqueFilter) {
-          questionInFilterMusic = question.musique !== null;
+          questionInFilterMusic = question.musiqueQuestion !== null;
         } else {
-          questionInFilterMusic = question.musique === null;
+          questionInFilterMusic = question.musiqueQuestion === null;
         }
       }
       const textFilter = filtreParsed.texte;
@@ -182,6 +182,7 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
   }
 
   ecouterMusique(musique: string) {
+    this.arreterMusique();
     this.musiqueEnEcoute.set(musique);
     this.extraitEnEcoute = new Audio(
       `${environment.soundDirectory}/extraits/${this.musiqueEnEcoute()}.mp3`,

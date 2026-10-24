@@ -1,30 +1,44 @@
 <div class="champ-question-container">
-  @if (extraitMusique) {
+  @if (extraitQuestion) {
     <div
       class="champ extrait-musical"
-      (click)="playExtrait()"
-    [class]="{
-      'extrait-bloque': extraitBloque === true,
-      qualif: typeChamp === TypeChamp.QUALIF,
-      compet: typeChamp === TypeChamp.COMPET,
-      challenger: typeChamp === TypeChamp.CHALLENGER,
-      champion: typeChamp === TypeChamp.CHAMPION,
-    }"
-      >
+      (click)="playExtrait(extraitQuestion)"
+      [class]="{
+        qualif: typeChamp === TypeChamp.QUALIF,
+        compet: typeChamp === TypeChamp.COMPET,
+        challenger: typeChamp === TypeChamp.CHALLENGER,
+        champion: typeChamp === TypeChamp.CHAMPION,
+      }"
+    >
+      <mat-icon>music_note</mat-icon>
+    </div>
+  }
+  @if (extraitReponse) {
+    <div
+      class="champ extrait-musical"
+      (click)="playExtrait(extraitReponse, extraitReponseBloque)"
+      [class]="{
+        'extrait-bloque': extraitReponseBloque === true,
+        qualif: typeChamp === TypeChamp.QUALIF,
+        compet: typeChamp === TypeChamp.COMPET,
+        challenger: typeChamp === TypeChamp.CHALLENGER,
+        champion: typeChamp === TypeChamp.CHAMPION,
+      }"
+    >
       <mat-icon>music_note</mat-icon>
     </div>
   }
   @if (showQuestion) {
     <div
       class="champ question"
-    [class]="{
-      'extrait-bloque': extraitBloque === true,
-      qualif: typeChamp === TypeChamp.QUALIF,
-      compet: typeChamp === TypeChamp.COMPET,
-      challenger: typeChamp === TypeChamp.CHALLENGER,
-      champion: typeChamp === TypeChamp.CHAMPION,
-    }"
-      >
+      [class]="{
+        'extrait-bloque': extraitReponseBloque === true,
+        qualif: typeChamp === TypeChamp.QUALIF,
+        compet: typeChamp === TypeChamp.COMPET,
+        challenger: typeChamp === TypeChamp.CHALLENGER,
+        champion: typeChamp === TypeChamp.CHAMPION,
+      }"
+    >
       {{ question }}
     </div>
   }
