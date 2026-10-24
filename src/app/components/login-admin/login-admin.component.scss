@@ -1,0 +1,57 @@
+.login-admin-container {
+  background-image: url('../../../assets/backgrounds/background-qualifs.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  .form-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .label {
+      width: 50%;
+
+      margin-bottom: 1rem;
+    }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 1rem;
+
+    width: 100vw;
+
+    input {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .btn {
+    &:hover {
+      border-color: blue;
+      background-color: orange;
+      color: white;
+    }
+  }
+
+  .error {
+    border-color: red;
+  }
+
+  .champ-error {
+    padding: 0.5rem;
+    background-color: red;
+  }
+}
