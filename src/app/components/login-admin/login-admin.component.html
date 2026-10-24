@@ -1,0 +1,21 @@
+<div class="login-admin-container">
+  <div class="form-container">
+    <span class="champ label">Mot de passe d'accès au site</span>
+    <form [formGroup]="adminMdpForm">
+      <input
+        matInput
+        class="champ"
+        type="password"
+        formControlName="adminMdp"
+        autocomplete="current-password"
+        [ngClass]="{
+          error: error() !== null,
+        }"
+      />
+      @if (error()) {
+        <mat-hint class="champ champ-error">{{ error() }}</mat-hint>
+      }
+    </form>
+    <button class="btn champ" (click)="goToHomepage()">Accéder au site</button>
+  </div>
+</div>
