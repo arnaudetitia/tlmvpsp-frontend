@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +9,7 @@ import { catchError, of, tap } from 'rxjs';
 import { EtatPartieUtil } from '../../utils/etat-partie.util';
 import { CommonModule } from '@angular/common';
 import moment from 'moment';
+import { HealthStore } from '../../store/health.store';
 
 @Component({
   selector: 'app-login-admin',
@@ -16,19 +17,32 @@ import moment from 'moment';
   templateUrl: './login-admin.component.html',
   styleUrl: './login-admin.component.scss',
 })
-export class LoginAdminComponent {
+export class LoginAdminComponent implements OnInit {
   adminMdpForm: FormGroup;
+
+  backendAwake = signal<boolean>(false);
 
   error = signal<string | null>(null);
 
   constructor(
     private formBuilder: FormBuilder,
     private adminService: AdminService,
+    private healthStore: HealthStore,
     private router: Router,
   ) {
     this.adminMdpForm = this.formBuilder.group({
       adminMdp: ['', Validators.required],
     });
+  }
+
+  ngOnInit(): void {
+    this.healthStore.backendAwake$
+      .pipe(
+        tap(() => {
+          this.backendAwake.set(true);
+        }),
+      )
+      .subscribe();
   }
 
   goToHomepage() {

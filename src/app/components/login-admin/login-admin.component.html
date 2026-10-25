@@ -16,6 +16,8 @@
         <mat-hint class="champ champ-error">{{ error() }}</mat-hint>
       }
     </form>
-    <button class="btn champ" (click)="goToHomepage()">Accéder au site</button>
+    <button class="btn champ" (click)="goToHomepage()" [disabled]="!backendAwake()">
+      Accéder au site
+    </button>
   </div>
 </div>
