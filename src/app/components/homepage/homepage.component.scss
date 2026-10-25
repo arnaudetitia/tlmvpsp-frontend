@@ -32,5 +32,9 @@
       border-color: blue;
       color: white;
     }
+
+    &.disabled {
+      opacity: 0.5;
+    }
   }
 }

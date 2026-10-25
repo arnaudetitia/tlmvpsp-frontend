@@ -1,6 +1,18 @@
 <div class="homepage-container">
   <img src="assets/tlmmvpsp.png" />
-  <button class="btn btn-launch-partie champ" (click)="openLobby()">Lancer une partie</button>
-  <a class="btn btn-gestion champ" routerLink="/admin/gestion-questions">Gestion des questions</a>
-  <a class="btn btn-gestion champ" routerLink="/admin/gestion-parties">Gestion des parties</a>
+  <button class="btn btn-launch-partie champ" (click)="openLobby()" [disabled]="!backendAwake()">
+    Lancer une partie
+  </button>
+  <a
+    class="btn btn-gestion champ"
+    [attr.routerLink]="!backendAwake() ? null : ['/admin/gestion-questions']"
+    [class.disabled]="!backendAwake()"
+    >Gestion des questions</a
+  >
+  <a
+    class="btn btn-gestion champ"
+    [attr.routerLink]="!backendAwake() ? null : ['/admin/gestion-parties']"
+    [class.disabled]="!backendAwake()"
+    >Gestion des parties</a
+  >
 </div>
