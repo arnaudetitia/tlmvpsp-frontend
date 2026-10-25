@@ -39,10 +39,15 @@
   }
 
   .btn {
+    background-color: orange;
+    color: white;
+
     &:hover {
       border-color: blue;
-      background-color: orange;
-      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
     }
   }
 
