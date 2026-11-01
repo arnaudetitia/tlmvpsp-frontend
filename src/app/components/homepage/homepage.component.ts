@@ -29,8 +29,8 @@ export class HomepageComponent implements OnInit {
   ngOnInit(): void {
     this.healthStore.backendAwake$
       .pipe(
-        tap(() => {
-          this.backendAwake.set(true);
+        tap((isAwake) => {
+          this.backendAwake.set(isAwake);
         }),
       )
       .subscribe();
