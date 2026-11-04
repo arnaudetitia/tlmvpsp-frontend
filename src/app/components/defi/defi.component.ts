@@ -233,17 +233,18 @@ export class DefiComponent implements OnInit {
     const scoreChallenger = this.panneauxDefi().find(
       (panneau) => panneau.statut === StatutJoueur.CHALLENGER,
     )?.score;
-    if (scoreChampion && scoreChallenger) {
+    if (scoreChampion !== undefined && scoreChallenger !== undefined) {
       if (scoreChampion >= scoreChallenger) {
         Jingles.sonVictoireChampion.play();
       } else {
         this.isNouveauChampion = true;
         Jingles.sonNouveauChampion.play();
-        this.defiService.setNouveauChampion(this.idPartie, this.joueursDefi[0]).subscribe();
       }
     }
     this.defiStore.passerEtatSuivant();
-    this.partieService.unflagPartieEnCours().subscribe();
+    this.partieService
+      .effectuerFinDePartie(this.idPartie, this.isNouveauChampion ? this.joueursDefi[0] : null)
+      .subscribe();
     EtatPartieUtil.resetPartie();
   }
 

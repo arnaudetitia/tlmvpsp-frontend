@@ -55,7 +55,10 @@ export class PartieService {
     return this.http.put<void>(environment.apiUrl + `/parties/${partieId}/flag`, {});
   }
 
-  unflagPartieEnCours(): Observable<void> {
-    return this.http.put<void>(environment.apiUrl + `/parties/unflag`, {});
+  effectuerFinDePartie(idPartie: number, nouveauChampion: string | null) {
+    return this.http.put<void>(environment.apiUrl + `/parties/fin-de-partie`, {
+      idPartie,
+      nouveauChampion,
+    });
   }
 }
