@@ -40,4 +40,8 @@ export class CompetService {
   freezeVotes() {
     return this.http.put(environment.apiUrl + '/compet/freeze-votes', {});
   }
+
+  effectuerDebutSuperCash() {
+    return this.http.put(environment.apiUrl + '/compet/debut-super-cash', {});
+  }
 }

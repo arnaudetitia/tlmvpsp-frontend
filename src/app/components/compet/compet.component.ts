@@ -148,9 +148,9 @@ export class CompetComponent implements OnInit {
 
             case EtatCompet.START_QUESTION_SUPER_CASH:
               if (!this.calculSuperCashDone) {
-                this.competService.closeVotes().subscribe();
                 this.calculSuperCashDone = true;
                 this.calulerOrdreCandidats();
+                this.competService.effectuerDebutSuperCash().subscribe();
               } else {
                 this.indexJoueurSuperCash++;
               }
