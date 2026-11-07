@@ -5,13 +5,13 @@
   </button>
   <a
     class="btn btn-gestion champ"
-    [attr.routerLink]="!backendAwake() ? null : ['/admin/gestion-questions']"
+    [routerLink]="!backendAwake() ? null : ['/admin/gestion-questions']"
     [class.disabled]="!backendAwake()"
     >Gestion des questions</a
   >
   <a
     class="btn btn-gestion champ"
-    [attr.routerLink]="!backendAwake() ? null : ['/admin/gestion-parties']"
+    [routerLink]="!backendAwake() ? null : ['/admin/gestion-parties']"
     [class.disabled]="!backendAwake()"
     >Gestion des parties</a
   >
