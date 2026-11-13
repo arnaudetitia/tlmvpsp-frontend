@@ -12,5 +12,5 @@ import { QRCodeComponent } from 'angularx-qrcode';
 export class QrCodeDialogComponent {
   readonly dialogRef = inject(MatDialogRef<CompetComponent>);
 
-  urlRemote = 'https://pdla-remote.onrender.com/';
+  urlRemote = 'https://tlmvpsp-remote.onrender.com/';
 }
