@@ -1,0 +1,22 @@
+.qr-code-container {
+  background-image: url('../../../../assets/backgrounds/background-compet.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 3vh;
+
+  qrcode {
+    margin-top: 2vh;
+  }
+}
+
+.champ {
+  background-color: orange;
+  border-color: lightgray;
+}
