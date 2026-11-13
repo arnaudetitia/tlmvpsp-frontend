@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   HostListener,
+  inject,
   OnInit,
   signal,
 } from '@angular/core';
@@ -29,6 +30,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { ManchesEnum } from '../../models/enums/manches.enum';
 import { CompetStore } from '../../store/compet.store';
 import { EtatCompet } from '../../models/enums/etat-compet.enum';
+import { MatDialog } from '@angular/material/dialog';
+import { QrCodeDialogComponent } from './qr-code-dialog/qr-code-dialog.component';
 
 @Component({
   selector: 'app-compet',
@@ -52,6 +55,8 @@ export class CompetComponent implements OnInit {
   compet$: Observable<any> = of(null);
   compet: Compet | null = null;
   theme: string = '';
+
+  qrCodeDialog = inject(MatDialog);
 
   currentCompetState = signal<EtatCompet>(EtatCompet.START_QUESTION_NORMALE);
 
@@ -373,6 +378,12 @@ export class CompetComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeyEvent($event: KeyboardEvent) {
     switch ($event.code) {
+      case CodeTouches.buttonQCode:
+        this.qrCodeDialog.open(QrCodeDialogComponent, {
+          disableClose: true,
+          width: '75vw',
+        });
+        break;
       case CodeTouches.spacebarCode:
         if (
           !this.currentCompetState().includes('BONNE_REPONSE') &&

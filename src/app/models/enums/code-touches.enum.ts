@@ -5,4 +5,5 @@ export enum CodeTouches {
   buttonSCode = 'KeyS',
   buttonFCode = 'KeyF',
   buttonRCode = 'KeyR',
+  buttonQCode = 'KeyA',
 }
