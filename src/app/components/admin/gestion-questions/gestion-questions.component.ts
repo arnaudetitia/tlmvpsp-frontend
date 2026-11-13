@@ -142,9 +142,11 @@ export class GestionQuestionsComponent implements OnInit, OnDestroy {
       let questionInFilterMusic = true;
       if (musiqueFilter !== null) {
         if (musiqueFilter) {
-          questionInFilterMusic = question.musiqueQuestion !== null;
+          questionInFilterMusic =
+            question.musiqueQuestion !== null || question.musiqueReponse !== null;
         } else {
-          questionInFilterMusic = question.musiqueQuestion === null;
+          questionInFilterMusic =
+            question.musiqueQuestion === null || question.musiqueReponse === null;
         }
       }
       const textFilter = filtreParsed.texte;
