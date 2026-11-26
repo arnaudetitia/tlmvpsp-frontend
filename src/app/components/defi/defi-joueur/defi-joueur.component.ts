@@ -60,6 +60,7 @@ export class DefiJoueurComponent implements OnInit {
   bonneReponse = computed(() => this.currentQuestion()?.bonneReponse || '');
   bonneReponseShown = false;
   reponseGiven = signal<string>('');
+  soundAlreadyPlayed = signal<boolean>(false);
 
   isBonneReponseGiven = computed(() => this.reponseGiven() === this.bonneReponse());
 
@@ -90,11 +91,14 @@ export class DefiJoueurComponent implements OnInit {
             this.isChampion &&
             this.currentQuestionState() === EtatQuestion.BONNE_REPONSE_AFFICHEE
           ) {
-            if (this.isBonneReponseGiven()) {
-              Jingles.sonBonneReponse.play();
-              this.onBonneReponseGiven.emit(this.modeQuestionSelected);
-            } else {
-              Jingles.sonMauvaiseReponse.play();
+            if (!this.soundAlreadyPlayed()) {
+              if (this.isBonneReponseGiven()) {
+                Jingles.sonBonneReponse.play();
+                this.onBonneReponseGiven.emit(this.modeQuestionSelected);
+              } else {
+                Jingles.sonMauvaiseReponse.play();
+              }
+              this.soundAlreadyPlayed.set(true);
             }
           }
         }),
@@ -126,6 +130,7 @@ export class DefiJoueurComponent implements OnInit {
 
   prepareNextQuestion() {
     this.indexQuestion.update((value) => value + 1);
+    this.soundAlreadyPlayed.set(false);
     if (this.indexQuestion() === 6) {
       this.onDefiTermine.emit();
       this.questionStore.passerEtatSuivant(this.mancheDefi);
